@@ -152,12 +152,213 @@ file_system = {
     }
 }
 
-HTML_TEMPLATE = """<!DOCTYPE html>
+# ------------------------------------------------------------------------------
+# 1. HTML ŠABLONA PRO VZDĚLÁVACÍ PORTÁL (Linuxhrou.cz)
+# ------------------------------------------------------------------------------
+PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mise: Linuxový Průzkumník</title>
+    <title>Linuxhrou.cz – Objevuj svět Linuxu zábavně!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+        .card-hover:hover { transform: translateY(-4px); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-slate-950">
+
+    <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-amber-400 text-slate-950 p-2 rounded-xl font-bold text-xl">
+                        <i class="fa-solid fa-terminal"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-wider text-amber-400">Linux<span class="text-sky-400">hrou.cz</span></span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-bold">
+                    <a href="#o-linuxu" class="text-slate-300 hover:text-amber-400 transition">Co je Linux?</a>
+                    <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition">Kde všude běží?</a>
+                    <a href="#instalace" class="text-slate-300 hover:text-emerald-400 transition">Instalace aplikací</a>
+                    <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition">Slovník příkazů</a>
+                </div>
+                <div>
+                    <a href="/hra" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-gamepad text-lg"></i>
+                        <span>SPUSTIT HRU</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 py-16 px-4 text-center border-b border-slate-800">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <span class="bg-sky-500/10 text-sky-400 text-xs font-bold px-3 py-1 rounded-full border border-sky-500/20 uppercase tracking-widest">
+                🚀 Vzdělávací portál pro malé i velké SysAdminy
+            </span>
+            <h1 class="text-4xl md:text-6xl font-black text-slate-100 leading-tight">
+                Ovládni počítač jako superfrajer pomocí <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400">Příkazové Řádky!</span>
+            </h1>
+            <p class="text-slate-400 text-base md:text-lg max-w-2xl mx-auto font-medium">
+                Zjisti, jak funguje operační systém, na kterém běží rakety SpaceX, Android v mobilu i nejrychlejší superpočítače světa.
+            </p>
+            <div class="pt-4 flex flex-wrap justify-center gap-4">
+                <a href="/hra" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-8 py-4 rounded-2xl border-b-4 border-amber-600 active:translate-y-1 transition text-lg flex items-center space-x-3 shadow-lg shadow-amber-400/10">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>Vstoupit do Výcvikového Tábora (90 Úrovní)</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-12 space-y-16">
+
+        <section id="o-linuxu" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-amber-500/10 rounded-lg text-amber-400 text-xl"><i class="fa-solid fa-book-open"></i></div>
+                <h2 class="text-2xl font-bold text-slate-100">Příběh Tučňáka Tuxe a Linuse</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 card-hover space-y-3">
+                    <div class="w-12 h-12 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center text-2xl font-bold">👤</div>
+                    <h3 class="text-xl font-bold text-sky-300">Kdo to vymyslel?</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        V roce 1991 se finský student **Linus Torvalds** nudil a chtěl si vytvořit vlastní operační systém pro svůj počítač. Napsal základní kód a zdarma ho nabídl celému světu. Dnes na jeho kód přispívají tisíce programátorů z celého světu!
+                    </p>
+                </div>
+
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 card-hover space-y-3">
+                    <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center text-2xl font-bold">🐧</div>
+                    <h3 class="text-xl font-bold text-amber-300">Proč právě Tučňák?</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Maskotem Linuxu je tučňák **Tux**. Linus Torvalds miluje tučňáky – při návštěvě zoo v Austrálii ho dokonce jeden malý tučňák kousnul do prstu! Od té doby se Tux stal symbolem přátelského a svobodného systému.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="kde-bezi" class="space-y-6">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-sky-500/10 rounded-lg text-sky-400 text-xl"><i class="fa-solid fa-globe"></i></div>
+                <h2 class="text-2xl font-bold text-slate-100">Kde všude se Linux ukrývá?</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center space-y-2 card-hover">
+                    <i class="fa-solid fa-mobile-screen text-3xl text-emerald-400 mb-2"></i>
+                    <h4 class="font-bold text-slate-200">V tvém mobilu</h4>
+                    <p class="text-xs text-slate-400">Systém **Android** je postavený přímo na jádře Linuxu!</p>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center space-y-2 card-hover">
+                    <i class="fa-solid fa-gamepad text-3xl text-purple-400 mb-2"></i>
+                    <h4 class="font-bold text-slate-200">Herní konzole</h4>
+                    <p class="text-xs text-slate-400">Populární handheld **Steam Deck** běží na vysoce vyladěném Linuxu (SteamOS).</p>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center space-y-2 card-hover">
+                    <i class="fa-solid fa-shuttle-space text-3xl text-rose-400 mb-2"></i>
+                    <h4 class="font-bold text-slate-200">Vesmírné rakety</h4>
+                    <p class="text-xs text-slate-400">Rakety SpaceX i stanice ISS spoléhají na rychlost a bezpečnost Linuxu.</p>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center space-y-2 card-hover">
+                    <i class="fa-solid fa-server text-3xl text-amber-400 mb-2"></i>
+                    <h4 class="font-bold text-slate-200">Superpočítače & Internet</h4>
+                    <p class="text-xs text-slate-400">100 % z 500 nejrychlejších superpočítačů světa používá Linux.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="instalace" class="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 p-8 rounded-3xl border border-slate-800 space-y-6">
+            <div class="max-w-3xl space-y-3">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Kouzlo Terminálu</span>
+                <h2 class="text-3xl font-black text-slate-100">Instalace aplikací během 2 sekund</h2>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Na Windows musíš hledat webové stránky, stahovat `.exe` soubory a proklikávat instalátory. V Linuxu stačí otevřít terminál a napsat jediný příkaz:
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2">
+                    <div class="text-slate-500">// Ubuntu / Debian (Apt)</div>
+                    <div class="text-emerald-400"><span class="text-sky-400">sudo apt</span> install vlc discord steam</div>
+                    <div class="text-slate-400 text-[11px]">--> Nainstaluje VLC prehrávač, Discord a Steam najednou!</div>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2">
+                    <div class="text-slate-500">// Aktualizace celého systému</div>
+                    <div class="text-emerald-400"><span class="text-sky-400">sudo apt</span> update && <span class="text-sky-400">sudo apt</span> upgrade</div>
+                    <div class="text-slate-400 text-[11px]">--> Zaktualizuje všechny programy v počítači 1 kliknutím!</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="prikazy" class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400 text-xl"><i class="fa-solid fa-code"></i></div>
+                    <h2 class="text-2xl font-bold text-slate-100">Rychlý příkazový tahák</h2>
+                </div>
+                <a href="/hra" class="text-xs font-bold text-sky-400 hover:underline">Vyzkoušet v simulátoru →</a>
+            </div>
+
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3 font-mono text-xs">
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span class="text-amber-300 font-bold">pwd</span>
+                    <span class="text-slate-400 text-[11px]">Kde právě jsem?</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span class="text-amber-300 font-bold">ls</span>
+                    <span class="text-slate-400 text-[11px]">Vypiš soubory a složky</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span class="text-amber-300 font-bold">cd &lt;složka&gt;</span>
+                    <span class="text-slate-400 text-[11px]">Otevři složku</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span class="text-amber-300 font-bold">cat &lt;soubor&gt;</span>
+                    <span class="text-slate-400 text-[11px]">Přečti obsah souboru</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span class="text-amber-300 font-bold">mkdir &lt;název&gt;</span>
+                    <span class="text-slate-400 text-[11px]">Vytvoř novou složku</span>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span class="text-amber-300 font-bold">clear</span>
+                    <span class="text-slate-400 text-[11px]">Vyčisti terminál</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-8 px-4 text-center text-xs text-slate-500 space-y-2">
+        <p class="font-bold text-slate-400">Linuxhrou.cz – Výuková platforma pro malé i velké průzkumníky</p>
+        <p>Vytvořeno s ❤️ pro podporu výuky IT a Open-Source technologií.</p>
+    </footer>
+
+</body>
+</html>
+"""
+
+# ------------------------------------------------------------------------------
+# 2. HTML ŠABLONA PRO SIMULÁTOR / HRU
+# ------------------------------------------------------------------------------
+GAME_HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mise: Linuxový Průzkumník | Linuxhrou.cz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -201,12 +402,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- HLAVIČKA -->
+    <!-- HLAVIČKA S TLAČÍTKEM ZPĚT -->
     <header class="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 rounded-2xl p-2.5 px-6 flex justify-between items-center lego-card-yellow text-slate-900 mb-2 shrink-0">
         <div class="flex items-center space-x-3">
-            <div class="bg-slate-900 text-yellow-400 w-9 h-9 rounded-xl flex items-center justify-center text-lg font-bold border-2 border-yellow-300">
-                <i class="fa-solid fa-rocket"></i>
-            </div>
+            <a href="/" class="bg-slate-900 hover:bg-slate-800 text-yellow-400 px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 border-2 border-yellow-300 transition" title="Zpět na portál">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Portál</span>
+            </a>
             <div>
                 <h1 class="text-xl font-bold tracking-wide uppercase drop-shadow-sm leading-none">MISE: LINUXOVÝ PRŮZKUMNÍK</h1>
                 <span class="text-[11px] font-bold text-amber-950 tracking-wider" id="difficulty-badge">ÚROVEŇ 1 / 90</span>
@@ -243,7 +445,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
 
                 <div class="space-y-1 text-xs">
-                    <!-- Sada 1 -->
                     <div id="set-1-box" class="p-1.5 rounded-lg bg-slate-900 border-2 border-sky-400 flex items-center justify-between shadow-md">
                         <div class="flex items-center space-x-2">
                             <i id="set-1-icon" class="fa-solid fa-play text-emerald-400 text-[10px] animate-pulse"></i>
@@ -255,7 +456,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                         <span id="set-1-progress" class="bg-emerald-500/20 text-emerald-400 text-[8px] font-bold px-1 py-0.5 rounded border border-emerald-500/30">1/30</span>
                     </div>
 
-                    <!-- Sada 2 -->
                     <div id="set-2-box" class="p-1.5 rounded-lg bg-slate-900/50 border border-slate-700/60 flex items-center justify-between opacity-50">
                         <div class="flex items-center space-x-2">
                             <i id="set-2-icon" class="fa-solid fa-lock text-slate-500 text-[10px]"></i>
@@ -267,7 +467,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                         <span id="set-2-progress" class="bg-slate-800 text-slate-500 text-[8px] font-bold px-1 py-0.5 rounded border border-slate-700">30 Lvl</span>
                     </div>
 
-                    <!-- Sada 3 -->
                     <div id="set-3-box" class="p-1.5 rounded-lg bg-slate-900/50 border border-slate-700/60 flex items-center justify-between opacity-30">
                         <div class="flex items-center space-x-2">
                             <i id="set-3-icon" class="fa-solid fa-lock text-slate-500 text-[10px]"></i>
@@ -360,7 +559,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     </div>
                 </div>
 
-                <!-- Zajímavost -->
                 <div class="bg-slate-900/80 p-1.5 rounded-lg border border-sky-500/30 text-[9px] leading-tight text-sky-200 mt-1">
                     <div class="font-bold text-sky-400 mb-0.5 flex items-center space-x-1">
                         <i class="fa-solid fa-lightbulb text-amber-400"></i>
@@ -423,7 +621,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                         <h3 id="quest-title" class="font-bold text-amber-300 text-base">1. Zjisti, kde se nacházíš</h3>
                         <p id="quest-desc" class="text-xs text-slate-200 leading-relaxed font-medium">Jsi na vesmírné stanici. Ověř svou aktuální složku.</p>
 
-                        <!-- Jak příkaz funguje -->
                         <div id="quest-explanation-box" class="bg-slate-800 p-2.5 rounded-lg border border-sky-500/40 text-sky-200 text-xs leading-snug font-medium">
                             <div class="text-[10px] text-sky-400 font-bold uppercase mb-0.5 flex items-center space-x-1">
                                 <i class="fa-solid fa-graduation-cap"></i>
@@ -432,7 +629,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                             <span id="quest-explanation-text">Příkaz 'pwd' zobrazí přesnou cestu k aktuální složce.</span>
                         </div>
 
-                        <!-- Box se zadáním -->
                         <div id="quest-hint-box" class="bg-slate-800 p-2.5 rounded-lg border border-slate-700">
                             <div class="text-[10px] text-slate-400 uppercase font-bold mb-0.5">Nápověda pro zapsání:</div>
                             <div id="quest-hint-text" class="font-mono text-xs font-bold text-emerald-400">Napiš příkaz: pwd</div>
@@ -604,7 +800,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const progressPct = Math.round(((level.id) / LEVELS.length) * 100);
             document.getElementById('progress-bar').style.width = `${progressPct}%`;
 
-            // --- AKTUALIZACE TEXTU VYSVĚTLENÍ ---
             const explBox = document.getElementById('quest-explanation-box');
             if (level.explanation) {
                 explBox.style.display = 'block';
@@ -613,7 +808,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 explBox.style.display = 'none';
             }
 
-            // --- AKTUALIZACE TEXTU NÁPOVĚDY ---
             const hintBox = document.getElementById('quest-hint-text');
             if (level.hint_type === 'exact') {
                 hintBox.innerHTML = `Napiš příkaz: <span class="text-emerald-400 font-mono text-xs font-bold">${level.command_hint}</span>`;
@@ -735,9 +929,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
+# ------------------------------------------------------------------------------
+# 3. ROUTING A VYHODNOCOVACÍ LOGIKA
+# ------------------------------------------------------------------------------
+
 @app.route("/")
-def index():
-    return render_template_string(HTML_TEMPLATE, levels=LEVELS)
+def home():
+    """Úvodní vzdělávací portál Linuxhrou.cz"""
+    return render_template_string(PORTAL_HTML_TEMPLATE)
+
+@app.route("/hra")
+def game():
+    """Herní simulátor s 90 úrovněmi"""
+    return render_template_string(GAME_HTML_TEMPLATE, levels=LEVELS)
 
 @app.route("/run-command", methods=["POST"])
 def run_command():
@@ -935,7 +1139,7 @@ def run_command():
     elif cmd == "whoami":
         output = "hrac (Super SysAdmin)"
     else:
-        output = f"Příkar '{cmd}' nebyl rozpoznán."
+        output = f"Příkaz '{cmd}' nebyl rozpoznán."
         success = False
         level_passed = False
 
