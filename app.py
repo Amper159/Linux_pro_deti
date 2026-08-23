@@ -1,7 +1,33 @@
+from datetime import timedelta
 from flask import Flask, render_template_string, request, jsonify
+import os
 import shlex
 
+from sandbox import engine as sandbox_engine
+from sandbox import sandbox_bp
+from sandbox.config import SECRET_FILE, ensure_dirs
+
 app = Flask(__name__)
+
+
+def _secret_key() -> bytes:
+    """Klíč pro session cookie – z proměnné prostředí, jinak jednou vygenerovaný."""
+    env = os.environ.get("SECRET_KEY")
+    if env:
+        return env.encode("utf-8")
+    ensure_dirs()
+    if not SECRET_FILE.exists():
+        SECRET_FILE.write_bytes(os.urandom(32))
+        SECRET_FILE.chmod(0o600)
+    return SECRET_FILE.read_bytes()
+
+
+app.secret_key = _secret_key()
+app.permanent_session_lifetime = timedelta(days=7)
+
+# Nová stránka: /piskoviste – opravdový Linux v kontejneru.
+app.register_blueprint(sandbox_bp)
+sandbox_engine.start_reaper()
 
 # ==============================================================================
 # DEFINICE VŠECH ÚROVNÍ (1 - 90)
@@ -222,6 +248,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <i class="fa-solid fa-star text-yellow-300 text-base"></i>
                 <span class="font-bold text-xs text-slate-900">Skóre: <span class="text-amber-950" id="xp-counter">0 XP</span></span>
             </div>
+            <a href="/piskoviste" class="bg-sky-500 hover:bg-sky-400 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-sky-700 active:translate-y-1 transition flex items-center space-x-1.5" title="Opravdový Linux v kontejneru">
+                <i class="fa-solid fa-terminal"></i>
+                <span>Pískoviště</span>
+            </a>
             <button onclick="insertCmd('help')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-emerald-700 active:translate-y-1 transition flex items-center space-x-1.5">
                 <i class="fa-solid fa-lightbulb text-yellow-200"></i>
                 <span>Nápověda</span>
@@ -735,9 +765,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
+
 @app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE, levels=LEVELS)
+
 
 @app.route("/run-command", methods=["POST"])
 def run_command():
@@ -929,7 +961,7 @@ def run_command():
     elif cmd == "kill":
         output = "Proces ukončen."
     elif cmd == "history":
-        output = "\n".join([f" {i+1}  {c}" for i, c in enumerate(file_system["history"])])
+        output = "\n".join([f" {i + 1}  {c}" for i, c in enumerate(file_system["history"])])
     elif cmd == "clear":
         output = "__CLEAR__"
     elif cmd == "whoami":
@@ -940,6 +972,7 @@ def run_command():
         level_passed = False
 
     return jsonify({"output": output, "success": success, "display_path": display_path, "level_passed": level_passed})
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
