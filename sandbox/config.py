@@ -17,7 +17,7 @@ SKEL_DIR = BASE_DIR / "skel"
 DOCKERFILE_DIR = BASE_DIR / "docker"
 
 # --- Kontejner ---------------------------------------------------------------
-IMAGE_NAME = os.environ.get("SANDBOX_IMAGE", "linux-pro-deti-sandbox:1")
+IMAGE_NAME = os.environ.get("SANDBOX_IMAGE", "linux-pro-deti-sandbox:2")
 CONTAINER_PREFIX = "lpd-piskoviste-"
 
 MEMORY_LIMIT = "128m"

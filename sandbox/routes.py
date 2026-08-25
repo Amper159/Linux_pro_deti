@@ -2,7 +2,7 @@
 
 from flask import Blueprint, jsonify, render_template, request, session
 
-from . import auth, engine, policy, tasks
+from . import auth, engine, gamification, policy, tasks
 
 bp = Blueprint(
     "sandbox",
@@ -32,6 +32,8 @@ def _state(user: auth.SandboxUser) -> dict:
         "progress": auth.load_progress(user),
         "engine": engine_kind,
         "container": container_state,
+        "gamification": gamification.player_summary(user),
+        "leaderboard": gamification.leaderboard(),
     }
 
 
@@ -56,6 +58,7 @@ def api_login():
     session[SESSION_CWD] = user.container_home
     session.permanent = True
 
+    auth.record_login(user)
     return jsonify({"ok": True, **_state(user)})
 
 
@@ -73,6 +76,7 @@ def api_state():
     user = _current_user()
     if user is None:
         return jsonify({"ok": False, "error": "Nejsi přihlášený."}), 401
+    auth.record_login(user)
     return jsonify({"ok": True, "tasks": tasks.public_tasks(), **_state(user)})
 
 
@@ -123,18 +127,29 @@ def api_check():
     if user is None:
         return jsonify({"ok": False, "error": "Nejsi přihlášený."}), 401
 
-    task_id = (request.get_json(silent=True) or {}).get("task_id", "")
+    raw_task_id = (request.get_json(silent=True) or {}).get("task_id", "")
+    task_id = str(raw_task_id)
     try:
-        result = tasks.verify(user, task_id)
+        result = tasks.verify(user, raw_task_id)
     except engine.SandboxError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
 
     progress = auth.load_progress(user)
+    newly_passed = result["passed"] and not progress.get(task_id)
     if result["passed"]:
         progress[task_id] = True
         auth.save_progress(user, progress)
 
-    return jsonify({"ok": True, "progress": progress, **result})
+    return jsonify(
+        {
+            "ok": True,
+            "progress": progress,
+            "newly_passed": newly_passed,
+            "gamification": gamification.player_summary(user),
+            "leaderboard": gamification.leaderboard(),
+            **result,
+        }
+    )
 
 
 @bp.post("/api/reset")
@@ -148,4 +163,12 @@ def api_reset():
     auth.prepare_home(user, reset=True)
     auth.save_progress(user, {})
     session[SESSION_CWD] = user.container_home
-    return jsonify({"ok": True, "cwd": user.container_home, "progress": {}})
+    return jsonify(
+        {
+            "ok": True,
+            "cwd": user.container_home,
+            "progress": {},
+            "gamification": gamification.player_summary(user),
+            "leaderboard": gamification.leaderboard(),
+        }
+    )

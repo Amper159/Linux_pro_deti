@@ -56,7 +56,7 @@
         <p class="text-[11px] text-slate-400">
             Nový? Účet se založí sám. Heslo si zapamatuj – bez něj se ke svým souborům nedostaneš.
         </p>
-        <a href="/" class="block text-xs text-sky-400 hover:text-sky-300 font-bold">← Zpět do hry</a>
+        <a href="/" class="block text-xs text-sky-400 hover:text-sky-300 font-bold">← Zpět na portál</a>
     </div>
 </div>
 
@@ -72,9 +72,17 @@
         </div>
     </div>
     <div class="flex items-center space-x-2">
+        <div class="bg-amber-400/20 px-3 py-1.5 rounded-xl border border-amber-400/40 flex items-center space-x-1.5" title="Zkušenostní body za skutečně splněné úkoly">
+            <i class="fa-solid fa-star text-amber-300 text-sm"></i>
+            <span class="font-bold text-xs text-amber-200" id="xp-badge">0 XP</span>
+        </div>
+        <div class="bg-rose-400/20 px-3 py-1.5 rounded-xl border border-rose-400/40 flex items-center space-x-1.5" title="Kolik dní po sobě ses přihlásil">
+            <i class="fa-solid fa-fire text-rose-300 text-sm"></i>
+            <span class="font-bold text-xs text-rose-200" id="streak-badge">0 dní</span>
+        </div>
         <div class="bg-sky-700/30 px-3 py-1.5 rounded-xl border border-sky-700/40 font-mono text-xs font-bold text-slate-900" id="user-badge">–</div>
         <a href="/" class="bg-amber-400 hover:bg-amber-300 text-slate-900 px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-amber-600 active:translate-y-1 transition">
-            <i class="fa-solid fa-rocket"></i> Hra
+            <i class="fa-solid fa-house"></i> Portál
         </a>
         <button id="reset-button" class="bg-rose-500 hover:bg-rose-400 text-white px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-rose-700 active:translate-y-1 transition">
             <i class="fa-solid fa-broom"></i> Vyčistit
@@ -107,25 +115,48 @@
         </div>
     </section>
 
-    <!-- ÚKOLY -->
-    <aside class="bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col min-h-0">
-        <div class="flex items-center justify-between mb-3 shrink-0">
-            <h2 class="text-base font-bold text-emerald-300 uppercase">
-                <i class="fa-solid fa-list-check"></i> Tři úkoly
+    <!-- SADY, ÚKOLY, ODZNAKY, ŽEBŘÍČEK -->
+    <aside class="bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col min-h-0 overflow-y-auto custom-scrollbar space-y-4">
+        <div class="shrink-0">
+            <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
+                <i class="fa-solid fa-layer-group"></i> Kampaňové sady
             </h2>
-            <span id="progress-badge" class="text-xs font-bold bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg border border-emerald-500/40">0 / 3</span>
+            <div id="campaign-sets" class="space-y-1.5"></div>
         </div>
-        <p class="text-[11px] text-slate-400 mb-3 shrink-0">
-            Kontrola se dělá <b class="text-slate-200">proti skutečnému systému</b> – ověří se, jak to
-            v kontejneru opravdu dopadlo, ne jaký příkaz jsi napsal.
-        </p>
-        <div id="tasks" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1"></div>
+
+        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-base font-bold text-emerald-300 uppercase" id="tasks-heading">
+                    <i class="fa-solid fa-list-check"></i> Úkoly
+                </h2>
+                <span id="progress-badge" class="text-xs font-bold bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg border border-emerald-500/40">0 / 30</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mb-3">
+                Kontrola se dělá <b class="text-slate-200">proti skutečnému systému</b> – ověří se, jak to
+                v kontejneru opravdu dopadlo, ne jaký příkaz jsi napsal.
+            </p>
+            <div id="tasks" class="space-y-3"></div>
+        </div>
+
+        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
+            <h2 class="text-base font-bold text-amber-300 uppercase mb-2">
+                <i class="fa-solid fa-award"></i> Odznaky
+            </h2>
+            <div id="badges" class="grid grid-cols-5 gap-1.5"></div>
+        </div>
+
+        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
+            <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
+                <i class="fa-solid fa-trophy"></i> Žebříček kadetů
+            </h2>
+            <div id="leaderboard" class="space-y-1"></div>
+        </div>
     </aside>
 </main>
 
 <script>
 const TASKS = {{ tasks | tojson }};
-let state = { cwd: "~", progress: {}, user: null };
+let state = { cwd: "~", progress: {}, user: null, gamification: null, leaderboard: [], lastActiveSet: null };
 
 const $ = (id) => document.getElementById(id);
 const outputEl = $("terminal-output");
@@ -220,12 +251,24 @@ $("terminal-input").addEventListener("keydown", async (event) => {
 });
 
 // --- úkoly ------------------------------------------------------------------
+const SET_NAMES = {
+    1: "Základy Linuxu",
+    2: "Soubory a sítě",
+    3: "Mistr systému",
+};
+
 function renderTasks(results) {
     const container = $("tasks");
     container.innerHTML = "";
+
+    const activeSet = (state.gamification && state.gamification.active_set) || 1;
+    $("tasks-heading").innerHTML =
+        `<i class="fa-solid fa-list-check"></i> Sada ${activeSet}: ${SET_NAMES[activeSet] || ""}`;
+
+    const setTasks = TASKS.filter((t) => t.set === activeSet);
     let done = 0;
 
-    TASKS.forEach((task) => {
+    setTasks.forEach((task) => {
         const solved = !!state.progress[task.id];
         if (solved) done++;
         const result = results && results.task_id === task.id ? results : null;
@@ -271,7 +314,7 @@ function renderTasks(results) {
         container.appendChild(card);
     });
 
-    $("progress-badge").textContent = `${done} / ${TASKS.length}`;
+    $("progress-badge").textContent = `${done} / ${setTasks.length}`;
 
     container.querySelectorAll("[data-check]").forEach((button) => {
         button.addEventListener("click", () => checkTask(button.dataset.check, button));
@@ -296,15 +339,125 @@ async function checkTask(taskId, button) {
         const data = await res.json();
         if (!data.ok) { write(data.error, "text-rose-400"); return; }
         state.progress = data.progress;
+        applyGamification(data.gamification, data.leaderboard);
         renderTasks(data);
         write(
             data.passed
-                ? `🎉 Úkol "${TASKS.find((t) => t.id === taskId).title}" splněn!`
+                ? `🎉 Úkol "${TASKS.find((t) => t.id === Number(taskId)).title}" splněn!`
                 : "Ještě to není ono – podívej se, co v úkolu zbývá odškrtnout.",
             data.passed ? "text-emerald-400 font-bold" : "text-amber-400"
         );
+        if (data.newly_passed) {
+            write(`⭐ +${XP_PER_TASK} XP! Máš teď ${data.gamification.xp} XP.`, "text-amber-300 font-bold");
+            const finishedSet = (data.gamification.sets || []).find(
+                (s) => s.set === state.lastActiveSet && s.complete
+            );
+            if (finishedSet) {
+                write(`🔓 Sada ${finishedSet.set} hotová! Otevřela se další sada úkolů.`, "text-sky-300 font-bold");
+            }
+            if (data.gamification.completed >= data.gamification.total_tasks) {
+                write("🏆 ABSOLUTNÍ VÍTĚZSTVÍ! Dokončil jsi všech 90 úkolů a jsi Mistr Linuxu!", "text-amber-300 font-bold");
+            }
+        }
+        state.lastActiveSet = data.gamification.active_set;
     } finally {
         button.disabled = false;
+    }
+}
+
+// --- gamifikace: XP, odznaky, sady, žebříček -------------------------------
+const XP_PER_TASK = 100;
+
+function renderSets(sets) {
+    const container = $("campaign-sets");
+    container.innerHTML = "";
+    (sets || []).forEach((s) => {
+        const box = document.createElement("div");
+        let style, icon, iconClass;
+        if (s.complete) {
+            style = "bg-slate-900/80 border border-emerald-500/50 opacity-90";
+            icon = "fa-check";
+            iconClass = "text-emerald-400";
+        } else if (s.locked) {
+            style = "bg-slate-900/50 border border-slate-700/60 opacity-40";
+            icon = "fa-lock";
+            iconClass = "text-slate-500";
+        } else {
+            style = "bg-slate-900 border-2 border-sky-400 shadow-md";
+            icon = "fa-play";
+            iconClass = "text-emerald-400 animate-pulse";
+        }
+        box.className = `p-2 rounded-lg flex items-center justify-between ${style}`;
+        box.innerHTML = `
+            <div class="flex items-center space-x-2 min-w-0">
+                <i class="fa-solid ${icon} ${iconClass} text-[10px]"></i>
+                <span class="text-[11px] font-bold ${s.locked ? "text-slate-400" : "text-sky-300"} truncate">
+                    Sada ${s.set}: ${SET_NAMES[s.set] || ""}
+                </span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border shrink-0 ml-2 ${
+                s.complete
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                    : "bg-slate-800 text-slate-400 border-slate-700"
+            }">${s.complete ? "hotovo ✓" : `${s.done}/${s.total}`}</span>
+        `;
+        container.appendChild(box);
+    });
+}
+
+function renderBadges(badges) {
+    const container = $("badges");
+    container.innerHTML = "";
+    (badges || []).forEach((badge) => {
+        const box = document.createElement("div");
+        box.title = badge.desc || badge.label;
+        box.className = "rounded-lg p-1.5 flex flex-col items-center text-center border-2 transition-all " +
+            (badge.earned
+                ? "bg-slate-800 border-amber-400 shadow-md"
+                : "bg-slate-900/60 border-slate-700 opacity-40");
+        box.innerHTML = `
+            <i class="fa-solid ${badge.icon} text-xs ${badge.earned ? "text-amber-300" : "text-slate-500"} mb-0.5"></i>
+            <span class="text-[8px] font-bold ${badge.earned ? "text-amber-200" : "text-slate-400"} leading-tight">${badge.label}</span>
+        `;
+        container.appendChild(box);
+    });
+}
+
+function renderLeaderboard(entries) {
+    const container = $("leaderboard");
+    container.innerHTML = "";
+    const medals = ["🥇", "🥈", "🥉"];
+    (entries || []).forEach((entry, i) => {
+        const isMe = state.user && entry.username.toLowerCase() === state.user.username.toLowerCase();
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between px-2 py-1 rounded-lg text-xs " +
+            (isMe ? "bg-sky-900/50 border border-sky-500/50" : "bg-slate-900/50 border border-slate-800");
+        row.innerHTML = `
+            <span class="font-bold ${isMe ? "text-sky-300" : "text-slate-300"} truncate">
+                ${medals[i] || (i + 1) + "."} ${entry.username}${isMe ? " (Ty)" : ""}
+            </span>
+            <span class="font-mono ${isMe ? "text-sky-200" : "text-slate-400"} shrink-0 ml-2">${entry.xp} XP</span>
+        `;
+        container.appendChild(row);
+    });
+    if (!entries || entries.length === 0) {
+        container.innerHTML = '<p class="text-[11px] text-slate-500">Zatím tu nikdo nemá žádné body – buď první!</p>';
+    }
+}
+
+function applyGamification(gamification, leaderboard) {
+    if (gamification) {
+        state.gamification = gamification;
+        $("xp-badge").textContent = `${gamification.xp} XP`;
+        $("streak-badge").textContent = gamification.streak === 1
+            ? "1 den"
+            : `${gamification.streak} dní`;
+        renderBadges(gamification.badges);
+        renderSets(gamification.sets);
+    }
+    if (leaderboard) {
+        state.leaderboard = leaderboard;
+        renderLeaderboard(leaderboard);
     }
 }
 
@@ -322,6 +475,8 @@ function applyState(data) {
     $("engine-badge").textContent = engineLabel + " · domov: " + data.user.home;
     $("login-modal").classList.add("hidden");
     $("terminal-input").focus();
+    applyGamification(data.gamification, data.leaderboard);
+    state.lastActiveSet = data.gamification.active_set;
     renderTasks(null);
 }
 
@@ -370,6 +525,8 @@ $("reset-button").addEventListener("click", async () => {
     $("prompt").textContent = "~$";
     outputEl.innerHTML = "";
     write("🧹 Pískoviště je zase čisté.", "text-emerald-400 font-bold");
+    applyGamification(data.gamification, data.leaderboard);
+    state.lastActiveSet = data.gamification.active_set;
     renderTasks(null);
 });
 

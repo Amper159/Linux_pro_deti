@@ -15,10 +15,10 @@ import os
 import re
 import shutil
 import unicodedata
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from threading import Lock
-from typing import Optional
+from typing import List, Optional
 
 from .config import (
     CONTAINER_USER_PREFIX,
@@ -155,6 +155,11 @@ def prepare_home(user: SandboxUser, reset: bool = False) -> None:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
 
+    # Prázdné složky pro úkoly na 'rmdir' – git prázdné adresáře neukládá,
+    # takže je jistíme vždycky znovu tady (ne přes skel/).
+    for empty_dir in ("prazdna1", "prazdna2", "prazdna3"):
+        (user.home / empty_dir).mkdir(exist_ok=True)
+
     # start.sh je schválně bez práva spouštění – povolit ho je úkol č. 3.
     script = user.home / "start.sh"
     if script.exists() and not (user.home / "starty.log").exists():
@@ -223,3 +228,61 @@ def find_user(uid: str, username: str) -> Optional[SandboxUser]:
     if record and hmac.compare_digest(record["uid"], uid):
         return SandboxUser(record["username"], record["uid"])
     return None
+
+
+def all_users() -> List[SandboxUser]:
+    """Všichni registrovaní hráči – pro výpočet žebříčku."""
+    return [
+        SandboxUser(record["username"], record["uid"])
+        for record in _load_users().values()
+    ]
+
+
+# --- série přihlášení (streak) ------------------------------------------------
+
+def stats_path(user: SandboxUser) -> Path:
+    return PROGRESS_DIR / f"{user.uid}.stats.json"
+
+
+def load_stats(user: SandboxUser) -> dict:
+    path = stats_path(user)
+    if not path.exists():
+        return {"streak": 0, "best_streak": 0, "last_login": None}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"streak": 0, "best_streak": 0, "last_login": None}
+    data.setdefault("streak", 0)
+    data.setdefault("best_streak", 0)
+    data.setdefault("last_login", None)
+    return data
+
+
+def save_stats(user: SandboxUser, stats: dict) -> None:
+    ensure_dirs()
+    stats_path(user).write_text(
+        json.dumps(stats, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+
+def record_login(user: SandboxUser) -> dict:
+    """Zavolat při každém přihlášení / obnovení session – aktualizuje 'streak'.
+
+    Stejný den se počítá jen jednou. Pokud hráč vynechá den, série se zlomí.
+    """
+    today = datetime.now(timezone.utc).date()
+    stats = load_stats(user)
+    last_raw = stats.get("last_login")
+    last_date = datetime.fromisoformat(last_raw).date() if last_raw else None
+
+    if last_date == today:
+        pass  # dnešní den je už započítaný
+    elif last_date == today - timedelta(days=1):
+        stats["streak"] = stats.get("streak", 0) + 1
+    else:
+        stats["streak"] = 1
+
+    stats["best_streak"] = max(stats.get("best_streak", 0), stats["streak"])
+    stats["last_login"] = today.isoformat()
+    save_stats(user, stats)
+    return stats
