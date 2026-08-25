@@ -10,7 +10,11 @@ RUN apk add --no-cache \
         sed \
         tree \
         file \
-        ncurses
+        ncurses \
+        procps \
+        iputils \
+        tar \
+        gzip
 
 # Kontejner běží pod UID hostitele (--user), proto musí být /home zapisovatelné
 # jen v bind-mountu; zbytek rootfs jede read-only.

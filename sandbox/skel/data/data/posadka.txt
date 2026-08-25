@@ -1,0 +1,4 @@
+Kapitán: Tux
+Navigátor: Beastie
+Technik: Gnu
+Kuchař: Konqi
