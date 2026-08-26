@@ -1,0 +1,27 @@
+# Development overlay - live code reload, one worker, no reverse proxy.
+# Applied automatically by `make dev`:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  web:
+    volumes:
+      # Source straight from the working tree: saving a file reloads gunicorn.
+      - ./app.py:/app/app.py:ro
+      - ./sandbox:/app/sandbox:ro
+
+    # --reload watches the mounted sources; a single worker keeps the log
+    # readable and avoids racing over the generated session secret.
+    command:
+      - gunicorn
+      - --bind
+      - 0.0.0.0:8000
+      - --worker-class
+      - gthread
+      - --threads
+      - "4"
+      - --workers
+      - "1"
+      - --reload
+      - --access-logfile
+      - "-"
+      - app:app

@@ -117,3 +117,107 @@ Obraz se postaví sám při prvním použití, nebo předem:
 ```bash
 docker build -t linux-pro-deti-sandbox:1 sandbox/docker
 ```
+
+---
+
+## 🐳 Nasazení na VPS (Docker Compose)
+
+Aplikace běží v kontejneru pod `gunicorn`, ale pískoviště startuje **sourozenecké**
+kontejnery přes Docker socket hostitele. Proto se `sandbox_data` mountuje dovnitř
+na **stejnou absolutní cestu** jako na hostiteli – domovy uživatelů připojuje
+démon hostitele a jinak by našel jinou složku.
+
+```bash
+make init            # vytvoří .env a sám doplní SECRET_KEY, APP_UID/GID, DOCKER_GID
+nano .env            # zbývá vyplnit SANDBOX_DATA, SITE_ADDRESS, ACME_EMAIL
+make deploy          # preflight, datová složka, obrazy, start, kontrola běhu
+```
+
+`make deploy` udělá celý postup sám: ověří prostředí (Docker, skupina `docker`,
+absolutní `SANDBOX_DATA`, vyplněný `SECRET_KEY`), založí datovou složku
+(v případě potřeby přes `sudo` a s `chown` na `APP_UID:APP_GID`), předpostaví
+obraz pískoviště, spustí stack s Caddym a počká, až aplikace odpovídá.
+
+Aktualizace nasazené instance je pak jen `make update` (git pull + rebuild +
+restart + kontrola).
+
+### Vývojové prostředí: `make dev`
+
+Jeden příkaz postaví kompletní lokální stack – nic se nevyplňuje ručně:
+
+```bash
+make dev
+```
+
+* vygeneruje `.env.dev` (detekuje UID/GID i GID skupiny `docker`, nastaví
+  vlastní `SECRET_KEY`, data do `./test_data`, port `8099`, jeden worker),
+* nastartuje stack pod **odděleným compose projektem** `linux-pro-deti-dev`,
+  takže může běžet současně s produkčním,
+* přimountuje `app.py` a `sandbox/` do kontejneru a zapne `gunicorn --reload`
+  → uložení souboru rovnou restartuje workera,
+* počká na naběhnutí a spustí smoke test (přihlášení + reálný příkaz v pískovišti).
+
+`make dev-logs`, `make dev-shell`, `make dev-down`, `make dev-clean`
+(smaže `test_data/` i `.env.dev`).
+
+### Přehled cílů
+
+`make` bez argumentů vypíše nápovědu.
+
+| Cíl | Co dělá |
+|---|---|
+| `make init` | vytvoří `.env` a doplní, co jde detekovat |
+| `make preflight` | kontrola prostředí a `.env` před nasazením |
+| `make deploy` | kompletní nasazení včetně Caddyho a kontroly běhu |
+| `make update` | `git pull` + rebuild + restart |
+| `make dev` | kompletní lokální vývojové prostředí |
+| `make smoke` | end-to-end test běžící instance (založí testovací účet) |
+| `make up` / `up-proxy` / `down` / `restart` / `ps` | ruční ovládání stacku |
+| `make logs`, `logs-web`, `logs-caddy` | sledování logů |
+| `make shell` | shell uvnitř běžícího kontejneru |
+| `make sandbox-image` | předběžné postavení obrazu pískoviště |
+| `make sandboxes` / `clean-sandboxes` | výpis / smazání kontejnerů hráčů |
+| `make backup` | záloha `SANDBOX_DATA` do `backups/` |
+
+Všechny cíle jdou přepnout na jiný env soubor: `make ENV_FILE=.env.staging up`.
+
+Aplikace poslouchá na `127.0.0.1:8000` (viz `APP_BIND`/`APP_PORT`).
+
+### HTTPS přes Caddy (volitelný profil)
+
+V compose je připravená služba `caddy`, která se spouští jen s profilem `proxy`.
+Certifikát od Let's Encrypt si vyřídí i obnovuje sama – stačí, aby doména
+mířila na VPS a porty 80 + 443 byly otevřené:
+
+```bash
+# v .env:  SITE_ADDRESS=linuxhrou.cz   ACME_EMAIL=admin@linuxhrou.cz
+make up-proxy        # `make deploy` ho spouští automaticky
+make logs-caddy
+```
+
+* `SITE_ADDRESS=:80` = běh bez TLS (lokální test nebo cizí proxy před tím).
+* `ACME_EMAIL` může zůstat prázdné – jen nepřijdou upozornění na expiraci.
+* Certifikáty žijí ve volume `caddy_data`; **nemazat** (`docker compose down -v`
+  je smaže a nové vydávání naráží na limity Let's Encrypt).
+* Konfigurace je v `Caddyfile` (gzip/zstd, bezpečnostní hlavičky, HTTP→HTTPS).
+* S Caddym už `APP_BIND`/`APP_PORT` nepotřebuješ – klidně řádek `ports:`
+  ve službě `web` zakomentuj, aplikace bude dostupná jen přes proxy.
+
+Bez profilu `proxy` se spustí jen `web` a proxy si postavíš vlastní
+(nginx, Traefik) proti `127.0.0.1:8000`.
+
+| Proměnná | Výchozí | K čemu |
+|---|---|---|
+| `SECRET_KEY` | – | podpis session cookie (nastav, jinak restart odhlásí všechny) |
+| `SANDBOX_DATA` | `/srv/linux-pro-deti/sandbox_data` | absolutní cesta k datům (stejná uvnitř i venku) |
+| `APP_UID` / `APP_GID` | `1000` | vlastník dat; pod tímto UID běží i pískoviště |
+| `DOCKER_GID` | `999` | GID skupiny `docker` (`getent group docker \| cut -d: -f3`) |
+| `APP_BIND` / `APP_PORT` | `127.0.0.1` / `8000` | kde se publikuje gunicorn |
+| `WEB_CONCURRENCY` | `2` | počet workerů gunicornu |
+| `SITE_ADDRESS` | `linuxhrou.cz` | doména pro Caddy (`:80` = bez TLS) |
+| `ACME_EMAIL` | – | e-mail pro Let's Encrypt (může být prázdný) |
+| `SANDBOX_MAX_CONTAINERS` | `12` | strop běžících pískovišť (128 MB / 0.5 CPU každé) |
+
+> ⚠️ Kontejner `web` má připojený `/var/run/docker.sock`, což je na hostiteli
+> ekvivalent roota. Dětské kontejnery zůstávají neprivilegované, ale samotnou
+> aplikaci provozuj jen z důvěryhodného kódu.

@@ -1,0 +1,36 @@
+{
+	# Expands to "email <address>" when ACME_EMAIL is set in .env, and to
+	# nothing when it is empty (Caddy then registers an ACME account without
+	# a contact address - renewals work either way).
+	{$CADDY_ACME_EMAIL}
+}
+
+# SITE_ADDRESS is the public address served. A bare hostname (linuxhrou.cz)
+# makes Caddy obtain and renew a Let's Encrypt certificate on its own and
+# redirect HTTP to HTTPS. Use ":80" for plain HTTP (local test, or when TLS is
+# already terminated somewhere else).
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	header {
+		# Ignored by browsers over plain HTTP, so it is safe to always send.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# "web" is the compose service name, resolved on the internal network.
+	reverse_proxy web:8000 {
+		# A sandbox command may occupy the worker for ~10 s before it answers.
+		transport http {
+			response_header_timeout 90s
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

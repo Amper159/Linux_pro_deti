@@ -1,8 +1,15 @@
 __pycache__/
 *.pyc
 .env
+.env.dev
 .venv/
 .mypy_cache/
 
 # Pískoviště: domovské složky uživatelů, účty, pokrok
 sandbox_data/
+
+# Zálohy z `make backup`
+backups/
+
+# Lokální dev prostředí z `make dev`
+test_data/

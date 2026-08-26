@@ -1,0 +1,93 @@
+name: linux-pro-deti
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: linux-pro-deti-web:latest
+    restart: unless-stopped
+
+    # All tunables live in the env file. ENV_FILE lets `make dev` point the
+    # whole stack at .env.dev instead, so dev and production never mix.
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      # The Docker CLI and gunicorn need a writable HOME; / is read-only here.
+      HOME: /tmp
+
+    # Run as the host user that owns SANDBOX_DATA. The engine passes its own
+    # UID/GID to `docker run --user`, so sandbox files stay owned by that user.
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+
+    # Extra group = the host "docker" group, which owns /var/run/docker.sock.
+    group_add:
+      - "${DOCKER_GID:-999}"
+
+    ports:
+      # Bind to loopback by default and terminate TLS in a reverse proxy.
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8000}:8000"
+
+    volumes:
+      # Docker socket: required to build the sandbox image and to start,
+      # exec into and remove the per-user containers.
+      # WARNING: this grants root-equivalent power over the host. Only run
+      # trusted code in this service (the child containers stay unprivileged).
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      # Persistent state: user homes, accounts, progress, session secret.
+      # Mounted at the SAME absolute path as on the host, because the host
+      # daemon resolves the per-user home bind mounts against the host
+      # filesystem - a different path inside would mount the wrong directory.
+      - "${SANDBOX_DATA:?set SANDBOX_DATA in .env}:${SANDBOX_DATA}"
+
+    # Hardening: the app only ever writes into SANDBOX_DATA and /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m
+    security_opt:
+      - no-new-privileges:true
+
+    # Keep the host disk from filling up with logs.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  caddy:
+    # Optional reverse proxy with automatic HTTPS.
+    # Start it with:  docker compose --profile proxy up -d
+    profiles: ["proxy"]
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      # Turn the plain ACME_EMAIL from .env into a Caddyfile directive, or into
+      # nothing at all when it is left empty.
+      CADDY_ACME_EMAIL: ${ACME_EMAIL:+email ${ACME_EMAIL}}
+
+    ports:
+      # Port 80 must stay reachable from the internet: the ACME HTTP challenge
+      # and the HTTP -> HTTPS redirect both use it.
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+      - "${CADDY_HTTPS_PORT:-443}:443/udp"
+
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Issued certificates and the ACME account key. Must persist, otherwise
+      # every recreate re-issues certs and hits the Let's Encrypt rate limit.
+      - caddy_data:/data
+      - caddy_config:/config
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  caddy_data:
+  caddy_config:
