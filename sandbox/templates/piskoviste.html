@@ -26,6 +26,53 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 6px; border: 2px solid #0f172a; }
+
+        /* ---- Tux průvodce ---- */
+        @keyframes tux-bounce {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-6px) rotate(2deg); }
+        }
+        .tux-idle { animation: tux-bounce 2.4s ease-in-out infinite; }
+        .speech-bubble { position: relative; }
+        .speech-bubble::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 18px;
+            border-width: 8px 10px 8px 0;
+            border-style: solid;
+            border-color: transparent #1e293b transparent transparent;
+        }
+
+        /* ---- Konfety ---- */
+        #confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+        .confetti-piece {
+            position: absolute; top: -12px; width: 8px; height: 14px; opacity: 0.95;
+            animation: confetti-fall linear forwards;
+        }
+        @keyframes confetti-fall {
+            to { transform: translateY(110vh) rotate(600deg); opacity: 0.3; }
+        }
+
+        /* ---- Světlý režim ---- */
+        html.light-mode body {
+            background-color: #eef2ff;
+            background-image:
+                radial-gradient(#dbeafe 2px, transparent 2px),
+                radial-gradient(#dbeafe 2px, #eef2ff 2px);
+        }
+        html.light-mode .bg-slate-950 { background-color: #f8fafc !important; }
+        html.light-mode .bg-slate-900,
+        html.light-mode .bg-slate-900\/80 { background-color: #ffffff !important; }
+        html.light-mode .bg-slate-800 { background-color: #f1f5f9 !important; }
+        html.light-mode .text-slate-100,
+        html.light-mode .text-slate-200 { color: #1e293b !important; }
+        html.light-mode .text-slate-300,
+        html.light-mode .text-slate-400 { color: #475569 !important; }
+        html.light-mode .border-slate-700,
+        html.light-mode .border-slate-800 { border-color: #cbd5e1 !important; }
+        html.light-mode .speech-bubble { background-color: #f1f5f9 !important; color: #1e293b !important; }
+        html.light-mode .speech-bubble::before { border-color: transparent #f1f5f9 transparent transparent; }
     </style>
 </head>
 <body class="h-screen w-screen p-3 flex flex-col text-slate-100">
@@ -81,6 +128,14 @@
             <span class="font-bold text-xs text-rose-200" id="streak-badge">0 dní</span>
         </div>
         <div class="bg-sky-700/30 px-3 py-1.5 rounded-xl border border-sky-700/40 font-mono text-xs font-bold text-slate-900" id="user-badge">–</div>
+        <button id="theme-toggle" title="Přepnout světlý/tmavý režim"
+                class="bg-slate-900 hover:bg-slate-800 text-sky-300 w-9 h-9 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition">
+            <i class="fa-solid fa-sun" id="theme-icon"></i>
+        </button>
+        <button id="sound-toggle" title="Zapnout/vypnout zvuky"
+                class="bg-slate-900 hover:bg-slate-800 text-sky-300 w-9 h-9 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition">
+            <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+        </button>
         <a href="/" class="bg-amber-400 hover:bg-amber-300 text-slate-900 px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-amber-600 active:translate-y-1 transition">
             <i class="fa-solid fa-house"></i> Portál
         </a>
@@ -94,10 +149,34 @@
 </header>
 
 <!-- ============ OBSAH ============ -->
-<main class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-3 min-h-0">
+<main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
 
-    <!-- TERMINÁL -->
-    <section class="lg:col-span-2 bg-slate-900 rounded-2xl lego-card flex flex-col min-h-0 overflow-hidden">
+    <!-- TUX, ODZNAKY, ŽEBŘÍČEK (vlevo) -->
+    <aside class="lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-yellow p-4 flex flex-col min-h-0 overflow-y-auto custom-scrollbar space-y-4">
+        <div class="shrink-0 bg-slate-800 rounded-xl p-3 flex items-start space-x-3 speech-bubble border-2 border-slate-700">
+            <div class="text-3xl tux-idle shrink-0" id="tux-avatar">🐧</div>
+            <p class="text-[12px] font-semibold text-slate-100 leading-snug" id="tux-message">
+                Ahoj, kadete! Jsem Tux a budu tě tu provázet. Napiš první příkaz a uvidíme, co dokážeš!
+            </p>
+        </div>
+
+        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
+            <h2 class="text-base font-bold text-amber-300 uppercase mb-2">
+                <i class="fa-solid fa-award"></i> Odznaky
+            </h2>
+            <div id="badges" class="grid grid-cols-4 gap-1.5"></div>
+        </div>
+
+        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
+            <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
+                <i class="fa-solid fa-trophy"></i> Žebříček kadetů
+            </h2>
+            <div id="leaderboard" class="space-y-1"></div>
+        </div>
+    </aside>
+
+    <!-- TERMINÁL (uprostřed) -->
+    <section class="lg:col-span-5 bg-slate-900 rounded-2xl lego-card flex flex-col min-h-0 overflow-hidden">
         <div class="bg-slate-800 px-4 py-2 flex items-center space-x-2 shrink-0 border-b-2 border-slate-700">
             <span class="w-3 h-3 rounded-full bg-rose-500"></span>
             <span class="w-3 h-3 rounded-full bg-amber-400"></span>
@@ -115,8 +194,8 @@
         </div>
     </section>
 
-    <!-- SADY, ÚKOLY, ODZNAKY, ŽEBŘÍČEK -->
-    <aside class="bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col min-h-0 overflow-y-auto custom-scrollbar space-y-4">
+    <!-- SADY A ÚKOLY (vpravo) -->
+    <aside class="lg:col-span-4 bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col min-h-0 overflow-y-auto custom-scrollbar space-y-4">
         <div class="shrink-0">
             <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
                 <i class="fa-solid fa-layer-group"></i> Kampaňové sady
@@ -137,22 +216,10 @@
             </p>
             <div id="tasks" class="space-y-3"></div>
         </div>
-
-        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
-            <h2 class="text-base font-bold text-amber-300 uppercase mb-2">
-                <i class="fa-solid fa-award"></i> Odznaky
-            </h2>
-            <div id="badges" class="grid grid-cols-5 gap-1.5"></div>
-        </div>
-
-        <div class="shrink-0 border-t-2 border-slate-800 pt-3">
-            <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
-                <i class="fa-solid fa-trophy"></i> Žebříček kadetů
-            </h2>
-            <div id="leaderboard" class="space-y-1"></div>
-        </div>
     </aside>
 </main>
+
+<div id="confetti-layer"></div>
 
 <script>
 const TASKS = {{ tasks | tojson }};
@@ -160,6 +227,98 @@ let state = { cwd: "~", progress: {}, user: null, gamification: null, leaderboar
 
 const $ = (id) => document.getElementById(id);
 const outputEl = $("terminal-output");
+
+// --- téma (světlý/tmavý režim) -----------------------------------------------
+function applyTheme(light) {
+    document.documentElement.classList.toggle("light-mode", light);
+    $("theme-icon").className = light ? "fa-solid fa-moon" : "fa-solid fa-sun";
+}
+let themeLight = localStorage.getItem("lpd_theme") === "light";
+applyTheme(themeLight);
+$("theme-toggle").addEventListener("click", () => {
+    themeLight = !themeLight;
+    localStorage.setItem("lpd_theme", themeLight ? "light" : "dark");
+    applyTheme(themeLight);
+});
+
+// --- zvuky (Web Audio API, žádné soubory netřeba) ----------------------------
+let soundOn = localStorage.getItem("lpd_sound") !== "off";
+let audioCtx = null;
+function ensureAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+}
+function beep(freqs, duration = 0.12, type = "sine") {
+    if (!soundOn) return;
+    try {
+        const ctx = ensureAudio();
+        freqs.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.08, ctx.currentTime + i * duration);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (i + 1) * duration);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(ctx.currentTime + i * duration);
+            osc.stop(ctx.currentTime + (i + 1) * duration);
+        });
+    } catch (e) { /* ticho, když prohlížeč audio nepovolí */ }
+}
+const sfx = {
+    success: () => beep([523, 659, 784], 0.11, "triangle"),
+    fail: () => beep([220, 180], 0.13, "sine"),
+    blocked: () => beep([300], 0.15, "square"),
+    key: () => beep([700], 0.03, "sine"),
+};
+function updateSoundIcon() {
+    $("sound-icon").className = soundOn ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
+}
+updateSoundIcon();
+$("sound-toggle").addEventListener("click", () => {
+    soundOn = !soundOn;
+    localStorage.setItem("lpd_sound", soundOn ? "on" : "off");
+    updateSoundIcon();
+    if (soundOn) sfx.success();
+});
+
+// --- konfety ------------------------------------------------------------------
+function confettiBurst(count = 60) {
+    const layer = $("confetti-layer");
+    const colors = ["#38bdf8", "#facc15", "#4ade80", "#fb7185", "#a78bfa"];
+    for (let i = 0; i < count; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (2 + Math.random() * 1.5) + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        layer.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+    }
+}
+
+// --- Tux průvodce ---------------------------------------------------------
+const TUX_TIPS = [
+    "Zkoušel jsi 'ls -l'? Ukáže i práva k souborům.",
+    "Šipka nahoru ti vrátí poslední příkaz, ať ho nemusíš psát znovu.",
+    "'pwd' ti kdykoliv řekne, kde přesně v lodi jsi.",
+    "Nevíš si rady? Klikni na 'Nápověda' u úkolu.",
+];
+function tuxSay(text, mood = "idle") {
+    const bubble = $("tux-message");
+    const avatar = $("tux-avatar");
+    bubble.textContent = text;
+    avatar.textContent = { idle: "🐧", happy: "🥳", oops: "😮", think: "🤔" }[mood] || "🐧";
+    avatar.classList.toggle("tux-idle", mood === "idle");
+}
+let tuxTipTimer = null;
+function startTuxTips() {
+    if (tuxTipTimer) return;
+    tuxTipTimer = setInterval(() => {
+        tuxSay(TUX_TIPS[Math.floor(Math.random() * TUX_TIPS.length)], "idle");
+    }, 25000);
+}
 
 // --- terminál ---------------------------------------------------------------
 function shortCwd(cwd) {
@@ -223,8 +382,17 @@ async function runCommand(cmd) {
         if (!data.ok) { write(data.error || "Chyba pískoviště.", "text-rose-400"); return; }
         state.cwd = data.cwd;
         $("prompt").textContent = shortCwd(data.cwd) + "$";
-        if (data.blocked) write(data.output, "text-amber-400 font-bold");
-        else write(data.output, data.returncode === 0 ? "" : "text-rose-300");
+        if (data.blocked) {
+            write(data.output, "text-amber-400 font-bold");
+            sfx.blocked();
+            tuxSay("Klídek! Tenhle příkaz bychom v pískovišti radši nezkoušeli – zkus něco jiného 👉", "oops");
+        } else {
+            write(data.output, data.returncode === 0 ? "" : "text-rose-300");
+            if (data.returncode !== 0) {
+                sfx.fail();
+                tuxSay("Něco nevyšlo, ale to je normální – zkus se podívat, co příkaz napsal, a zkus to znovu.", "think");
+            }
+        }
     } catch (err) {
         write("Server neodpovídá: " + err, "text-rose-400");
     } finally {
@@ -349,15 +517,24 @@ async function checkTask(taskId, button) {
         );
         if (data.newly_passed) {
             write(`⭐ +${XP_PER_TASK} XP! Máš teď ${data.gamification.xp} XP.`, "text-amber-300 font-bold");
+            confettiBurst(50);
+            sfx.success();
+            tuxSay(`Paráda, splnil jsi to! +${XP_PER_TASK} XP jde na tvé konto. Pokračuj dál!`, "happy");
             const finishedSet = (data.gamification.sets || []).find(
                 (s) => s.set === state.lastActiveSet && s.complete
             );
             if (finishedSet) {
                 write(`🔓 Sada ${finishedSet.set} hotová! Otevřela se další sada úkolů.`, "text-sky-300 font-bold");
+                confettiBurst(90);
+                tuxSay(`Wow, celá sada ${finishedSet.set} hotová! Otevřel jsi novou sadu úkolů 🚀`, "happy");
             }
             if (data.gamification.completed >= data.gamification.total_tasks) {
                 write("🏆 ABSOLUTNÍ VÍTĚZSTVÍ! Dokončil jsi všech 90 úkolů a jsi Mistr Linuxu!", "text-amber-300 font-bold");
+                confettiBurst(160);
+                tuxSay("Jsi Mistr Linuxu! Všech 90 úkolů zvládnutých – klobouk dolů, kadete! 🏆", "happy");
             }
+        } else if (data.passed === false) {
+            tuxSay("Skoro! Zkontroluj si výsledek podle seznamu bodů u úkolu a zkus to znovu.", "think");
         }
         state.lastActiveSet = data.gamification.active_set;
     } finally {
@@ -499,6 +676,8 @@ async function login() {
         outputEl.innerHTML = "";
         write(`Vítej, ${data.user.username}! Tvůj kontejner startuje…`, "text-emerald-400 font-bold");
         write("Napiš 'help' nebo rovnou 'ls' a pusť se do úkolů vpravo.", "text-slate-400");
+        tuxSay(`Vítej na palubě, ${data.user.username}! Podívej se na úkoly vpravo a napiš první příkaz.`, "happy");
+        startTuxTips();
         await runCommand("whoami");
     } finally {
         button.disabled = false;
@@ -538,6 +717,8 @@ $("reset-button").addEventListener("click", async () => {
         if (data.ok) {
             applyState(data);
             write("Pokračujeme tam, kde jsi skončil.", "text-slate-400");
+            tuxSay(`Vítej zpátky, ${data.user.username}! Pokračujeme přesně tam, kde jsme skončili.`, "happy");
+            startTuxTips();
         }
     }
 })();
