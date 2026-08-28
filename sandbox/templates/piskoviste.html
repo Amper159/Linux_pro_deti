@@ -75,7 +75,7 @@
         html.light-mode .speech-bubble::before { border-color: transparent #f1f5f9 transparent transparent; }
     </style>
 </head>
-<body class="h-screen w-screen p-3 flex flex-col text-slate-100">
+<body class="w-screen min-h-screen lg:h-screen p-3 flex flex-col text-slate-100">
 
 <!-- ============ PŘIHLÁŠENÍ ============ -->
 <div id="login-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -108,51 +108,51 @@
 </div>
 
 <!-- ============ HLAVIČKA ============ -->
-<header class="bg-gradient-to-r from-sky-500 via-sky-400 to-cyan-400 rounded-2xl p-2.5 px-5 flex justify-between items-center lego-card text-slate-900 mb-3 shrink-0">
+<header class="bg-gradient-to-r from-sky-500 via-sky-400 to-cyan-400 rounded-2xl p-2.5 px-4 sm:px-5 flex flex-wrap justify-between items-center gap-2 lego-card text-slate-900 mb-3 shrink-0">
     <div class="flex items-center space-x-3">
-        <div class="bg-slate-900 text-sky-300 w-9 h-9 rounded-xl flex items-center justify-center border-2 border-sky-300">
+        <div class="bg-slate-900 text-sky-300 w-9 h-9 rounded-xl flex items-center justify-center border-2 border-sky-300 shrink-0">
             <i class="fa-solid fa-terminal"></i>
         </div>
-        <div>
-            <h1 class="text-lg font-bold uppercase leading-none">Pískoviště: opravdový Linux</h1>
+        <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-bold uppercase leading-none truncate">Pískoviště</h1>
             <span class="text-[11px] font-bold text-sky-950" id="engine-badge">kontejner se připravuje…</span>
         </div>
     </div>
-    <div class="flex items-center space-x-2">
-        <div class="bg-amber-400/20 px-3 py-1.5 rounded-xl border border-amber-400/40 flex items-center space-x-1.5" title="Zkušenostní body za skutečně splněné úkoly">
+    <div class="flex items-center flex-wrap gap-1.5 sm:gap-2">
+        <div class="bg-amber-400/20 px-2.5 sm:px-3 py-1.5 rounded-xl border border-amber-400/40 flex items-center space-x-1.5" title="Zkušenostní body za skutečně splněné úkoly">
             <i class="fa-solid fa-star text-amber-300 text-sm"></i>
             <span class="font-bold text-xs text-amber-200" id="xp-badge">0 XP</span>
         </div>
-        <div class="bg-rose-400/20 px-3 py-1.5 rounded-xl border border-rose-400/40 flex items-center space-x-1.5" title="Kolik dní po sobě ses přihlásil">
+        <div class="bg-rose-400/20 px-2.5 sm:px-3 py-1.5 rounded-xl border border-rose-400/40 flex items-center space-x-1.5" title="Kolik dní po sobě ses přihlásil">
             <i class="fa-solid fa-fire text-rose-300 text-sm"></i>
             <span class="font-bold text-xs text-rose-200" id="streak-badge">0 dní</span>
         </div>
-        <div class="bg-sky-700/30 px-3 py-1.5 rounded-xl border border-sky-700/40 font-mono text-xs font-bold text-slate-900" id="user-badge">–</div>
+        <div class="hidden sm:block bg-sky-700/30 px-3 py-1.5 rounded-xl border border-sky-700/40 font-mono text-xs font-bold text-slate-900" id="user-badge">–</div>
         <button id="theme-toggle" title="Přepnout světlý/tmavý režim"
-                class="bg-slate-900 hover:bg-slate-800 text-sky-300 w-9 h-9 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition">
+                class="bg-slate-900 hover:bg-slate-800 text-sky-300 w-9 h-9 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition shrink-0">
             <i class="fa-solid fa-sun" id="theme-icon"></i>
         </button>
         <button id="sound-toggle" title="Zapnout/vypnout zvuky"
-                class="bg-slate-900 hover:bg-slate-800 text-sky-300 w-9 h-9 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition">
+                class="bg-slate-900 hover:bg-slate-800 text-sky-300 w-9 h-9 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition shrink-0">
             <i class="fa-solid fa-volume-high" id="sound-icon"></i>
         </button>
-        <a href="/" class="bg-amber-400 hover:bg-amber-300 text-slate-900 px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-amber-600 active:translate-y-1 transition">
-            <i class="fa-solid fa-house"></i> Portál
+        <a href="/" class="bg-amber-400 hover:bg-amber-300 text-slate-900 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-amber-600 active:translate-y-1 transition shrink-0">
+            <i class="fa-solid fa-house"></i><span class="hidden sm:inline"> Portál</span>
         </a>
-        <button id="reset-button" class="bg-rose-500 hover:bg-rose-400 text-white px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-rose-700 active:translate-y-1 transition">
-            <i class="fa-solid fa-broom"></i> Vyčistit
+        <button id="reset-button" class="bg-rose-500 hover:bg-rose-400 text-white px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-rose-700 active:translate-y-1 transition shrink-0">
+            <i class="fa-solid fa-broom"></i><span class="hidden sm:inline"> Vyčistit</span>
         </button>
-        <button id="logout-button" class="bg-slate-800 hover:bg-slate-700 text-slate-100 px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition">
-            <i class="fa-solid fa-right-from-bracket"></i> Odhlásit
+        <button id="logout-button" class="bg-slate-800 hover:bg-slate-700 text-slate-100 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition shrink-0">
+            <i class="fa-solid fa-right-from-bracket"></i><span class="hidden sm:inline"> Odhlásit</span>
         </button>
     </div>
 </header>
 
 <!-- ============ OBSAH ============ -->
-<main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
+<main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 lg:min-h-0">
 
     <!-- TUX, ODZNAKY, ŽEBŘÍČEK (vlevo) -->
-    <aside class="lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-yellow p-4 flex flex-col min-h-0 overflow-y-auto custom-scrollbar space-y-4">
+    <aside class="order-2 lg:order-none lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-yellow p-4 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
         <div class="shrink-0 bg-slate-800 rounded-xl p-3 flex items-start space-x-3 speech-bubble border-2 border-slate-700">
             <div class="text-3xl tux-idle shrink-0" id="tux-avatar">🐧</div>
             <p class="text-[12px] font-semibold text-slate-100 leading-snug" id="tux-message">
@@ -176,7 +176,7 @@
     </aside>
 
     <!-- TERMINÁL (uprostřed) -->
-    <section class="lg:col-span-5 bg-slate-900 rounded-2xl lego-card flex flex-col min-h-0 overflow-hidden">
+    <section class="order-1 lg:order-none lg:col-span-5 h-[65vh] lg:h-auto bg-slate-900 rounded-2xl lego-card flex flex-col lg:min-h-0 overflow-hidden">
         <div class="bg-slate-800 px-4 py-2 flex items-center space-x-2 shrink-0 border-b-2 border-slate-700">
             <span class="w-3 h-3 rounded-full bg-rose-500"></span>
             <span class="w-3 h-3 rounded-full bg-amber-400"></span>
@@ -195,7 +195,7 @@
     </section>
 
     <!-- SADY A ÚKOLY (vpravo) -->
-    <aside class="lg:col-span-4 bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col min-h-0 overflow-y-auto custom-scrollbar space-y-4">
+    <aside class="order-3 lg:order-none lg:col-span-4 bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
         <div class="shrink-0">
             <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
                 <i class="fa-solid fa-layer-group"></i> Kampaňové sady
