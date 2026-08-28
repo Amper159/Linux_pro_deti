@@ -110,7 +110,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     🚀 Vzdělávací portál pro malé i velké SysAdminy
                 </span>
                 <h1 class="text-4xl md:text-6xl font-black text-slate-100 leading-tight">
-                    Ovládni počítač jako superfrajer pomocí <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400">Příkazové Řádky!</span>
+                    Ovládni počítač jako superfrajer pomocí <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400">Terminálu</span>
                 </h1>
                 <p class="text-slate-400 text-base md:text-lg font-medium">
                     Zjisti, jak funguje operační systém, na kterém běží rakety SpaceX, Android v mobilu i nejrychlejší superpočítače světa.
