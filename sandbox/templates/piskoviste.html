@@ -152,7 +152,7 @@
 <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 lg:min-h-0">
 
     <!-- TUX, ODZNAKY, ŽEBŘÍČEK (vlevo) -->
-    <aside class="order-2 lg:order-none lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-yellow p-4 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
+    <aside class="order-3 lg:order-none lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-yellow p-4 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
         <div class="shrink-0 bg-slate-800 rounded-xl p-3 flex items-start space-x-3 speech-bubble border-2 border-slate-700">
             <div class="text-3xl tux-idle shrink-0" id="tux-avatar">🐧</div>
             <p class="text-[12px] font-semibold text-slate-100 leading-snug" id="tux-message">
@@ -164,7 +164,7 @@
             <h2 class="text-base font-bold text-amber-300 uppercase mb-2">
                 <i class="fa-solid fa-award"></i> Odznaky
             </h2>
-            <div id="badges" class="grid grid-cols-4 gap-1.5"></div>
+            <div id="badges" class="flex lg:grid lg:grid-cols-4 gap-1.5 overflow-x-auto lg:overflow-visible custom-scrollbar pb-1"></div>
         </div>
 
         <div class="shrink-0 border-t-2 border-slate-800 pt-3">
@@ -195,7 +195,7 @@
     </section>
 
     <!-- SADY A ÚKOLY (vpravo) -->
-    <aside class="order-3 lg:order-none lg:col-span-4 bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
+    <aside class="order-2 lg:order-none lg:col-span-4 bg-slate-900/80 rounded-2xl lego-card-green p-4 flex flex-col max-h-[45vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
         <div class="shrink-0">
             <h2 class="text-base font-bold text-sky-300 uppercase mb-2">
                 <i class="fa-solid fa-layer-group"></i> Kampaňové sady
@@ -588,7 +588,7 @@ function renderBadges(badges) {
     (badges || []).forEach((badge) => {
         const box = document.createElement("div");
         box.title = badge.desc || badge.label;
-        box.className = "rounded-lg p-1.5 flex flex-col items-center text-center border-2 transition-all " +
+        box.className = "shrink-0 w-16 lg:w-auto rounded-lg p-1.5 flex flex-col items-center text-center border-2 transition-all " +
             (badge.earned
                 ? "bg-slate-800 border-amber-400 shadow-md"
                 : "bg-slate-900/60 border-slate-700 opacity-40");
@@ -644,12 +644,12 @@ function applyState(data) {
     state.cwd = data.cwd;
     state.progress = data.progress || {};
     $("prompt").textContent = shortCwd(data.cwd) + "$";
-    $("user-badge").textContent = `${data.user.username} → ${data.user.login}`;
-    $("terminal-title").textContent = `bash – ${data.user.login}`;
+    $("user-badge").textContent = data.user.username;
+    $("terminal-title").textContent = `bash – ${data.user.username}`;
     const engineLabel = data.engine === "docker"
         ? "Docker kontejner (bez sítě, bez rootu)"
         : data.engine === "bwrap" ? "bubblewrap sandbox" : "pískoviště není k dispozici";
-    $("engine-badge").textContent = engineLabel + " · domov: " + data.user.home;
+    $("engine-badge").innerHTML = engineLabel + " · domov: /home/<b>" + data.user.username + "</b>";
     $("login-modal").classList.add("hidden");
     $("terminal-input").focus();
     applyGamification(data.gamification, data.leaderboard);
