@@ -73,6 +73,11 @@
         html.light-mode .border-slate-800 { border-color: #cbd5e1 !important; }
         html.light-mode .speech-bubble { background-color: #f1f5f9 !important; color: #1e293b !important; }
         html.light-mode .speech-bubble::before { border-color: transparent #f1f5f9 transparent transparent; }
+
+        /* Na mobilu musí mít textové pole aspoň 16px, jinak ho prohlížeč při kliknutí sám přiblíží (zoom). */
+        @media (max-width: 640px) {
+            #terminal-input { font-size: 16px !important; }
+        }
     </style>
 </head>
 <body class="w-screen min-h-screen lg:h-screen p-3 flex flex-col text-slate-100">
