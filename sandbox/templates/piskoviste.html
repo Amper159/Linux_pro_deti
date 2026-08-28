@@ -156,6 +156,7 @@
 
 <script>
 const TASKS = {{ tasks | tojson }};
+
 let state = { cwd: "~", progress: {}, user: null, gamification: null, leaderboard: [], lastActiveSet: null };
 
 const $ = (id) => document.getElementById(id);
