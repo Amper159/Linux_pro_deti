@@ -153,6 +153,10 @@ def _start_container(user: auth.SandboxUser) -> None:
         "--user", f"{uid}:{gid}",
         "--cap-drop", "ALL",
         "--security-opt", "no-new-privileges",
+        # Bez CAP_NET_RAW by 'ping' (úkoly 40-42) hlásil "Operation not permitted".
+        # Tenhle sysctl povolí ping přes obyčejný ("unprivileged") ICMP socket
+        # bez nutnosti vracet capability - funguje jen na loopbacku, síť je stále "none".
+        "--sysctl", "net.ipv4.ping_group_range=0 2147483647",
         "--read-only",
         "--tmpfs", f"/tmp:rw,noexec,nosuid,size={TMPFS_SIZE}",
         "--memory", MEMORY_LIMIT,

@@ -1,0 +1,5 @@
+TAJNY KOD ZAKLADNY TUX-1: 42-PENGUIN-7
+
+Gratuluji, kadete! Nasel jsi skryty soubor.
+Skryte soubory v Linuxu poznas podle tecky na zacatku nazvu (.tajny_kod.txt) -
+prikaz "ls" je normalne prehlizi, musis pouzit "ls -a".
