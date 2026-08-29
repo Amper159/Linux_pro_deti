@@ -32,7 +32,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Linuxhrou.cz – Objevuj svět Linuxu zábavně!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,6 +43,9 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
         .font-mono { font-family: 'Fira Code', monospace; }
         .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
         .card-hover:hover { transform: translateY(-4px); }
+        @media (max-width: 1023px) {
+            #demo-input { font-size: 16px !important; }
+        }
 
     body { font-family: 'Quicksand', sans-serif; background-color: #0f172a; color: #f8fafc; }
     .font-mono { font-family: 'Fira Code', monospace; }
@@ -133,21 +136,24 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
 
             <div class="mt-10 max-w-2xl mx-auto bg-slate-900 rounded-2xl border-2 border-sky-500/40 shadow-lg shadow-sky-500/5 overflow-hidden">
-                <div class="bg-slate-800 px-4 py-2 flex items-center justify-between border-b-2 border-slate-700">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
-                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
-                        <span class="text-[11px] font-bold text-slate-400 ml-2 font-mono">ukázka – zkus to na nečisto</span>
+                <div class="bg-slate-800 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 border-b-2 border-slate-700">
+                    <div class="flex items-center space-x-2 min-w-0">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 shrink-0"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-400 shrink-0"></span>
+                        <span class="text-[11px] font-bold text-slate-400 ml-1 sm:ml-2 font-mono truncate">
+                            <span class="hidden sm:inline">ukázka – zkus to na nečisto</span>
+                            <span class="sm:hidden">ukázka</span>
+                        </span>
                     </div>
-                    <span class="text-[10px] font-bold text-sky-400 uppercase tracking-wide">bez přihlášení</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-sky-400 uppercase tracking-wide shrink-0 bg-sky-500/10 sm:bg-transparent px-2 py-0.5 sm:px-0 sm:py-0 rounded-full">bez přihlášení</span>
                 </div>
-                <div id="demo-output" class="p-4 font-mono text-[12px] text-left text-slate-300 min-h-[92px] leading-relaxed"></div>
-                <div class="flex items-center px-4 py-3 bg-slate-950 border-t-2 border-slate-700">
-                    <span class="font-mono text-emerald-400 font-bold mr-2">~$</span>
+                <div id="demo-output" class="p-3 sm:p-4 font-mono text-[13px] sm:text-[12px] text-left text-slate-300 min-h-[92px] leading-relaxed break-words"></div>
+                <div class="flex items-center px-3 sm:px-4 py-3 bg-slate-950 border-t-2 border-slate-700">
+                    <span class="font-mono text-emerald-400 font-bold mr-2 shrink-0">~$</span>
                     <input id="demo-input" type="text" autocomplete="off" spellcheck="false"
-                        class="flex-1 bg-transparent font-mono text-[12px] text-slate-100 focus:outline-none"
-                        placeholder="zkus třeba: ls, pwd, whoami nebo help">
+                        class="flex-1 min-w-0 bg-transparent font-mono text-[13px] sm:text-[12px] text-slate-100 focus:outline-none"
+                        placeholder="zkus: ls, pwd, help">
                 </div>
             </div>
 
@@ -623,6 +629,7 @@ demoIn.addEventListener('keydown', (e) => {
     demoIn.value = '';
     if (!cmd) return;
     const echo = document.createElement('div');
+    echo.className = 'break-words';
     echo.innerHTML = '<span class="text-emerald-400 font-bold">~$</span> ' + cmd.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
     demoOut.appendChild(echo);
     const resp = DEMO_RESPONSES[cmd.toLowerCase()];
