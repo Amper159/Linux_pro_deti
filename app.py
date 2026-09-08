@@ -1,9 +1,12 @@
 from datetime import timedelta
-from flask import Flask, render_template_string
+from pathlib import Path
+from flask import Flask, render_template_string, request, make_response
 import os
 
 from sandbox import engine as sandbox_engine
 from sandbox import sandbox_bp
+from sandbox import visits as sandbox_visits
+from sandbox import gamification as sandbox_gamification
 from sandbox.config import SECRET_FILE, ensure_dirs
 
 app = Flask(__name__)
@@ -24,6 +27,17 @@ def _secret_key() -> bytes:
 app.secret_key = _secret_key()
 app.permanent_session_lifetime = timedelta(days=7)
 
+# SITE_ADDRESS je bez schématu; podle Caddyfile ":80" znamená lokální/dev
+# provoz na obyčejném HTTP, cokoliv jiného (reálná doména) běží za Caddy
+# přes HTTPS. Secure cookie posílaná po HTTP by se v dev módu vůbec neuložila,
+# proto ji tam vypínáme - v produkci musí zůstat zapnutá.
+_is_dev = os.environ.get("SITE_ADDRESS", "").strip().startswith(":")
+app.config.update(
+    SESSION_COOKIE_SECURE=not _is_dev,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
+
 # Nová stránka: /piskoviste – opravdový Linux v kontejneru.
 app.register_blueprint(sandbox_bp)
 sandbox_engine.start_reaper()
@@ -34,6 +48,18 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Linuxhrou.cz – Objevuj svět Linuxu zábavně!</title>
+    <meta name="description" content="Nauč se Linux hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček. Zdarma pro děti, rodiče i školy.">
+    <link rel="canonical" href="https://linuxhrou.cz/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Linuxhrou.cz – Objevuj svět Linuxu zábavně!">
+    <meta property="og:description" content="Nauč se Linux hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
+    <meta property="og:url" content="https://linuxhrou.cz/">
+    <meta property="og:image" content="https://linuxhrou.cz/og-image.png">
+    <meta property="og:locale" content="cs_CZ">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Linuxhrou.cz – Objevuj svět Linuxu zábavně!">
+    <meta name="twitter:description" content="Nauč se Linux hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -123,7 +149,11 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="mt-8 flex flex-wrap justify-center gap-3 text-xs font-bold">
                 <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
-                    <span class="text-slate-300"><span id="stat-online" class="text-emerald-300">0</span> kadetů právě online</span>
+                    <span class="text-slate-300">Dnes tu bylo <span id="stat-today" class="text-emerald-300">0</span> lidí</span>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-300">
+                    <i class="fa-solid fa-users text-purple-400"></i>
+                    Navštívilo nás <span id="stat-total-visitors" class="text-purple-300">0</span> lidí celkem
                 </div>
                 <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-slate-300">
                     <i class="fa-solid fa-list-check text-sky-400"></i>
@@ -575,9 +605,9 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
         </div>
         <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-950/60 rounded-xl p-4 border border-slate-800">
-            <p class="text-sm text-slate-300">Učíte třídu nebo kroužek? Založte si skupinu a sledujte pokrok všech dětí na jednom místě.</p>
-            <a href="#" class="bg-rose-500 hover:bg-rose-400 text-white font-bold px-5 py-2.5 rounded-xl border-b-4 border-rose-700 active:translate-y-1 transition text-sm whitespace-nowrap">
-                Chci to použít ve třídě →
+            <p class="text-sm text-slate-300">Učíte třídu nebo kroužek? Napište mi a domluvíme se, jak to nasadit u vás.</p>
+            <a href="mailto:info@linuxhrou.cz?subject=Linuxhrou.cz%20pro%20školu" class="bg-rose-500 hover:bg-rose-400 text-white font-bold px-5 py-2.5 rounded-xl border-b-4 border-rose-700 active:translate-y-1 transition text-sm whitespace-nowrap">
+                Napsat e-mail →
             </a>
         </div>
     </section>
@@ -587,6 +617,11 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <footer class="bg-slate-900 border-t border-slate-800 py-8 px-4 text-center text-xs text-slate-500 space-y-2">
     <p class="font-bold text-slate-400">Linuxhrou.cz – Výuková platforma pro malé i velké průzkumníky</p>
     <p>Vytvořeno s ❤️ pro podporu výuky IT a Open-Source technologií.</p>
+    <p class="pt-1">
+        <a href="/soukromi" class="text-sky-500 hover:underline">Ochrana soukromí</a>
+        <span class="mx-2">·</span>
+        <a href="mailto:info@linuxhrou.cz" class="text-sky-500 hover:underline">info@linuxhrou.cz</a>
+    </p>
 </footer>
 
 <script>
@@ -602,9 +637,10 @@ function animateCount(id, target, suffix) {
         el.textContent = cur.toLocaleString('cs-CZ') + (suffix || '');
     }, 20);
 }
-animateCount('stat-online', 37);
-animateCount('stat-tasks', 148920);
-animateCount('stat-xp', 2456000);
+animateCount('stat-today', {{ visits_today }});
+animateCount('stat-total-visitors', {{ visits_total }});
+animateCount('stat-tasks', {{ total_completed }});
+animateCount('stat-xp', {{ total_xp }});
 
 // ---- bod 2: mini terminál nanečisto ----
 const demoOut = document.getElementById('demo-output');
@@ -716,7 +752,159 @@ new Chart(ctx, {
 @app.route("/")
 def home():
     """Úvodní vzdělávací portál Linuxhrou.cz"""
-    return render_template_string(PORTAL_HTML_TEMPLATE)
+    visitor_id = request.cookies.get(sandbox_visits.COOKIE_NAME)
+    visitor_id, visit_stats = sandbox_visits.record_visit(visitor_id)
+    totals = sandbox_gamification.site_totals()
+
+    resp = make_response(render_template_string(
+        PORTAL_HTML_TEMPLATE,
+        visits_today=visit_stats["today_unique"],
+        visits_total=visit_stats["total_unique"],
+        total_completed=totals["completed"],
+        total_xp=totals["xp"],
+    ))
+    resp.set_cookie(
+        sandbox_visits.COOKIE_NAME,
+        visitor_id,
+        max_age=sandbox_visits.COOKIE_MAX_AGE,
+        httponly=True,
+        samesite="Lax",
+        secure=not _is_dev,
+    )
+    return resp
+
+
+PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ochrana soukromí – Linuxhrou.cz</title>
+    <meta name="description" content="Jaké údaje Linuxhrou.cz sbírá, proč, a jak si nechat účet smazat.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; }
+    </style>
+</head>
+<body class="min-h-screen">
+<main class="max-w-2xl mx-auto px-4 py-14 space-y-6">
+    <a href="/" class="text-sky-400 text-sm font-bold">&larr; Zpět na Linuxhrou.cz</a>
+    <h1 class="text-3xl font-black">Ochrana soukromí</h1>
+    <p class="text-slate-400 text-sm">Poslední aktualizace: {{ updated }}</p>
+
+    <div class="card p-5 space-y-2">
+        <h2 class="font-bold text-lg text-sky-300">Jaké údaje ukládáme</h2>
+        <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
+            <li>Uživatelské jméno, které si sám/sama zvolíš při přihlášení do pískoviště (klidně smyšlené).</li>
+            <li>Heslo - nikdy ne v čitelné podobě, jen jeho jednosměrně zahashovaný otisk (scrypt + sůl). Ani my ho nedokážeme zpětně přečíst.</li>
+            <li>Tvůj postup v úkolech, odznaky a XP.</li>
+            <li>Anonymní cookie s náhodným ID pro počítadlo návštěvnosti (víme jen "kolik různých lidí" přišlo, ne kdo).</li>
+        </ul>
+    </div>
+
+    <div class="card p-5 space-y-2">
+        <h2 class="font-bold text-lg text-emerald-300">Co NEsbíráme a neděláme</h2>
+        <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
+            <li>Žádné reklamy ani sledovací cookies třetích stran (Google Analytics, Facebook Pixel apod.).</li>
+            <li>Žádný prodej ani sdílení dat s nikým třetím.</li>
+            <li>Pískoviště (kontejner, ve kterém pracuješ) nemá přístup k internetu - nic z něj nemůže nikam uniknout.</li>
+        </ul>
+    </div>
+
+    <div class="card p-5 space-y-2">
+        <h2 class="font-bold text-lg text-amber-300">Smazání účtu</h2>
+        <p class="text-sm text-slate-300">
+            V pískovišti dole na stránce najdeš odkaz "Chci trvale smazat svůj účet a všechna data" -
+            smaže se tím okamžitě a nevratně účet, postup i domovská složka. Můžeš také napsat na e-mail níže.
+        </p>
+    </div>
+
+    <div class="card p-5 space-y-2">
+        <h2 class="font-bold text-lg text-rose-300">Kontakt</h2>
+        <p class="text-sm text-slate-300">
+            Dotazy k datům nebo cokoliv jiného: <a href="mailto:info@linuxhrou.cz" class="text-sky-400 hover:underline">info@linuxhrou.cz</a>
+        </p>
+    </div>
+
+    <p class="text-xs text-slate-500 pt-4">
+        Tahle stránka popisuje poctivě, co aplikace dělá - není to ale právní dokument sepsaný
+        právníkem. Protože se službou tvoří i děti, doporučujeme před ostrým nasazením ve větším
+        měřítku nechat text zkontrolovat odborníkem na ochranu osobních údajů dětí (GDPR).
+    </p>
+</main>
+</body>
+</html>
+"""
+
+
+@app.route("/soukromi")
+def privacy():
+    from datetime import date
+    return render_template_string(PRIVACY_HTML_TEMPLATE, updated=date.today().isoformat())
+
+
+@app.route("/favicon.svg")
+def favicon():
+    from flask import send_file
+    return send_file(Path(__file__).parent / "sandbox" / "static_favicon.svg", mimetype="image/svg+xml")
+
+
+@app.route("/og-image.png")
+def og_image():
+    from flask import send_file
+    return send_file(Path(__file__).parent / "sandbox" / "static_og_image.png", mimetype="image/png")
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    from flask import Response
+    body = "User-agent: *\nAllow: /\nDisallow: /piskoviste/api/\nSitemap: https://linuxhrou.cz/sitemap.xml\n"
+    return Response(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    from flask import Response
+    urls = ["/", "/piskoviste/", "/soukromi"]
+    body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for u in urls:
+        body += f"  <url><loc>https://linuxhrou.cz{u}</loc></url>\n"
+    body += "</urlset>\n"
+    return Response(body, mimetype="application/xml")
+
+
+NOT_FOUND_HTML = """<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stránka nenalezena – Linuxhrou.cz</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=Quicksand:wght@600;800&display=swap" rel="stylesheet">
+    <style>body{font-family:'Quicksand',sans-serif;background:#0f172a;color:#f8fafc;}</style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4">
+    <div class="text-center space-y-4">
+        <div class="text-6xl">🐧</div>
+        <p style="font-family:'Fira Code',monospace;" class="text-sky-400 text-sm">bash: cesta nenalezena: 404</p>
+        <h1 class="text-2xl font-black">Tahle stránka tu není.</h1>
+        <p class="text-slate-400 text-sm">Možná zabloudila stejně jako nejeden kadet v terminálu.</p>
+        <a href="/" class="inline-block mt-4 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-3 rounded-xl">
+            Zpátky na Linuxhrou.cz
+        </a>
+    </div>
+</body>
+</html>
+"""
+
+
+@app.errorhandler(404)
+def not_found(_error):
+    return render_template_string(NOT_FOUND_HTML), 404
 
 
 if __name__ == "__main__":

@@ -13,16 +13,18 @@ import hmac
 import json
 import os
 import re
+import secrets
 import shutil
 import unicodedata
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from threading import Lock
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from .config import (
     CONTAINER_USER_PREFIX,
     HOMES_DIR,
+    PASSWORD_RESET_TTL_SECONDS,
     PROGRESS_DIR,
     SKEL_DIR,
     USERS_FILE,
@@ -32,7 +34,8 @@ from .config import (
 _LOCK = Lock()
 
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9._-]{3,24}$")
-MIN_PASSWORD_LENGTH = 4
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+MIN_PASSWORD_LENGTH = 6
 
 # Parametry scryptu – rychlé dost na dětské pískoviště, pomalé dost na útok.
 _SCRYPT = {"n": 2 ** 14, "r": 8, "p": 1, "dklen": 32}
@@ -40,6 +43,13 @@ _SCRYPT = {"n": 2 ** 14, "r": 8, "p": 1, "dklen": 32}
 
 class AuthError(Exception):
     """Chyba přihlášení/registrace, text je určený uživateli."""
+
+
+class WrongPassword(AuthError):
+    """Specifický druh AuthError - jméno existuje, heslo sedí, ale je špatné.
+    Odděleně od ostatních chyb, aby šlo počítat pokusy o hrubou sílu jen tam,
+    kde má smysl (ne třeba při chybném formátu jména)."""
+
 
 
 class SandboxUser:
@@ -83,6 +93,11 @@ def _normalize(username: str) -> str:
     return "".join(c for c in stripped if not unicodedata.combining(c)).lower()
 
 
+def normalize_username(username: str) -> str:
+    """Veřejná verze _normalize - pro použití mimo tenhle modul (např. rate limiting)."""
+    return _normalize(username)
+
+
 def _verifier(password: str, salt: str) -> str:
     return hashlib.scrypt(
         password.encode("utf-8"), salt=bytes.fromhex(salt), **_SCRYPT
@@ -96,10 +111,15 @@ def _derive_uid(key: str, salt: str) -> str:
 
 # --- veřejné API -------------------------------------------------------------
 
-def login_or_register(username: str, password: str) -> SandboxUser:
-    """Přihlásí existující účet, jinak založí nový (a jeho domovskou složku)."""
+def login_or_register(username: str, password: str, email: str = "") -> SandboxUser:
+    """Přihlásí existující účet, jinak založí nový (a jeho domovskou složku).
+
+    `email` je nepovinný - slouží jen k pozdější obnově zapomenutého hesla.
+    U existujícího účtu bez e-mailu ho, pokud přijde a je platný, rovnou doplní
+    (tichá migrace starších účtů založených před touhle funkcí)."""
     username = username.strip()
     password = password or ""
+    email = (email or "").strip()
 
     if not USERNAME_RE.match(_normalize(username) or ""):
         raise AuthError(
@@ -107,6 +127,8 @@ def login_or_register(username: str, password: str) -> SandboxUser:
         )
     if len(password) < MIN_PASSWORD_LENGTH:
         raise AuthError(f"Heslo musí mít aspoň {MIN_PASSWORD_LENGTH} znaky.")
+    if email and not EMAIL_RE.match(email):
+        raise AuthError("E-mail nevypadá platně – zkontroluj ho, nebo pole nech prázdné.")
 
     key = _normalize(username)
 
@@ -121,6 +143,7 @@ def login_or_register(username: str, password: str) -> SandboxUser:
                 "salt": salt,
                 "verifier": _verifier(password, salt),
                 "uid": _derive_uid(key, salt),
+                "email": email or None,
                 "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             }
             users[key] = record
@@ -129,11 +152,81 @@ def login_or_register(username: str, password: str) -> SandboxUser:
             if not hmac.compare_digest(
                 _verifier(password, record["salt"]), record["verifier"]
             ):
-                raise AuthError("Špatné heslo. Zkus to ještě jednou.")
+                raise WrongPassword("Špatné heslo. Zkus to ještě jednou.")
+            if email and not record.get("email"):
+                record["email"] = email
+                users[key] = record
+                _save_users(users)
 
     user = SandboxUser(record["username"], record["uid"])
     prepare_home(user)
     return user
+
+
+# --- obnova zapomenutého hesla -------------------------------------------------
+# Token se stejně jako heslo neukládá v čitelné podobě, ale jako hash. Reset
+# schválně zachovává původní `salt`, takže se nezmění `uid` odvozený z něj -
+# domovská složka i celý postup uživatele tak po obnově hesla zůstanou.
+
+def request_password_reset(username: str) -> Optional[Tuple[SandboxUser, str, str]]:
+    """Vygeneruje jednorázový token pro účet, pokud existuje a má e-mail.
+    Vrací None i pro neexistující účet nebo účet bez e-mailu - volající strana
+    (routes.py) na to musí reagovat úplně stejnou odpovědí, jinak by šlo podle
+    chybové hlášky poznat, jestli daný účet/e-mail existuje."""
+    key = _normalize(username)
+    with _LOCK:
+        users = _load_users()
+        record = users.get(key)
+        if not record or not record.get("email"):
+            return None
+
+        token = secrets.token_urlsafe(32)
+        record["reset_token_hash"] = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        record["reset_expires"] = (
+            datetime.now(timezone.utc) + timedelta(seconds=PASSWORD_RESET_TTL_SECONDS)
+        ).isoformat()
+        users[key] = record
+        _save_users(users)
+
+    user = SandboxUser(record["username"], record["uid"])
+    return user, token, record["email"]
+
+
+def reset_password(token: str, new_password: str) -> SandboxUser:
+    """Nastaví nové heslo podle platného tokenu z e-mailu a odhlásí všechny
+    dřív vydané session (stejný mechanismus jako u ručního odhlášení)."""
+    token = (token or "").strip()
+    if not token:
+        raise AuthError("Odkaz na obnovu hesla je neplatný nebo už byl použit.")
+    if len(new_password) < MIN_PASSWORD_LENGTH:
+        raise AuthError(f"Heslo musí mít aspoň {MIN_PASSWORD_LENGTH} znaky.")
+
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+    with _LOCK:
+        users = _load_users()
+        for key, record in users.items():
+            stored_hash = record.get("reset_token_hash")
+            if not stored_hash or not hmac.compare_digest(stored_hash, token_hash):
+                continue
+
+            expires = record.get("reset_expires")
+            if not expires or datetime.fromisoformat(expires) < datetime.now(timezone.utc):
+                record.pop("reset_token_hash", None)
+                record.pop("reset_expires", None)
+                users[key] = record
+                _save_users(users)
+                raise AuthError("Odkaz na obnovu hesla už vypršel. Vyžádej si prosím nový.")
+
+            record["verifier"] = _verifier(new_password, record["salt"])
+            record["sv"] = record.get("sv", 0) + 1
+            record.pop("reset_token_hash", None)
+            record.pop("reset_expires", None)
+            users[key] = record
+            _save_users(users)
+            return SandboxUser(record["username"], record["uid"])
+
+        raise AuthError("Odkaz na obnovu hesla je neplatný nebo už byl použit.")
 
 
 def prepare_home(user: SandboxUser, reset: bool = False) -> None:
@@ -230,12 +323,57 @@ def find_user(uid: str, username: str) -> Optional[SandboxUser]:
     return None
 
 
+def delete_account(user: SandboxUser) -> None:
+    """Trvale smaže účet: záznam v users.json, domovskou složku, postup i statistiky.
+    Kontejner (pokud běží) je potřeba zastavit ZVLÁŠŤ před voláním - tenhle modul
+    o Dockeru nic neví (viz engine.stop, které volá routes.py)."""
+    key = _normalize(user.username)
+    with _LOCK:
+        users = _load_users()
+        users.pop(key, None)
+        _save_users(users)
+
+    if user.home.exists():
+        shutil.rmtree(user.home, ignore_errors=True)
+
+    progress_path(user).unlink(missing_ok=True)
+    stats_path(user).unlink(missing_ok=True)
+
+
 def all_users() -> List[SandboxUser]:
     """Všichni registrovaní hráči – pro výpočet žebříčku."""
     return [
         SandboxUser(record["username"], record["uid"])
         for record in _load_users().values()
     ]
+
+
+# --- zneplatnění session při odhlášení ---------------------------------------
+# Flask session je bezstavová podepsaná cookie - server sám o sobě nemá jak
+# poznat "tahle konkrétní cookie už neplatí". Řešíme to malým číslem (sv) u
+# každého účtu: cookie si nese hodnotu sv z doby přihlášení, a při každém
+# požadavku ji porovnáme s aktuální hodnotou v users.json. Odhlášení = zvýšit
+# sv o 1, čímž se stanou neplatné úplně všechny dřív vydané cookies daného
+# účtu (i kdyby si je někdo předtím zkopíroval) - zásadní na sdílených PC.
+
+def session_version(user: SandboxUser) -> int:
+    users = _load_users()
+    record = users.get(_normalize(user.username))
+    return record.get("sv", 0) if record else 0
+
+
+def bump_session_version(user: SandboxUser) -> int:
+    """Zavolat při odhlášení - zneplatní všechny dřív vydané cookies uživatele."""
+    key = _normalize(user.username)
+    with _LOCK:
+        users = _load_users()
+        record = users.get(key)
+        if not record:
+            return 0
+        record["sv"] = record.get("sv", 0) + 1
+        users[key] = record
+        _save_users(users)
+        return record["sv"]
 
 
 # --- série přihlášení (streak) ------------------------------------------------

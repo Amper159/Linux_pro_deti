@@ -100,6 +100,9 @@
         <input type="password" id="login-pass" autocomplete="current-password"
                class="w-full bg-slate-900 border-2 border-sky-400 rounded-xl p-3 text-center font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-400"
                placeholder="Heslo (aspoň 4 znaky)">
+        <input type="email" id="login-email" autocomplete="email"
+               class="w-full bg-slate-900 border-2 border-sky-400 rounded-xl p-3 text-center font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+               placeholder="E-mail (nepovinné, pro obnovu hesla)">
         <p id="login-error" class="text-rose-400 text-xs font-bold min-h-[16px]"></p>
         <button id="login-button"
                 class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl border-b-4 border-emerald-700 active:translate-y-1 transition uppercase tracking-wider">
@@ -108,7 +111,33 @@
         <p class="text-[11px] text-slate-400">
             Nový? Účet se založí sám. Heslo si zapamatuj – bez něj se ke svým souborům nedostaneš.
         </p>
+        <button id="forgot-link" class="block w-full text-xs text-sky-400 hover:text-sky-300 font-bold">
+            Zapomněl(a) jsi heslo?
+        </button>
         <a href="/" class="block text-xs text-sky-400 hover:text-sky-300 font-bold">← Zpět na portál</a>
+    </div>
+</div>
+
+<!-- ============ ZAPOMENUTÉ HESLO ============ -->
+<div id="forgot-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md lego-card-yellow text-center space-y-4">
+        <div>
+            <h2 class="text-xl font-bold text-amber-300 uppercase">Zapomenuté heslo</h2>
+            <p class="text-xs text-slate-300 font-medium mt-1">
+                Zadej svoje uživatelské jméno. Pokud u něj máš uložený e-mail, pošleme na něj odkaz na nastavení nového hesla.
+            </p>
+        </div>
+        <input type="text" id="forgot-user" autocomplete="username"
+               class="w-full bg-slate-900 border-2 border-sky-400 rounded-xl p-3 text-center font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+               placeholder="Jméno (např. honza)">
+        <p id="forgot-message" class="text-xs font-bold min-h-[16px] text-slate-300"></p>
+        <button id="forgot-button"
+                class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 rounded-xl border-b-4 border-sky-700 active:translate-y-1 transition uppercase tracking-wider">
+            Poslat odkaz na obnovu hesla
+        </button>
+        <button id="forgot-cancel" class="block w-full text-xs text-sky-400 hover:text-sky-300 font-bold">
+            ← Zpět na přihlášení
+        </button>
     </div>
 </div>
 
@@ -152,6 +181,11 @@
         </button>
     </div>
 </header>
+<div class="text-center shrink-0 mb-2">
+    <button id="delete-account-link" class="text-[10px] text-slate-500 hover:text-rose-400 underline decoration-dotted">
+        Chci trvale smazat svůj účet a všechna data
+    </button>
+</div>
 
 <!-- ============ OBSAH ============ -->
 <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 lg:min-h-0">
@@ -673,6 +707,7 @@ async function login() {
             body: JSON.stringify({
                 username: $("login-user").value,
                 password: $("login-pass").value,
+                email: $("login-email").value,
             }),
         });
         const data = await res.json();
@@ -690,13 +725,61 @@ async function login() {
 }
 
 $("login-button").addEventListener("click", login);
-["login-user", "login-pass"].forEach((id) =>
+["login-user", "login-pass", "login-email"].forEach((id) =>
     $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") login(); })
 );
+
+// --- zapomenuté heslo -------------------------------------------------------
+$("forgot-link").addEventListener("click", () => {
+    $("forgot-message").textContent = "";
+    $("forgot-user").value = $("login-user").value;
+    $("login-modal").classList.add("hidden");
+    $("forgot-modal").classList.remove("hidden");
+    $("forgot-modal").classList.add("flex");
+});
+
+$("forgot-cancel").addEventListener("click", () => {
+    $("forgot-modal").classList.add("hidden");
+    $("forgot-modal").classList.remove("flex");
+    $("login-modal").classList.remove("hidden");
+});
+
+async function sendForgotPassword() {
+    const button = $("forgot-button");
+    button.disabled = true;
+    $("forgot-message").textContent = "";
+    try {
+        const res = await fetch("/piskoviste/api/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: $("forgot-user").value }),
+        });
+        const data = await res.json();
+        $("forgot-message").textContent = data.ok
+            ? data.message
+            : data.error;
+        $("forgot-message").className = "text-xs font-bold min-h-[16px] " +
+            (data.ok ? "text-emerald-400" : "text-rose-400");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+$("forgot-button").addEventListener("click", sendForgotPassword);
+$("forgot-user").addEventListener("keydown", (e) => { if (e.key === "Enter") sendForgotPassword(); });
 
 $("logout-button").addEventListener("click", async () => {
     await fetch("/piskoviste/api/logout", { method: "POST" });
     location.reload();
+});
+
+$("delete-account-link").addEventListener("click", async () => {
+    if (!confirm("Opravdu navždy smazat tvůj účet? Zmizí úplně všechno - postup, odznaky, XP. Nejde to vrátit zpět.")) return;
+    const typed = prompt("Pro potvrzení napiš přesně: SMAZAT");
+    if (typed !== "SMAZAT") return;
+    await fetch("/piskoviste/api/delete-account", { method: "POST" });
+    alert("Účet byl smazán.");
+    location.href = "/";
 });
 
 $("reset-button").addEventListener("click", async () => {

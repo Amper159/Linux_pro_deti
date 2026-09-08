@@ -140,3 +140,16 @@ def leaderboard(limit: int = 10) -> List[dict]:
         )
     entries.sort(key=lambda e: (-e["xp"], -e["streak"], e["username"].lower()))
     return entries[:limit]
+
+
+def site_totals() -> dict:
+    """Skutečné souhrnné číslo za všechny hráče - pro homepage (žádná vymyšlená čísla)."""
+    total_completed = 0
+    total_xp = 0
+    players = 0
+    for user in auth.all_users():
+        progress = auth.load_progress(user)
+        total_completed += completed_count(progress)
+        total_xp += xp_for(progress)
+        players += 1
+    return {"players": players, "completed": total_completed, "xp": total_xp}

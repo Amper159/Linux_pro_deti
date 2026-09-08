@@ -11,6 +11,7 @@ DATA_DIR = Path(os.environ.get("SANDBOX_DATA", PROJECT_DIR / "sandbox_data"))
 HOMES_DIR = DATA_DIR / "homes"
 PROGRESS_DIR = DATA_DIR / "progress"
 USERS_FILE = DATA_DIR / "users.json"
+VISITS_FILE = DATA_DIR / "visits.json"
 SECRET_FILE = DATA_DIR / ".flask_secret"
 
 SKEL_DIR = BASE_DIR / "skel"
@@ -38,6 +39,19 @@ MAX_COMMAND_LENGTH = 400
 
 # Uživatel uvnitř kontejneru: jméno se odvozuje z hashe (viz auth.py).
 CONTAINER_USER_PREFIX = "kadet_"
+
+# --- E-mail (obnova zapomenutého hesla) ---------------------------------------
+# Bez SMTP_HOST se e-mail doopravdy neposílá, odkaz se jen vypíše do logu -
+# funkce tak jde vyzkoušet i na vývojářském stroji bez poštovního serveru.
+SMTP_HOST = os.environ.get("SMTP_HOST", "")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+SMTP_FROM = os.environ.get("SMTP_FROM", "Linux pro děti <info@linuxhrou.cz>")
+SMTP_USE_SSL = os.environ.get("SMTP_USE_SSL", "").strip() == "1"
+
+# Jak dlouho platí odkaz na obnovu hesla, než ho musí uživatel vyžádat znovu.
+PASSWORD_RESET_TTL_SECONDS = int(os.environ.get("SANDBOX_RESET_TTL", str(60 * 60)))
 
 
 def ensure_dirs() -> None:
