@@ -152,9 +152,12 @@
                 <p class="text-xs font-bold text-blue-300" id="task-title">Vyber si úkol vlevo</p>
                 <p class="text-sm text-slate-100 mt-1 leading-snug" id="task-goal"></p>
             </div>
-            <button id="syntax-guide-button" class="shrink-0 bg-slate-700 hover:bg-slate-600 text-yellow-300 font-bold px-2.5 py-1.5 rounded-lg text-[11px] border-b-2 border-slate-900 active:translate-y-0.5 transition whitespace-nowrap">
-                📖 Jak psát Python
-            </button>
+            <div class="shrink-0 flex flex-col items-end gap-1">
+                <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap">Nevíš si rady?</span>
+                <button id="syntax-guide-button" class="bg-slate-700 hover:bg-slate-600 text-yellow-300 font-bold px-2.5 py-1.5 rounded-lg text-[11px] border-b-2 border-slate-900 active:translate-y-0.5 transition whitespace-nowrap">
+                    📖 Jak psát Python
+                </button>
+            </div>
         </div>
         <textarea id="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off"
             class="flex-1 bg-slate-950 text-slate-100 font-mono text-[13px] p-3 focus:outline-none resize-none leading-relaxed"
@@ -175,7 +178,7 @@
     </section>
 
     <!-- PŘÍRUČKA SYNTAXE (modal) -->
-    <div id="syntax-guide-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div id="syntax-guide-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 items-center justify-center p-4 antialiased" style="text-rendering: optimizeLegibility;">
         <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-lg lego-card-blue space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between sticky -top-6 bg-slate-800 pt-1 pb-2 -mx-6 px-6 z-10">
                 <h2 class="text-lg font-bold text-blue-300 uppercase">📖 Jak psát Python kód</h2>
@@ -183,8 +186,8 @@
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">1. Proměnná = krabička na hodnotu</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">1. Proměnná = krabička na hodnotu</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Proměnná je jméno, pod kterým si Python "zapamatuje" nějakou hodnotu, abys ji mohl použít znovu,
                     aniž bys ji musel psát pořád dokola. Zápis <code class="font-mono text-sky-300">vek = 12</code> znamená
                     "do krabičky jménem <code class="font-mono">vek</code> ulož číslo 12". Znaménko
@@ -194,8 +197,8 @@
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">2. Text v uvozovkách, čísla bez nich</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">2. Text v uvozovkách, čísla bez nich</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     <code class="font-mono text-sky-300">jmeno = "Ema"</code> - uvozovky říkají Pythonu "tohle je text
                     (řetězec), neřeš, co znamená, jen si to ulož jako je". Bez uvozovek by si Python myslel, že
                     <code class="font-mono">Ema</code> je jméno nějaké proměnné, a spadl by s chybou, že takovou
@@ -206,8 +209,8 @@
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">3. Odsazení místo závorek</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">3. Odsazení místo závorek</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Jiné jazyky ohraničují blok kódu složenými závorkami <code class="font-mono text-slate-400">{ }</code>.
                     Python místo toho pozná, co patří "dovnitř" <code class="font-mono text-sky-300">if</code>,
                     <code class="font-mono text-sky-300">for</code>, <code class="font-mono text-sky-300">while</code> nebo
@@ -218,8 +221,8 @@
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">4. Vždy 4 mezery, ne tabulátor</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">4. Vždy 4 mezery, ne tabulátor</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Doporučené (a v tomhle editoru automatické) odsazení jsou <b>4 mezery</b>. Důležité je, aby sis
                     v jednom bloku nemíchal mezery a tabulátory - Python by pak hlásil chybu
                     <code class="font-mono text-rose-400">IndentationError</code>.
@@ -228,8 +231,8 @@
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">5. Dvojtečka na konci řádku</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">5. Dvojtečka na konci řádku</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Řádek, po kterém následuje odsazený blok, končí dvojtečkou <code class="font-mono text-sky-300">:</code> -
                     je to jako "začíná tu vnořený seznam pokynů". Je to malá, ale snadno přehlédnutelná věc - hodně
                     začátečnických chyb je jen zapomenutá dvojtečka.
@@ -241,8 +244,8 @@ else:
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">6. Podmínky (if / elif / else)</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">6. Podmínky (if / elif / else)</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Podmínka nechá program <b>rozhodnout se</b> podle situace - "pokud platí tohle, udělej A, jinak
                     udělej B". <code class="font-mono text-sky-300">if</code> zkusí první podmínku,
                     <code class="font-mono text-sky-300">elif</code> ("else if") další podmínku, pokud ta první
@@ -252,8 +255,8 @@ else:
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">7. Smyčky (for / while)</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">7. Smyčky (for / while)</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Smyčka opakuje kus kódu, abys ho nemusel opisovat pořád dokola. <code class="font-mono text-sky-300">for</code>
                     použij, když víš dopředu, přes co procházíš (seznam, rozsah čísel) - "pro každou položku udělej tohle".
                     <code class="font-mono text-sky-300">while</code> použij, když se má opakovat, <b>dokud platí</b>
@@ -262,8 +265,8 @@ else:
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">8. Funkce - print() vs. return</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">8. Funkce - print() vs. return</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Funkce je "recept", který si sám napíšeš a pak podle jména zavoláš, kdykoliv ho potřebuješ, místo
                     aby ses opisoval. Časté zmatení: <code class="font-mono text-sky-300">print()</code> jen
                     <b>vypíše</b> něco na obrazovku - je to jen zpráva pro tebe. <code class="font-mono text-sky-300">return</code>
@@ -274,8 +277,8 @@ else:
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">9. Komentáře (#)</p>
-                <p class="text-xs text-slate-300 leading-relaxed">
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">9. Komentáře (#)</p>
+                <p class="text-[13px] text-slate-200 leading-relaxed font-medium">
                     Cokoliv za znakem <code class="font-mono text-sky-300">#</code> Python úplně ignoruje - je to
                     poznámka jen pro lidi, co kód čtou (včetně tebe za měsíc, až si nebudeš pamatovat, proč jsi to
                     tak napsal).
@@ -283,7 +286,7 @@ else:
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
-                <p class="text-xs font-bold text-yellow-300 mb-1">10. Příklad se vším dohromady</p>
+                <p class="text-sm font-bold text-yellow-300 mb-1.5 tracking-wide">10. Příklad se vším dohromady</p>
                 <pre class="font-mono text-[11px] text-slate-200 bg-slate-950 rounded-lg p-2 overflow-x-auto">def pozdrav(jmeno):
     print(f"Ahoj, {jmeno}!")
 
