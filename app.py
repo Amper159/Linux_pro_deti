@@ -50,18 +50,17 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Linuxhrou.cz – Objevuj svět Linuxu zábavně!</title>
-    <meta name="description" content="Nauč se Linux hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček. Zdarma pro děti, rodiče i školy.">
+    <meta name="description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček. Zdarma pro děti, rodiče i školy.">
     <link rel="canonical" href="https://linuxhrou.cz/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Linuxhrou.cz – Objevuj svět Linuxu zábavně!">
-    <meta property="og:description" content="Nauč se Linux hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
+    <meta property="og:description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
     <meta property="og:url" content="https://linuxhrou.cz/">
     <meta property="og:image" content="https://linuxhrou.cz/og-image.png">
     <meta property="og:locale" content="cs_CZ">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Linuxhrou.cz – Objevuj svět Linuxu zábavně!">
-    <meta name="twitter:description" content="Nauč se Linux hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <meta name="twitter:description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -149,6 +148,9 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 </h1>
                 <p class="text-slate-400 text-base md:text-lg font-medium">
                     Zjisti, jak funguje operační systém, na kterém běží rakety SpaceX, Android v mobilu i nejrychlejší superpočítače světa.
+                </p>
+                <p class="text-sm md:text-base font-bold text-blue-300">
+                    🐍 A když ti Linux nebude stačit, vyzkoušej si u nás rovnou i základy <a href="/python" class="underline decoration-yellow-400 hover:text-blue-200 transition">programování v Pythonu</a> — přímo v prohlížeči, žádná instalace.
                 </p>
             </div>
 
