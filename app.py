@@ -752,8 +752,18 @@ new Chart(ctx, {
 @app.route("/")
 def home():
     """Úvodní vzdělávací portál Linuxhrou.cz"""
+    # Interní healthcheck (viz Dockerfile) i případné přímé volání na Flask
+    # (mimo Caddy) nemají hlavičku X-Forwarded-For - tu přidává jen Caddy u
+    # skutečného provozu zvenku. Takhle se healthcheck nezapočítá jako
+    # "nový návštěvník" při každém ze svých pravidelných volání.
+    is_real_visit = "X-Forwarded-For" in request.headers
     visitor_id = request.cookies.get(sandbox_visits.COOKIE_NAME)
-    visitor_id, visit_stats = sandbox_visits.record_visit(visitor_id)
+
+    if is_real_visit:
+        visitor_id, visit_stats = sandbox_visits.record_visit(visitor_id)
+    else:
+        visit_stats = sandbox_visits.stats()
+
     totals = sandbox_gamification.site_totals()
 
     resp = make_response(render_template_string(
@@ -763,14 +773,15 @@ def home():
         total_completed=totals["completed"],
         total_xp=totals["xp"],
     ))
-    resp.set_cookie(
-        sandbox_visits.COOKIE_NAME,
-        visitor_id,
-        max_age=sandbox_visits.COOKIE_MAX_AGE,
-        httponly=True,
-        samesite="Lax",
-        secure=not _is_dev,
-    )
+    if is_real_visit:
+        resp.set_cookie(
+            sandbox_visits.COOKIE_NAME,
+            visitor_id,
+            max_age=sandbox_visits.COOKIE_MAX_AGE,
+            httponly=True,
+            samesite="Lax",
+            secure=not _is_dev,
+        )
     return resp
 
 
