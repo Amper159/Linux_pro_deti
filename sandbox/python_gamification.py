@@ -20,6 +20,9 @@ BADGE_TIERS = [
     {"value": 6, "id": "logika", "label": "Logika", "icon": "fa-diagram-project"},
     {"value": 10, "id": "smyckar", "label": "Smyčkář", "icon": "fa-rotate"},
     {"value": 15, "id": "pythonista", "label": "Pythonista", "icon": "fa-hat-wizard"},
+    {"value": 20, "id": "textovy_mag", "label": "Textový mág", "icon": "fa-wand-magic-sparkles"},
+    {"value": 25, "id": "datovy_architekt", "label": "Datový architekt", "icon": "fa-database"},
+    {"value": 30, "id": "mistr_pythonu", "label": "Mistr Pythonu", "icon": "fa-crown"},
 ]
 
 
