@@ -138,13 +138,21 @@
 
     <!-- EDITOR + KONZOLE -->
     <section class="order-1 lg:order-none lg:col-span-6 h-[55vh] lg:h-auto bg-slate-900 rounded-2xl lego-card flex flex-col lg:min-h-0 overflow-hidden">
-        <div class="bg-slate-800 px-4 py-2 border-b-2 border-slate-700 shrink-0">
-            <p class="text-xs font-bold text-blue-300" id="task-title">Vyber si úkol vlevo</p>
-            <p class="text-[11px] text-slate-400 mt-0.5" id="task-goal"></p>
+        <div class="bg-slate-800 px-4 py-2 border-b-2 border-slate-700 shrink-0 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+                <p class="text-xs font-bold text-blue-300" id="task-title">Vyber si úkol vlevo</p>
+                <p class="text-[11px] text-slate-400 mt-0.5" id="task-goal"></p>
+            </div>
+            <button id="syntax-guide-button" class="shrink-0 bg-slate-700 hover:bg-slate-600 text-yellow-300 font-bold px-2.5 py-1.5 rounded-lg text-[11px] border-b-2 border-slate-900 active:translate-y-0.5 transition whitespace-nowrap">
+                📖 Jak psát Python
+            </button>
         </div>
         <textarea id="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off"
             class="flex-1 bg-slate-950 text-slate-100 font-mono text-[13px] p-3 focus:outline-none resize-none leading-relaxed"
             placeholder="# vyber si úkol vlevo, ať víš, co psát"></textarea>
+        <p class="text-[10px] text-slate-500 px-3 py-1 bg-slate-950 border-t border-slate-800 shrink-0">
+            💡 Klávesa <b class="text-slate-300">Tab</b> tady vloží odsazení (4 mezery) - je to potřeba pro if/for/while/def, viz "Jak psát Python" nahoře.
+        </p>
         <div class="flex items-center gap-2 px-3 py-2 bg-slate-800 border-t-2 border-slate-700 shrink-0">
             <button id="run-button" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl border-b-4 border-emerald-700 active:translate-y-1 transition text-sm">
                 ▶ Spustit
@@ -156,6 +164,60 @@
         </div>
         <div id="console-output" class="h-28 shrink-0 bg-black/40 border-t-2 border-slate-700 p-3 font-mono text-[12px] overflow-y-auto custom-scrollbar leading-relaxed"></div>
     </section>
+
+    <!-- PŘÍRUČKA SYNTAXE (modal) -->
+    <div id="syntax-guide-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-lg lego-card-blue space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-blue-300 uppercase">📖 Jak psát Python kód</h2>
+                <button id="syntax-guide-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="text-xs font-bold text-yellow-300 mb-1">1. Odsazení místo závorek</p>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Jiné jazyky ohraničují blok kódu složenými závorkami <code class="font-mono text-slate-400">{ }</code>.
+                    Python místo toho pozná, co patří "dovnitř" <code class="font-mono text-sky-300">if</code>,
+                    <code class="font-mono text-sky-300">for</code>, <code class="font-mono text-sky-300">while</code> nebo
+                    <code class="font-mono text-sky-300">def</code>, podle toho, o kolik je řádek <b>odsazený</b> (posunutý doprava).
+                </p>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="text-xs font-bold text-yellow-300 mb-1">2. Vždy 4 mezery, ne tabulátor</p>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Doporučené (a v tomhle editoru automatické) odsazení jsou <b>4 mezery</b>. Důležité je, aby sis
+                    v jednom bloku nemíchal mezery a tabulátory - Python by pak hlásil chybu
+                    <code class="font-mono text-rose-400">IndentationError</code>.
+                    V tomhle editoru klávesa <b class="text-slate-100">Tab</b> vloží rovnou 4 mezery, takže se tím nemusíš trápit.
+                </p>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="text-xs font-bold text-yellow-300 mb-1">3. Dvojtečka na konci řádku</p>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Řádek, po kterém následuje odsazený blok, končí dvojtečkou <code class="font-mono text-sky-300">:</code>
+                </p>
+                <pre class="font-mono text-[11px] text-slate-200 bg-slate-950 rounded-lg p-2 mt-2 overflow-x-auto">if cislo &gt; 10:
+    print("velke cislo")
+else:
+    print("male cislo")</pre>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="text-xs font-bold text-yellow-300 mb-1">4. Příklad se smyčkou a funkcí</p>
+                <pre class="font-mono text-[11px] text-slate-200 bg-slate-950 rounded-lg p-2 overflow-x-auto">def pozdrav(jmeno):
+    print(f"Ahoj, {jmeno}!")
+
+for j in ["Ema", "Tomas"]:
+    pozdrav(j)</pre>
+                <p class="text-[10px] text-slate-500 mt-1">
+                    Všimni si: kód uvnitř <code class="font-mono">def</code> i <code class="font-mono">for</code> je odsazený
+                    o 4 mezery. Jakmile se odsazení vrátí zpátky doleva, blok končí.
+                </p>
+            </div>
+        </div>
+    </div>
 
     <!-- PYT + ODZNAKY + ŽEBŘÍČEK -->
     <aside class="order-3 lg:order-none lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-blue p-4 flex flex-col max-h-[40vh] lg:max-h-none overflow-y-auto lg:min-h-0 custom-scrollbar space-y-4">
@@ -327,6 +389,27 @@ initPyodide();
 $("hint-button").addEventListener("click", () => {
     if (!currentTask) return;
     writeConsole("💡 Nápověda: " + currentTask.hint, "#facc15");
+});
+
+// ---- příručka syntaxe ----
+$("syntax-guide-button").addEventListener("click", () => {
+    $("syntax-guide-modal").classList.remove("hidden");
+    $("syntax-guide-modal").classList.add("flex");
+});
+$("syntax-guide-close").addEventListener("click", () => {
+    $("syntax-guide-modal").classList.add("hidden");
+    $("syntax-guide-modal").classList.remove("flex");
+});
+
+// ---- Tab v editoru vloží 4 mezery, místo aby přeskočil na jiný prvek ----
+$("code-editor").addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    e.preventDefault();
+    const el = e.target;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    el.value = el.value.slice(0, start) + "    " + el.value.slice(end);
+    el.selectionStart = el.selectionEnd = start + 4;
 });
 
 $("run-button").addEventListener("click", async () => {

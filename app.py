@@ -113,22 +113,21 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     </div>
                     <span class="text-2xl font-black tracking-wider text-amber-400">Linux<span class="text-sky-400">hrou.cz</span></span>
                 </div>
-                <div class="hidden xl:flex space-x-4 text-[13px] font-bold">
-                    <a href="#o-linuxu" class="text-slate-300 hover:text-amber-400 transition">Co je Linux?</a>
-                    <a href="#mapa" class="text-slate-300 hover:text-emerald-400 transition">Mapa kampaní</a>
-                    <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition">Kde všude běží?</a>
-                    <a href="#distribuce" class="text-slate-300 hover:text-purple-400 transition">Vyber si distribuci</a>
-                    <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition">Odznaky</a>
-                    <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition">Pro rodiče</a>
-                    <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition">Slovník příkazů</a>
-                    <a href="/python" class="text-yellow-300 hover:text-yellow-200 transition">🐍 Python lab</a>
+                <div class="hidden xl:flex items-center space-x-3 text-[12.5px] font-bold whitespace-nowrap">
+                    <a href="#o-linuxu" class="text-slate-300 hover:text-amber-400 transition whitespace-nowrap">Co je Linux?</a>
+                    <a href="#mapa" class="text-slate-300 hover:text-emerald-400 transition whitespace-nowrap">Mapa kampaní</a>
+                    <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition whitespace-nowrap">Kde všude běží?</a>
+                    <a href="#distribuce" class="text-slate-300 hover:text-purple-400 transition whitespace-nowrap">Vyber si distribuci</a>
+                    <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition whitespace-nowrap">Odznaky</a>
+                    <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition whitespace-nowrap">Pro rodiče</a>
+                    <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition whitespace-nowrap">Slovník příkazů</a>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="/python" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2">
+                    <a href="/python" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2 whitespace-nowrap">
                         <span>🐍</span>
                         <span>PYTHON</span>
                     </a>
-                    <a href="/piskoviste" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2">
+                    <a href="/piskoviste" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2 whitespace-nowrap">
                         <i class="fa-solid fa-terminal text-lg"></i>
                         <span>SPUSTIT TERMINÁL</span>
                     </a>
