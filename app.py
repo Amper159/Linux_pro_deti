@@ -5,6 +5,7 @@ import os
 
 from sandbox import engine as sandbox_engine
 from sandbox import sandbox_bp
+from sandbox import python_lab_bp
 from sandbox import visits as sandbox_visits
 from sandbox import gamification as sandbox_gamification
 from sandbox.config import SECRET_FILE, ensure_dirs
@@ -40,6 +41,7 @@ app.config.update(
 
 # Nová stránka: /piskoviste – opravdový Linux v kontejneru.
 app.register_blueprint(sandbox_bp)
+app.register_blueprint(python_lab_bp)
 sandbox_engine.start_reaper()
 
 PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
@@ -119,8 +121,13 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition">Odznaky</a>
                     <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition">Pro rodiče</a>
                     <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition">Slovník příkazů</a>
+                    <a href="/python" class="text-yellow-300 hover:text-yellow-200 transition">🐍 Python lab</a>
                 </div>
-                <div>
+                <div class="flex items-center gap-2">
+                    <a href="/python" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2">
+                        <span>🐍</span>
+                        <span>PYTHON</span>
+                    </a>
                     <a href="/piskoviste" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2">
                         <i class="fa-solid fa-terminal text-lg"></i>
                         <span>SPUSTIT TERMINÁL</span>

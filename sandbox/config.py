@@ -10,6 +10,7 @@ PROJECT_DIR = BASE_DIR.parent
 DATA_DIR = Path(os.environ.get("SANDBOX_DATA", PROJECT_DIR / "sandbox_data"))
 HOMES_DIR = DATA_DIR / "homes"
 PROGRESS_DIR = DATA_DIR / "progress"
+PYTHON_PROGRESS_DIR = DATA_DIR / "python_progress"
 USERS_FILE = DATA_DIR / "users.json"
 VISITS_FILE = DATA_DIR / "visits.json"
 SECRET_FILE = DATA_DIR / ".flask_secret"
@@ -55,5 +56,5 @@ PASSWORD_RESET_TTL_SECONDS = int(os.environ.get("SANDBOX_RESET_TTL", str(60 * 60
 
 
 def ensure_dirs() -> None:
-    for d in (DATA_DIR, HOMES_DIR, PROGRESS_DIR):
+    for d in (DATA_DIR, HOMES_DIR, PROGRESS_DIR, PYTHON_PROGRESS_DIR):
         d.mkdir(parents=True, exist_ok=True)

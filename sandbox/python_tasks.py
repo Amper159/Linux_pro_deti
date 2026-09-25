@@ -1,0 +1,148 @@
+PYTHON_TASKS = [
+    {
+        "id": 1, "set": 1,
+        "title": "Ahoj, Pythone!",
+        "story": "Vítej v Pythoním doupěti! Prvním kouzlem každého programátora je vypsat pozdrav.",
+        "goal": "Použij print() a vypiš přesně: Ahoj, Pythone!",
+        "starter_code": "# napiš svůj kód sem\n",
+        "hint": 'print("Ahoj, Pythone!")',
+        "check": 'assert "Ahoj, Pythone!" in _stdout_capture, "Nenašel jsem ve výstupu \'Ahoj, Pythone!\'"',
+    },
+    {
+        "id": 2, "set": 1,
+        "title": "Tvoje první proměnná",
+        "story": "Proměnná je jako krabička, do které si uložíš hodnotu na později.",
+        "goal": "Vytvoř proměnnou jmeno s tvým jménem (text) a pak ji vypiš pomocí print().",
+        "starter_code": "jmeno = \"\"\n\n",
+        "hint": 'jmeno = "Kadet"\nprint(jmeno)',
+        "check": 'assert isinstance(jmeno, str) and len(jmeno) > 0, "Proměnná jmeno musí obsahovat nějaký text"\nassert jmeno in _stdout_capture, "Nezapomněl jsi vypsat jmeno pomocí print()?"',
+    },
+    {
+        "id": 3, "set": 1,
+        "title": "Počítání jako profík",
+        "story": "Python umí počítat rychleji než kalkulačka.",
+        "goal": "Ulož do proměnné vysledek součet čísel 15 a 27.",
+        "starter_code": "vysledek = 0\n",
+        "hint": "vysledek = 15 + 27",
+        "check": 'assert vysledek == 42, f"Čekal jsem 42, mám {vysledek}"',
+    },
+    {
+        "id": 4, "set": 1,
+        "title": "Spojování textu",
+        "story": "Texty (řetězce) jde spojovat dohromady pomocí f-stringů.",
+        "goal": "Vytvoř proměnnou vek s číslem 12, pak proměnnou zprava, která pomocí f-stringu vypíše 'Je mi 12 let'.",
+        "starter_code": "vek = 0\nzprava = \"\"\n",
+        "hint": 'vek = 12\nzprava = f"Je mi {vek} let"',
+        "check": 'assert vek == 12, "Proměnná vek musí být 12"\nassert zprava == "Je mi 12 let", f"Čekal jsem \'Je mi 12 let\', mám \'{zprava}\'"',
+    },
+    {
+        "id": 5, "set": 1,
+        "title": "Rozhodni se!",
+        "story": "Programy umí reagovat jinak podle situace - k tomu slouží if.",
+        "goal": "Vytvoř proměnnou cislo = 7. Pomocí if/else vypiš 'sude' pokud je sudé, jinak 'liche'.",
+        "starter_code": "cislo = 7\n\n",
+        "hint": 'cislo = 7\nif cislo % 2 == 0:\n    print("sude")\nelse:\n    print("liche")',
+        "check": 'assert "liche" in _stdout_capture, "Číslo 7 je liché - měl by ses vypsat \'liche\'"',
+    },
+    {
+        "id": 6, "set": 1,
+        "title": "Opakuj se mnou (for)",
+        "story": "Smyčka for umí zopakovat kus kódu vícekrát bez zbytečného opisování.",
+        "goal": "Pomocí for a range(1, 6) vypiš čísla 1 až 5, každé na svůj řádek.",
+        "starter_code": "\n",
+        "hint": "for i in range(1, 6):\n    print(i)",
+        "check": 'for _n in range(1, 6):\n    assert str(_n) in _stdout_capture, f"Chybí mi ve výstupu číslo {_n}"',
+    },
+    {
+        "id": 7, "set": 2,
+        "title": "Sečti smyčkou",
+        "story": "Smyčky se dají použít i na sčítání - třeba součet čísel v seznamu.",
+        "goal": "Máš seznam cisla. Pomocí for smyčky spočítej jejich součet do proměnné soucet.",
+        "starter_code": "cisla = [3, 7, 2, 9, 5]\nsoucet = 0\n\n",
+        "hint": "cisla = [3, 7, 2, 9, 5]\nsoucet = 0\nfor c in cisla:\n    soucet += c",
+        "check": 'assert soucet == 26, f"Čekal jsem součet 26, mám {soucet}"',
+    },
+    {
+        "id": 8, "set": 2,
+        "title": "Seznam úkolů",
+        "story": "Seznam (list) umí držet víc hodnot pohromadě, ve správném pořadí.",
+        "goal": "Vytvoř seznam ukoly se třemi řetězci podle svého výběru, pak na konec přidej (append) 'ulozit soubor'.",
+        "starter_code": "ukoly = []\n",
+        "hint": 'ukoly = ["uklidit", "napsat kod", "najist se"]\nukoly.append("ulozit soubor")',
+        "check": 'assert isinstance(ukoly, list) and len(ukoly) == 4, "Seznam ukoly musí mít nakonec 4 položky"\nassert ukoly[-1] == "ulozit soubor", "Poslední položka musí být \'ulozit soubor\'"',
+    },
+    {
+        "id": 9, "set": 2,
+        "title": "Projdi seznam",
+        "story": "Přes seznam se dá procházet stejně jako přes range().",
+        "goal": "Máš seznam zvirata. Pomocí for vypiš každé zvíře na svůj řádek.",
+        "starter_code": "zvirata = [\"pes\", \"kocka\", \"papousek\"]\n\n",
+        "hint": 'zvirata = ["pes", "kocka", "papousek"]\nfor z in zvirata:\n    print(z)',
+        "check": 'for _z in ["pes", "kocka", "papousek"]:\n    assert _z in _stdout_capture, f"Chybí mi ve výstupu {_z}"',
+    },
+    {
+        "id": 10, "set": 2,
+        "title": "Slovník s informacemi",
+        "story": "Slovník (dict) páruje klíč s hodnotou - třeba jméno s věkem.",
+        "goal": "Vytvoř slovník kadet s klíči 'jmeno' (text) a 'level' (číslo 1).",
+        "starter_code": "kadet = {}\n",
+        "hint": 'kadet = {"jmeno": "Kadet", "level": 1}',
+        "check": 'assert kadet.get("level") == 1, "Klíč \'level\' musí mít hodnotu 1"\nassert isinstance(kadet.get("jmeno"), str) and kadet.get("jmeno"), "Klíč \'jmeno\' musí obsahovat text"',
+    },
+    {
+        "id": 11, "set": 3,
+        "title": "Tvoje první funkce",
+        "story": "Funkce je jako vlastní příkaz, který si sám naprogramuješ.",
+        "goal": "Napiš funkci pozdrav(), která vypíše 'Ahoj z funkce!'. Pak ji zavolej.",
+        "starter_code": "def pozdrav():\n    pass\n\n",
+        "hint": 'def pozdrav():\n    print("Ahoj z funkce!")\n\npozdrav()',
+        "check": 'assert "Ahoj z funkce!" in _stdout_capture, "Funkce pozdrav() musí vypsat \'Ahoj z funkce!\'"',
+    },
+    {
+        "id": 12, "set": 3,
+        "title": "Funkce s parametrem",
+        "story": "Funkce může přijímat vstupní hodnoty (parametry) a s nimi pracovat.",
+        "goal": "Napiš funkci secti(a, b), která vrátí (return) součet dvou čísel. Zavolej secti(4, 5) a výsledek ulož do proměnné vysledek.",
+        "starter_code": "def secti(a, b):\n    pass\n\nvysledek = 0\n",
+        "hint": "def secti(a, b):\n    return a + b\n\nvysledek = secti(4, 5)",
+        "check": 'assert vysledek == 9, f"Čekal jsem 9, mám {vysledek}"',
+    },
+    {
+        "id": 13, "set": 3,
+        "title": "Podmínka uvnitř funkce",
+        "story": "Funkce a podmínky se dají krásně kombinovat.",
+        "goal": "Napiš funkci je_plnolety(vek), která vrátí True, pokud je vek >= 18, jinak False.",
+        "starter_code": "def je_plnolety(vek):\n    pass\n",
+        "hint": "def je_plnolety(vek):\n    return vek >= 18",
+        "check": 'assert je_plnolety(20) == True, "je_plnolety(20) musí vrátit True"\nassert je_plnolety(10) == False, "je_plnolety(10) musí vrátit False"',
+    },
+    {
+        "id": 14, "set": 3,
+        "title": "While - opakuj, dokud...",
+        "story": "Smyčka while opakuje kód, dokud platí podmínka.",
+        "goal": "Pomocí while sniž proměnnou pocitadlo z 5 na 0 a při každém kroku ji vypiš.",
+        "starter_code": "pocitadlo = 5\n\n",
+        "hint": "pocitadlo = 5\nwhile pocitadlo > 0:\n    print(pocitadlo)\n    pocitadlo -= 1",
+        "check": 'assert pocitadlo == 0, f"Na konci má být pocitadlo == 0, mám {pocitadlo}"\nfor _n in [5,4,3,2,1]:\n    assert str(_n) in _stdout_capture, f"Chybí mi ve výstupu {_n}"',
+    },
+    {
+        "id": 15, "set": 3,
+        "title": "Závěrečná mise: seznam jmen",
+        "story": "Poslední úkol kombinuje funkce, seznamy i smyčky dohromady - přesně jako ve skutečném programování.",
+        "goal": "Napiš funkci pozdrav_vsechny(jmena), která pro každé jméno v seznamu vypíše 'Ahoj, <jméno>!'. Zavolej ji se seznamem ['Ema', 'Jakub', 'Tereza'].",
+        "starter_code": "def pozdrav_vsechny(jmena):\n    pass\n\n",
+        "hint": 'def pozdrav_vsechny(jmena):\n    for j in jmena:\n        print(f"Ahoj, {j}!")\n\npozdrav_vsechny(["Ema", "Jakub", "Tereza"])',
+        "check": 'for _j in ["Ema", "Jakub", "Tereza"]:\n    assert f"Ahoj, {_j}!" in _stdout_capture, f"Chybí pozdrav pro {_j}"',
+    },
+]
+
+
+def all_tasks():
+    return PYTHON_TASKS
+
+
+def get_task(task_id: int):
+    for t in PYTHON_TASKS:
+        if t["id"] == task_id:
+            return t
+    return None
