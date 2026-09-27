@@ -165,16 +165,19 @@
         <p class="text-[10px] text-slate-500 px-3 py-1 bg-slate-950 border-t border-slate-800 shrink-0">
             💡 Klávesa <b class="text-slate-300">Tab</b> tady vloží odsazení (4 mezery) - je to potřeba pro if/for/while/def, viz "Jak psát Python" nahoře.
         </p>
-        <div class="flex items-center gap-2 px-3 py-2 bg-slate-800 border-t-2 border-slate-700 shrink-0">
+        <div class="flex items-center flex-wrap gap-2 px-3 py-2 bg-slate-800 border-t-2 border-slate-700 shrink-0">
             <button id="run-button" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl border-b-4 border-emerald-700 active:translate-y-1 transition text-sm">
                 ▶ Spustit
             </button>
             <button id="hint-button" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-3 py-2 rounded-xl border-b-4 border-slate-900 active:translate-y-1 transition text-sm">
                 💡 Nápověda
             </button>
+            <button id="hint-insert-button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl border-b-4 border-amber-700 active:translate-y-1 transition text-sm">
+                ⬇ Vložit řešení
+            </button>
             <span id="run-spinner" class="hidden text-sky-400"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
         </div>
-        <div id="console-output" class="h-28 shrink-0 bg-black/40 border-t-2 border-slate-700 p-3 font-mono text-[12px] overflow-y-auto custom-scrollbar leading-relaxed"></div>
+        <div id="console-output" class="h-28 shrink-0 bg-black/40 border-t-2 border-slate-700 p-3 font-mono text-[12px] overflow-y-auto custom-scrollbar leading-relaxed" style="white-space: pre-wrap;"></div>
     </section>
 
     <!-- PŘÍRUČKA SYNTAXE (modal) -->
@@ -486,7 +489,13 @@ initPyodide();
 
 $("hint-button").addEventListener("click", () => {
     if (!currentTask) return;
-    writeConsole("💡 Nápověda: " + currentTask.hint, "#facc15");
+    writeConsole("💡 Nápověda:\n" + currentTask.hint, "#facc15");
+});
+
+$("hint-insert-button").addEventListener("click", () => {
+    if (!currentTask) { writeConsole("Nejdřív si vyber úkol vlevo.", "#f87171"); return; }
+    $("code-editor").value = currentTask.hint;
+    writeConsole("⬇ Řešení vloženo do editoru. Klikni na ▶ Spustit, ať se ti úkol započítá.", "#facc15");
 });
 
 // ---- příručka syntaxe ----
