@@ -55,6 +55,9 @@ SMTP_USE_SSL = os.environ.get("SMTP_USE_SSL", "").strip() == "1"
 # Jak dlouho platí odkaz na obnovu hesla, než ho musí uživatel vyžádat znovu.
 PASSWORD_RESET_TTL_SECONDS = int(os.environ.get("SANDBOX_RESET_TTL", str(60 * 60)))
 
+# Kam posílat e-mailové upozornění na novou zprávu ze zpětné vazby (viz feedback.py).
+FEEDBACK_NOTIFY_EMAIL = os.environ.get("FEEDBACK_NOTIFY_EMAIL", "lampart.m1305@gmail.com")
+
 
 def ensure_dirs() -> None:
     for d in (DATA_DIR, HOMES_DIR, PROGRESS_DIR, PYTHON_PROGRESS_DIR):

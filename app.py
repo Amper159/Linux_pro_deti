@@ -9,6 +9,7 @@ from sandbox import python_lab_bp
 from sandbox import visits as sandbox_visits
 from sandbox import gamification as sandbox_gamification
 from sandbox import feedback as sandbox_feedback
+from sandbox import mailer as sandbox_mailer
 from sandbox import ratelimit as sandbox_ratelimit
 from sandbox.config import SECRET_FILE, ensure_dirs
 
@@ -1006,6 +1007,7 @@ def api_feedback():
     zaznam = sandbox_feedback.ulozit(jmeno=data.get("jmeno", ""), typ=typ, zprava=zprava)
     if zaznam is None:
         return jsonify({"ok": False, "error": "Zprávu se nepodařilo uložit."}), 400
+    sandbox_mailer.send_feedback_notification(zaznam)
     return jsonify({"ok": True})
 
 
