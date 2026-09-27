@@ -735,11 +735,11 @@ const DUNGEON_MONSTERS = [
     { name: "Kostěná hlídka", obtiznost: 12, dmgMin: 3, dmgMax: 5 },
     { name: "Stínový plaz", obtiznost: 11, dmgMin: 2, dmgMax: 5 },
 ];
-const DUNGEON_BOSS = { name: "Strážce hlubin", obtiznost: 14, dmgMin: 4, dmgMax: 7 };
+const DUNGEON_BOSS = { name: "Strážce hlubin", obtiznost: 15, dmgMin: 4, dmgMax: 7 };
 const DUNGEON_ITEMS = [
-    { name: "Ostrý meč", efekt: "attack", hodnota: 3 },
-    { name: "Kožená zbroj", efekt: "max_hp", hodnota: 5 },
-    { name: "Lektvar zdraví", efekt: "heal", hodnota: 7 },
+    { name: "Ostrý meč", efekt: "attack", hodnota: 3, popis: "+3 k útoku natrvalo" },
+    { name: "Kožená zbroj", efekt: "max_hp", hodnota: 5, popis: "+5 k max. HP natrvalo" },
+    { name: "Lektvar zdraví", efekt: "heal", hodnota: 7, popis: "+7 HP okamžitě" },
 ];
 const DUNGEON_ROOM_WEIGHTS = [["monster", 40], ["treasure", 25], ["trap", 15], ["fountain", 10], ["empty", 10]];
 const DUNGEON_TOTAL_ROOMS = 6;
@@ -786,20 +786,49 @@ function dungeonEnd(outcome) {
     $("dungeon-ending-detail").textContent = `Nasbírané předměty: ${dungeonPlayer.items.length ? dungeonPlayer.items.join(", ") : "žádné"}`;
 }
 
-function dungeonFight(monster, onDone) {
+/**
+ * Souboj se skutečnou volbou stylu:
+ *   "silny"   - +3 k hodu, ale při neúspěchu plné zranění (risk)
+ *   "opatrny" - +1 k hodu, ale při neúspěchu poloviční zranění (bezpečnější)
+ *   "utek"    - 45% šance uniknout bez boje, jinak 3-6 zranění (jen u běžných příšer, ne u bosse)
+ */
+function dungeonFight(monster, styl, onDone) {
+    if (styl === "utek") {
+        const uspech = Math.random() < 0.45;
+        if (!uspech) {
+            const dmg = dRandInt(3, 6);
+            dungeonPlayer.hp -= dmg;
+        }
+        dungeonShowCode(
+            `uspech = random.random() < 0.45\n` +
+            `if uspech:\n    # ${uspech ? "utekl jsi bez zranění" : ""}` +
+            (uspech ? "" : `\nelse:\n    hrac["hp"] -= random.randint(3, 6)  # nepodařilo se ti utéct čistě`)
+        );
+        dungeonUpdateStatus();
+        onDone(true);
+        return;
+    }
+    const bonus = styl === "silny" ? 3 : 1;
     const roll = dRandInt(1, 20);
-    const total = roll + dungeonPlayer.attack;
+    const total = roll + dungeonPlayer.attack + bonus;
     const vyhral = total >= monster.obtiznost;
-    dungeonShowCode(
-        `hod = random.randint(1, 20)  # padlo: ${roll}\n` +
-        `celkem = hod + hrac["attack"]  # ${roll} + ${dungeonPlayer.attack} = ${total}\n` +
-        `if celkem >= ${monster.name === DUNGEON_BOSS.name ? "boss" : "prisera"}["obtiznost"]:  # potřeba ${monster.obtiznost}\n` +
-        `    # ${vyhral ? "vyhrál jsi souboj!" : "prohrál jsi souboj, bereš zranění"}`
-    );
-    if (!vyhral) {
-        const dmg = dRandInt(monster.dmgMin, monster.dmgMax);
+    let dmg = 0;
+    if (vyhral) {
+        const heal = dRandInt(0, 2);
+        dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal);
+    } else {
+        dmg = dRandInt(monster.dmgMin, monster.dmgMax);
+        if (styl === "opatrny") dmg = Math.max(1, Math.floor(dmg / 2));
         dungeonPlayer.hp -= dmg;
     }
+    dungeonShowCode(
+        `bonus = ${bonus}  # styl: ${styl === "silny" ? "silný útok" : "opatrný útok"}\n` +
+        `hod = random.randint(1, 20)  # padlo: ${roll}\n` +
+        `celkem = hod + hrac["attack"] + bonus  # ${roll} + ${dungeonPlayer.attack} + ${bonus} = ${total}\n` +
+        `if celkem >= ${monster === DUNGEON_BOSS ? "boss" : "prisera"}["obtiznost"]:  # potřeba ${monster.obtiznost}\n` +
+        `    # ${vyhral ? "vyhrál jsi! (a trochu se doléčil)" : "prohrál jsi souboj"}` +
+        (vyhral ? "" : `\nelse:\n    hrac["hp"] -= ${dmg}  # ${styl === "opatrny" ? "opatrný styl = poloviční zranění" : "plné zranění"}`)
+    );
     dungeonUpdateStatus();
     onDone(vyhral);
 }
@@ -808,10 +837,10 @@ function dungeonRenderActions(buttons) {
     const box = $("dungeon-actions");
     box.classList.remove("hidden");
     box.innerHTML = "";
-    buttons.forEach(([label, handler]) => {
+    buttons.forEach(([label, sublabel, handler]) => {
         const btn = document.createElement("button");
         btn.className = "w-full text-left bg-slate-700 hover:bg-rose-700 text-slate-100 font-bold px-4 py-2.5 rounded-xl border-b-4 border-slate-900 active:translate-y-1 transition text-sm";
-        btn.textContent = label;
+        btn.innerHTML = `${label}${sublabel ? `<span class="block text-[10px] font-normal text-slate-400 mt-0.5">${sublabel}</span>` : ""}`;
         btn.addEventListener("click", handler);
         box.appendChild(btn);
     });
@@ -821,17 +850,24 @@ function dungeonNextRoom() {
     if (dungeonPlayer.hp <= 0) { dungeonEnd("prohra"); return; }
 
     if (dungeonRoomIndex >= DUNGEON_TOTAL_ROOMS) {
-        // finální boss
         $("dungeon-room-label").textContent = "Poslední místnost";
-        $("dungeon-room-text").textContent = `Před tebou stojí ${DUNGEON_BOSS.name}, strážce hlubin kobky!`;
+        $("dungeon-room-text").textContent = `Před tebou stojí ${DUNGEON_BOSS.name}, strážce hlubin kobky! Útěk tady nepřipadá v úvahu.`;
         $("dungeon-room-box").classList.remove("hidden");
-        dungeonRenderActions([["⚔️ Utkat se s strážcem", () => {
-            dungeonFight(DUNGEON_BOSS, (vyhral) => {
-                $("dungeon-actions").classList.add("hidden");
-                if (dungeonPlayer.hp <= 0 || !vyhral) dungeonEnd("prohra");
-                else dungeonEnd("vitezstvi");
-            });
-        }]]);
+        $("dungeon-code-box").classList.add("hidden");
+        dungeonRenderActions([
+            ["⚔️ Útočit naplno", "Vyšší šance na zásah, ale při neúspěchu plné zranění", () => {
+                dungeonFight(DUNGEON_BOSS, "silny", (vyhral) => {
+                    $("dungeon-actions").classList.add("hidden");
+                    setTimeout(() => dungeonEnd(vyhral && dungeonPlayer.hp > 0 ? "vitezstvi" : "prohra"), 900);
+                });
+            }],
+            ["🛡️ Útočit opatrně", "Nižší šance na zásah, ale poloviční zranění při neúspěchu", () => {
+                dungeonFight(DUNGEON_BOSS, "opatrny", (vyhral) => {
+                    $("dungeon-actions").classList.add("hidden");
+                    setTimeout(() => dungeonEnd(vyhral && dungeonPlayer.hp > 0 ? "vitezstvi" : "prohra"), 900);
+                });
+            }],
+        ]);
         return;
     }
 
@@ -843,41 +879,65 @@ function dungeonNextRoom() {
 
     if (room === "monster") {
         const monster = dChoice(DUNGEON_MONSTERS);
-        $("dungeon-room-text").textContent = `Vyskočí na tebe ${monster.name}!`;
-        dungeonRenderActions([["⚔️ Zaútočit", () => {
-            dungeonFight(monster, () => {
-                $("dungeon-actions").classList.add("hidden");
-                setTimeout(dungeonNextRoom, 1200);
-            });
-        }]]);
+        $("dungeon-room-text").textContent = `Vyskočí na tebe ${monster.name}! Co uděláš?`;
+        dungeonRenderActions([
+            ["⚔️ Útočit naplno", "Vyšší šance na výhru, ale riskantní při neúspěchu", () => {
+                dungeonFight(monster, "silny", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 1000); });
+            }],
+            ["🛡️ Útočit opatrně", "Nižší šance na výhru, ale bezpečnější při neúspěchu", () => {
+                dungeonFight(monster, "opatrny", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 1000); });
+            }],
+            ["🏃 Utéct", "45% šance uniknout bez boje - jinak zranění", () => {
+                dungeonFight(monster, "utek", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 1000); });
+            }],
+        ]);
     } else if (room === "treasure") {
-        const item = dChoice(DUNGEON_ITEMS);
-        dungeonPlayer.items.push(item.name);
-        let efektPopis = "";
-        if (item.efekt === "attack") { dungeonPlayer.attack += item.hodnota; efektPopis = `+${item.hodnota} k útoku`; }
-        else if (item.efekt === "max_hp") { dungeonPlayer.maxHp += item.hodnota; dungeonPlayer.hp += item.hodnota; efektPopis = `+${item.hodnota} k max. HP`; }
-        else if (item.efekt === "heal") { dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + item.hodnota); efektPopis = `+${item.hodnota} HP`; }
-        $("dungeon-room-text").textContent = `Našel jsi poklad: ${item.name}! (${efektPopis})`;
-        dungeonShowCode(`hrac["inventar"].append("${item.name}")\n# efekt: ${efektPopis}`);
-        dungeonUpdateStatus();
-        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+        const shuffled = [...DUNGEON_ITEMS].sort(() => Math.random() - 0.5);
+        const nabidka = shuffled.slice(0, 2);
+        $("dungeon-room-text").textContent = "Truhla s poklady! Vyber si JEDEN z nabízených předmětů:";
+        dungeonRenderActions(nabidka.map((item) => [
+            `🎁 ${item.name}`, item.popis, () => {
+                dungeonPlayer.items.push(item.name);
+                if (item.efekt === "attack") dungeonPlayer.attack += item.hodnota;
+                else if (item.efekt === "max_hp") { dungeonPlayer.maxHp += item.hodnota; dungeonPlayer.hp += item.hodnota; }
+                else if (item.efekt === "heal") dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + item.hodnota);
+                dungeonShowCode(`hrac["inventar"].append("${item.name}")\n# ${item.popis}`);
+                dungeonUpdateStatus();
+                $("dungeon-actions").classList.add("hidden");
+                setTimeout(dungeonNextRoom, 900);
+            },
+        ]));
     } else if (room === "trap") {
-        const dmg = dRandInt(1, 5);
-        dungeonPlayer.hp -= dmg;
-        $("dungeon-room-text").textContent = `Past! Ztrácíš ${dmg} HP.`;
-        dungeonShowCode(`poskozeni = random.randint(1, 5)  # ${dmg}\nhrac["hp"] -= poskozeni`);
-        dungeonUpdateStatus();
-        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+        $("dungeon-room-text").textContent = "Podlaha vypadá podezřele. Jak projdeš?";
+        dungeonRenderActions([
+            ["🔍 Prohledat opatrně", "65% šance projít bez zranění, jinak menší zranění", () => {
+                const bezpecne = Math.random() < 0.65;
+                if (bezpecne) dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + 2);
+                else dungeonPlayer.hp -= dRandInt(2, 4);
+                dungeonShowCode(`bezpecne = random.random() < 0.65\nif bezpecne:\n    hrac["hp"] += 2\nelse:\n    hrac["hp"] -= random.randint(2, 4)`);
+                $("dungeon-room-text").textContent = bezpecne ? "Prošel jsi bez úhony a ještě sis trochu odpočinul!" : "Přesto tě past škrábla.";
+                dungeonUpdateStatus();
+                dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 500); }]]);
+            }],
+            ["🏃 Projít rychle", "Vždy malé, předvídatelné zranění", () => {
+                const dmg = dRandInt(1, 3);
+                dungeonPlayer.hp -= dmg;
+                dungeonShowCode(`poskozeni = random.randint(1, 3)  # ${dmg}\nhrac["hp"] -= poskozeni`);
+                $("dungeon-room-text").textContent = `Proběhl jsi rychle, past tě jen škrábla (${dmg} HP).`;
+                dungeonUpdateStatus();
+                dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 500); }]]);
+            }],
+        ]);
     } else if (room === "fountain") {
         const heal = dRandInt(3, 8);
         dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal);
         $("dungeon-room-text").textContent = `Léčivá fontána! Získáváš zpět HP.`;
         dungeonShowCode(`leceni = random.randint(3, 8)\nhrac["hp"] = min(hrac["max_hp"], hrac["hp"] + leceni)`);
         dungeonUpdateStatus();
-        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+        dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
     } else {
         $("dungeon-room-text").textContent = "Prázdná místnost. Jen ticho a prach.";
-        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+        dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
     }
 }
 
