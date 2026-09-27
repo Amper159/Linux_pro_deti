@@ -120,6 +120,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition whitespace-nowrap">Odznaky</a>
                     <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition whitespace-nowrap">Pro rodiče</a>
                     <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition whitespace-nowrap">Slovník příkazů</a>
+                    <a href="#python-hry" class="text-blue-400 hover:text-blue-300 transition whitespace-nowrap">🎮 Hry</a>
                 </div>
                 <div class="flex items-center gap-2">
                     <a href="/python" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2 whitespace-nowrap">
@@ -589,6 +590,39 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <i class="fa-solid fa-lock text-xl text-slate-500 mb-1"></i>
                 <p class="text-[10px] font-bold text-slate-400">Mistr Linuxu</p>
             </div>
+        </div>
+    </section>
+
+    <!-- Python Lab: hratelné hry, přímo z homepage, bez přihlášení -->
+    <section id="python-hry" class="space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-blue-500/10 rounded-lg text-blue-400 text-xl">🐍</div>
+                <h2 class="text-2xl font-bold text-slate-100">Python Lab: zahraj si přímo v prohlížeči</h2>
+            </div>
+            <a href="/python" class="text-xs font-bold text-blue-400 hover:underline">Celý Python Lab (30+ úloh) →</a>
+        </div>
+        <p class="text-slate-400 text-sm max-w-2xl">
+            Tři hry, žádné přihlášení potřeba. U každého rozhodnutí navíc uvidíš, jak by se to dalo napsat v Pythonu -
+            a pokud se ti hra zalíbí, dole si můžeš stáhnout její <b class="text-slate-200">plně funkční Python verzi</b>
+            a upravit si ji podle sebe třeba ve VS Code.
+        </p>
+        <div class="grid md:grid-cols-3 gap-4">
+            <a href="/python?hra=iskra" class="block bg-slate-900 rounded-2xl border-2 border-purple-500/40 hover:border-purple-400 p-5 card-hover transition">
+                <div class="text-3xl mb-2">🎮</div>
+                <h3 class="font-bold text-purple-300">Iskra</h3>
+                <p class="text-xs text-slate-400 mt-1">Interaktivní příběh s 10 rozhodnutími a 6 konci. Originální hrdinka zachraňuje město.</p>
+            </a>
+            <a href="/python?hra=kobka" class="block bg-slate-900 rounded-2xl border-2 border-rose-500/40 hover:border-rose-400 p-5 card-hover transition">
+                <div class="text-3xl mb-2">🗡️</div>
+                <h3 class="font-bold text-rose-300">Kobka</h3>
+                <p class="text-xs text-slate-400 mt-1">Textové RPG s inventářem, HP a souboji na kostky. 9 místností + finální boss.</p>
+            </a>
+            <a href="/python?hra=obesenec" class="block bg-slate-900 rounded-2xl border-2 border-teal-500/40 hover:border-teal-400 p-5 card-hover transition">
+                <div class="text-3xl mb-2">🔤</div>
+                <h3 class="font-bold text-teal-300">Oběšenec</h3>
+                <p class="text-xs text-slate-400 mt-1">Klasická slovní hra se slovíčky z Pythonu a postavami z ostatních her.</p>
+            </a>
         </div>
     </section>
 

@@ -346,7 +346,10 @@ for j in ["Ema", "Tomas"]:
     <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-2xl border-4 border-purple-500 shadow-[0_5px_0_#6b21a8] space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-bold text-purple-300 uppercase">🎮 Mise: Iskra</h2>
-            <button id="story-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            <div class="flex items-center gap-3">
+                <a href="/python/hra/iskra.py" download class="text-[11px] font-bold text-purple-300 hover:text-purple-200 underline decoration-dotted whitespace-nowrap">🐍 Stáhnout Python verzi</a>
+                <button id="story-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            </div>
         </div>
 
         <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
@@ -374,7 +377,10 @@ for j in ["Ema", "Tomas"]:
     <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-2xl border-4 border-rose-600 shadow-[0_5px_0_#881337] space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-bold text-rose-300 uppercase">🗡️ Kobka</h2>
-            <button id="dungeon-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            <div class="flex items-center gap-3">
+                <a href="/python/hra/kobka.py" download class="text-[11px] font-bold text-rose-300 hover:text-rose-200 underline decoration-dotted whitespace-nowrap">🐍 Stáhnout Python verzi</a>
+                <button id="dungeon-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            </div>
         </div>
 
         <div id="dungeon-status" class="hidden grid grid-cols-2 gap-2 text-xs font-bold">
@@ -426,7 +432,10 @@ for j in ["Ema", "Tomas"]:
     <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-xl border-4 border-teal-500 shadow-[0_5px_0_#115e59] space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-bold text-teal-300 uppercase">🔤 Oběšenec</h2>
-            <button id="hangman-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            <div class="flex items-center gap-3">
+                <a href="/python/hra/obesenec.py" download class="text-[11px] font-bold text-teal-300 hover:text-teal-200 underline decoration-dotted whitespace-nowrap">🐍 Stáhnout Python verzi</a>
+                <button id="hangman-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+            </div>
         </div>
 
         <pre id="hangman-art" class="text-center text-teal-300 font-mono text-xs leading-tight bg-slate-950 rounded-xl p-3 border border-slate-700"></pre>
@@ -1186,6 +1195,12 @@ $("hangman-close").addEventListener("click", () => {
     $("hangman-modal").classList.remove("flex");
 });
 $("hangman-replay").addEventListener("click", hangmanNewGame);
+
+// ---- otevřít hru rovnou z odkazu (např. /python?hra=kobka) ----
+const _hraParam = new URLSearchParams(location.search).get("hra");
+if (_hraParam === "iskra") $("story-open-button").click();
+else if (_hraParam === "kobka") $("dungeon-open-button").click();
+else if (_hraParam === "obesenec") $("hangman-open-button").click();
 
 loadState();
 </script>

@@ -1,7 +1,8 @@
 """Webová část Python labu - samostatná stránka, ale sdílí přihlášení
 (session cookie) s pískovištěm, takže se uživatel přihlašuje jen jednou."""
 
-from flask import Blueprint, jsonify, render_template, request, session
+from pathlib import Path
+from flask import Blueprint, jsonify, render_template, request, session, send_file
 
 from . import auth
 from . import python_gamification as gamification
@@ -45,6 +46,17 @@ def _public_tasks():
 @bp.get("/")
 def page():
     return render_template("python.html")
+
+
+@bp.get("/hra/<jmeno>.py")
+def stahni_hru(jmeno):
+    """Stažitelná, plně funkční Python verze hry - skutečný input()/print(),
+    dá se spustit rovnou 'python <jmeno>.py' v terminálu nebo VS Code."""
+    povolene = {"iskra", "kobka", "obesenec"}
+    if jmeno not in povolene:
+        return jsonify({"ok": False, "error": "Neznámá hra."}), 404
+    cesta = Path(__file__).parent / "static_games" / f"{jmeno}.py"
+    return send_file(cesta, mimetype="text/x-python", as_attachment=True, download_name=f"{jmeno}.py")
 
 
 @bp.get("/api/story")
