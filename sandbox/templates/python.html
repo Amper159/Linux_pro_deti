@@ -136,6 +136,11 @@
     </div>
 </header>
 
+<button id="story-open-button" class="shrink-0 mb-3 w-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-amber-400 text-slate-950 font-bold rounded-xl p-3 border-b-4 border-purple-800 active:translate-y-1 transition flex items-center justify-center gap-2 text-sm">
+    <span class="text-xl">🎮</span>
+    <span>Zahraj si interaktivní misi: ISKRA - a pak si zkus vlastní větvení příběhu napsat sám!</span>
+</button>
+
 <!-- ============ OBSAH ============ -->
 <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 lg:min-h-0">
 
@@ -325,6 +330,34 @@ for j in ["Ema", "Tomas"]:
 </main>
 
 <div id="confetti-layer"></div>
+
+<!-- ============ HRATELNÁ MISE: ISKRA ============ -->
+<div id="story-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-2xl border-4 border-purple-500 shadow-[0_5px_0_#6b21a8] space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-purple-300 uppercase">🎮 Mise: Iskra</h2>
+            <button id="story-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+            <p id="story-text" class="text-sm text-slate-100 leading-relaxed"></p>
+        </div>
+
+        <div id="story-options" class="space-y-2"></div>
+
+        <div id="story-code-box" class="bg-slate-950 rounded-xl p-3 border border-slate-700">
+            <p class="text-[10px] text-purple-300 font-bold uppercase mb-1">🐍 Takhle by se tohle rozhodnutí dalo napsat v Pythonu:</p>
+            <pre id="story-code" class="font-mono text-[11px] text-slate-300 overflow-x-auto"></pre>
+        </div>
+
+        <div id="story-ending-box" class="hidden text-center space-y-3">
+            <p id="story-ending-label" class="text-xl font-bold text-amber-300"></p>
+            <button id="story-replay" class="bg-purple-500 hover:bg-purple-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl border-b-4 border-purple-700 active:translate-y-1 transition text-sm">
+                🔁 Zahrát znovu (zkus jinou cestu!)
+            </button>
+        </div>
+    </div>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -580,6 +613,62 @@ $("run-button").addEventListener("click", async () => {
         $("run-spinner").classList.add("hidden");
     }
 });
+
+// ---- hratelná mise: Iskra ----
+let STORY_DATA = null;
+let storyCurrentNode = "start";
+
+async function loadStory() {
+    const res = await fetch("/python/api/story");
+    const data = await res.json();
+    if (data.ok) STORY_DATA = data.story;
+}
+
+function renderStoryNode(nodeId) {
+    storyCurrentNode = nodeId;
+    const node = STORY_DATA[nodeId];
+    $("story-text").textContent = node.text;
+    const optionsBox = $("story-options");
+    optionsBox.innerHTML = "";
+
+    if (node.ending) {
+        $("story-code-box").classList.add("hidden");
+        $("story-ending-box").classList.remove("hidden");
+        $("story-ending-label").textContent = "🏁 Konec: " + node.ending;
+        confettiBurst(50);
+        return;
+    }
+    $("story-code-box").classList.remove("hidden");
+    $("story-ending-box").classList.add("hidden");
+
+    let code = "";
+    node.options.forEach((opt, i) => {
+        const [num, , nextId] = opt;
+        code += (i === 0 ? "if" : "elif") + ` volba == ${num}:\n    dalsi_scena = "${nextId}"\n`;
+    });
+    $("story-code").textContent = code;
+
+    node.options.forEach((opt) => {
+        const [num, label, nextId] = opt;
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left bg-slate-700 hover:bg-purple-600 text-slate-100 font-bold px-4 py-2.5 rounded-xl border-b-4 border-slate-900 active:translate-y-1 transition text-sm";
+        btn.textContent = `${num}. ${label}`;
+        btn.addEventListener("click", () => renderStoryNode(nextId));
+        optionsBox.appendChild(btn);
+    });
+}
+
+$("story-open-button").addEventListener("click", async () => {
+    if (!STORY_DATA) await loadStory();
+    $("story-modal").classList.remove("hidden");
+    $("story-modal").classList.add("flex");
+    renderStoryNode("start");
+});
+$("story-close").addEventListener("click", () => {
+    $("story-modal").classList.add("hidden");
+    $("story-modal").classList.remove("flex");
+});
+$("story-replay").addEventListener("click", () => renderStoryNode("start"));
 
 loadState();
 </script>

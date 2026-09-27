@@ -270,6 +270,52 @@ PYTHON_TASKS = [
         "hint": 'import random\n\ndef hod_kostkou():\n    return random.randint(1, 6)\n\ndef vyhodnot(hod):\n    if hod == 6:\n        return "vyhra"\n    else:\n        return "zkus znovu"\n\nprint(vyhodnot(6))',
         "check": 'assert vyhodnot(6) == "vyhra", "vyhodnot(6) musí vrátit \'vyhra\'"\nassert vyhodnot(3) == "zkus znovu", "vyhodnot(3) musí vrátit \'zkus znovu\'"\nassert "vyhra" in _stdout_capture, "Zapomněl jsi vypsat výsledek vyhodnot(6) pomocí print()"\n_test_hod = hod_kostkou()\nassert isinstance(_test_hod, int) and 1 <= _test_hod <= 6, "hod_kostkou() musí vracet číslo 1 až 6"',
     },
+
+    {
+        "id": 31, "set": 6,
+        "title": "Jedna volba, tři cesty",
+        "story": "Přesně jako u Iskry - jedna volba může vést na tři různá místa v příběhu.",
+        "goal": "Napiš funkci scena(volba): pro volba==1 vrať 'tovarna', pro volba==2 vrať 'svedek', pro cokoliv jiného vrať 'kabely'. Zavolej scena(2) a výsledek ulož do vysledek.",
+        "starter_code": "def scena(volba):\n    pass\n\nvysledek = \"\"\n",
+        "hint": 'def scena(volba):\n    if volba == 1:\n        return "tovarna"\n    elif volba == 2:\n        return "svedek"\n    else:\n        return "kabely"\n\nvysledek = scena(2)',
+        "check": 'assert scena(1) == "tovarna", "scena(1) musí vrátit \'tovarna\'"\nassert scena(2) == "svedek", "scena(2) musí vrátit \'svedek\'"\nassert scena(3) == "kabely", "scena(3) musí vrátit \'kabely\'"\nassert scena(99) == "kabely", "cokoliv jiného musí spadnout do else větve (kabely)"\nassert vysledek == "svedek", f"vysledek musí být \'svedek\', mám \'{vysledek}\'"',
+    },
+    {
+        "id": 32, "set": 6,
+        "title": "Dvě rozhodnutí za sebou",
+        "story": "Skutečné příběhy mívají víc než jedno rozhodnutí za sebou - záleží na kombinaci obou voleb.",
+        "goal": "Napiš funkci pribeh(volba1, volba2). Když volba1==1 a volba2==1, vrať 'potichu'. Když volba1==1 a volba2==2, vrať 'primo'. Jinak vrať 'jinam'.",
+        "starter_code": "def pribeh(volba1, volba2):\n    pass\n",
+        "hint": 'def pribeh(volba1, volba2):\n    if volba1 == 1 and volba2 == 1:\n        return "potichu"\n    elif volba1 == 1 and volba2 == 2:\n        return "primo"\n    else:\n        return "jinam"',
+        "check": 'assert pribeh(1, 1) == "potichu"\nassert pribeh(1, 2) == "primo"\nassert pribeh(2, 1) == "jinam"\nassert pribeh(2, 2) == "jinam"',
+    },
+    {
+        "id": 33, "set": 6,
+        "title": "Konec podle skóre",
+        "story": "Konec příběhu často závisí na tom, kolik dobrých rozhodnutí jsi cestou udělal.",
+        "goal": "Napiš funkci konec(body): pokud body >= 3 vrať 'vitezstvi', pokud body >= 1 vrať 'castecny_uspech', jinak vrať 'prohra'.",
+        "starter_code": "def konec(body):\n    pass\n",
+        "hint": 'def konec(body):\n    if body >= 3:\n        return "vitezstvi"\n    elif body >= 1:\n        return "castecny_uspech"\n    else:\n        return "prohra"',
+        "check": 'assert konec(0) == "prohra"\nassert konec(1) == "castecny_uspech"\nassert konec(2) == "castecny_uspech"\nassert konec(3) == "vitezstvi"\nassert konec(10) == "vitezstvi"',
+    },
+    {
+        "id": 34, "set": 6,
+        "title": "Sečti rozhodnutí do skóre",
+        "story": "Volby v příběhu se dají počítat - a spojit to se smyčkou, kterou už znáš.",
+        "goal": "Máš volby = [1, 2, 1, 1, 2] (1 = dobré rozhodnutí = +1 bod, cokoliv jiné = 0 bodů). Pomocí for a if spočítej součet do proměnné skore.",
+        "starter_code": "volby = [1, 2, 1, 1, 2]\nskore = 0\n\n",
+        "hint": "volby = [1, 2, 1, 1, 2]\nskore = 0\nfor v in volby:\n    if v == 1:\n        skore += 1",
+        "check": 'assert skore == 3, f"Čekal jsem skore 3, mám {skore}"',
+    },
+    {
+        "id": 35, "set": 6,
+        "title": "Závěrečná mise: napiš vlastní mini-příběh",
+        "story": "Teď jsi na řadě ty. Napiš krátkou vlastní větev příběhu - aspoň dva různé konce podle volby.",
+        "goal": "Napiš funkci muj_pribeh(volba), která pro aspoň 2 různé hodnoty volba vrátí aspoň 2 RŮZNÉ texty (tvoje vlastní konce příběhu). Použij if/elif/else - na obsahu textu nezáleží, jen ať se opravdu liší.",
+        "starter_code": "def muj_pribeh(volba):\n    pass\n",
+        "hint": 'def muj_pribeh(volba):\n    if volba == 1:\n        return "Vydal ses doleva a nasel poklad!"\n    elif volba == 2:\n        return "Vydal ses doprava a potkal draka."\n    else:\n        return "Zustal jsi stat a nic se nestalo."',
+        "check": 'vysledky = [muj_pribeh(1), muj_pribeh(2), muj_pribeh(3)]\nassert all(isinstance(v, str) and len(v) > 0 for v in vysledky), "Funkce musí pro každou volbu vrátit neprázdný text"\nassert len(set(vysledky)) >= 2, "Aspoň dvě různé volby musí vést k různému textu (jinak to není větvení)"',
+    },
 ]
 
 

@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, render_template, request, session
 from . import auth
 from . import python_gamification as gamification
 from .python_tasks import PYTHON_TASKS
+from .story_data import STORY
 from .routes import SESSION_USER, SESSION_UID, SESSION_SV
 
 bp = Blueprint(
@@ -44,6 +45,12 @@ def _public_tasks():
 @bp.get("/")
 def page():
     return render_template("python.html")
+
+
+@bp.get("/api/story")
+def api_story():
+    """Data interaktivního příběhu 'Iskra' - veřejné, hra nepotřebuje přihlášení."""
+    return jsonify({"ok": True, "story": STORY})
 
 
 @bp.get("/api/state")
