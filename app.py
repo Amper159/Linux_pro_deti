@@ -1,6 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
-from flask import Flask, render_template_string, request, make_response
+from flask import Flask, render_template_string, request, make_response, jsonify
 import os
 
 from sandbox import engine as sandbox_engine
@@ -8,6 +8,8 @@ from sandbox import sandbox_bp
 from sandbox import python_lab_bp
 from sandbox import visits as sandbox_visits
 from sandbox import gamification as sandbox_gamification
+from sandbox import feedback as sandbox_feedback
+from sandbox import ratelimit as sandbox_ratelimit
 from sandbox.config import SECRET_FILE, ensure_dirs
 
 app = Flask(__name__)
@@ -654,7 +656,91 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
     </section>
 
+    <!-- Zpětná vazba od návštěvníků - jednosměrná, nikde se veřejně nezobrazuje -->
+    <section id="zpetna-vazba" class="bg-slate-900 rounded-3xl border-2 border-sky-500/30 p-8 space-y-5">
+        <div class="flex items-center space-x-3">
+            <div class="p-2 bg-sky-500/10 rounded-lg text-sky-400 text-xl">💬</div>
+            <h2 class="text-2xl font-bold text-slate-100">Máš nápad nebo připomínku?</h2>
+        </div>
+        <p class="text-slate-400 text-sm max-w-2xl">
+            Napiš, co se ti na Linuxhrou.cz líbí, co by šlo zlepšit, nebo co bys tu uvítal/a. Zprávu si přečtu já
+            osobně - nikde na webu se veřejně nezobrazuje.
+        </p>
+
+        <div id="feedback-form" class="grid md:grid-cols-2 gap-4">
+            <div class="space-y-3">
+                <input type="text" id="feedback-jmeno" maxlength="40" placeholder="Jméno nebo přezdívka (nepovinné)"
+                       class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400">
+                <div class="flex flex-wrap gap-2" id="feedback-typ-buttons">
+                    <button type="button" data-typ="libi" class="feedback-typ-btn flex-1 min-w-[100px] bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👍 Líbí se mi</button>
+                    <button type="button" data-typ="nelibi" class="feedback-typ-btn flex-1 min-w-[100px] bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👎 Nelíbí se mi</button>
+                    <button type="button" data-typ="navrh" class="feedback-typ-btn flex-1 min-w-[100px] bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">💡 Návrh</button>
+                </div>
+            </div>
+            <textarea id="feedback-zprava" maxlength="2000" rows="4" placeholder="Napiš svoji zprávu sem..."
+                      class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button id="feedback-submit" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl border-b-4 border-sky-700 active:translate-y-1 transition text-sm">
+                Odeslat zpětnou vazbu
+            </button>
+            <p id="feedback-status" class="text-xs font-bold"></p>
+        </div>
+    </section>
+
 </main>
+
+<script>
+(function () {
+    let vybranyTyp = null;
+    document.querySelectorAll(".feedback-typ-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".feedback-typ-btn").forEach((b) => {
+                b.classList.remove("border-sky-400", "bg-sky-500/20", "text-sky-300");
+                b.classList.add("border-slate-700", "bg-slate-800", "text-slate-300");
+            });
+            btn.classList.remove("border-slate-700", "bg-slate-800", "text-slate-300");
+            btn.classList.add("border-sky-400", "bg-sky-500/20", "text-sky-300");
+            vybranyTyp = btn.dataset.typ;
+        });
+    });
+
+    document.getElementById("feedback-submit").addEventListener("click", async () => {
+        const status = document.getElementById("feedback-status");
+        const zprava = document.getElementById("feedback-zprava").value.trim();
+        if (!vybranyTyp) { status.textContent = "Vyber prosím jednu z možností (líbí/nelíbí/návrh)."; status.className = "text-xs font-bold text-amber-400"; return; }
+        if (!zprava) { status.textContent = "Napiš prosím nějakou zprávu."; status.className = "text-xs font-bold text-amber-400"; return; }
+
+        status.textContent = "Odesílám...";
+        status.className = "text-xs font-bold text-slate-400";
+        try {
+            const res = await fetch("/api/feedback", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    jmeno: document.getElementById("feedback-jmeno").value,
+                    typ: vybranyTyp,
+                    zprava: zprava,
+                }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                status.textContent = "Díky! Zpráva byla odeslána. 🎉";
+                status.className = "text-xs font-bold text-emerald-400";
+                document.getElementById("feedback-zprava").value = "";
+                document.getElementById("feedback-jmeno").value = "";
+            } else {
+                status.textContent = data.error || "Něco se pokazilo, zkus to znovu.";
+                status.className = "text-xs font-bold text-rose-400";
+            }
+        } catch (e) {
+            status.textContent = "Něco se pokazilo, zkus to znovu.";
+            status.className = "text-xs font-bold text-rose-400";
+        }
+    });
+})();
+</script>
 
 <footer class="bg-slate-900 border-t border-slate-800 py-8 px-4 text-center text-xs text-slate-500 space-y-2">
     <p class="font-bold text-slate-400">Linuxhrou.cz – Výuková platforma pro malé i velké průzkumníky</p>
@@ -855,6 +941,7 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
             <li>Heslo - nikdy ne v čitelné podobě, jen jeho jednosměrně zahashovaný otisk (scrypt + sůl). Ani my ho nedokážeme zpětně přečíst.</li>
             <li>Tvůj postup v úkolech, odznaky a XP.</li>
             <li>Anonymní cookie s náhodným ID pro počítadlo návštěvnosti (víme jen "kolik různých lidí" přišlo, ne kdo).</li>
+            <li>Pokud pošleš zpětnou vazbu přes formulář na hlavní stránce: text zprávy a jméno/přezdívka, pokud ji vyplníš (nepovinné). Vidí to jen provozovatel webu, nikde se to veřejně nezobrazuje.</li>
         </ul>
     </div>
 
@@ -891,6 +978,35 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+
+def _client_ip() -> str:
+    """IP klienta - aplikace běží za Caddy reverzní proxy, takže reálná IP je v X-Forwarded-For."""
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.remote_addr or "unknown"
+
+
+@app.route("/api/feedback", methods=["POST"])
+def api_feedback():
+    ip = _client_ip()
+    retry_after = sandbox_ratelimit.check_feedback(ip)
+    if retry_after is not None:
+        return jsonify({"ok": False, "error": "Moc zpráv najednou, zkus to prosím za chvíli znovu."}), 429
+
+    data = request.get_json(silent=True) or {}
+    typ = data.get("typ", "")
+    zprava = (data.get("zprava") or "").strip()
+    if typ not in sandbox_feedback.POVOLENE_TYPY:
+        return jsonify({"ok": False, "error": "Vyber prosím jednu z možností (líbí/nelíbí/návrh)."}), 400
+    if not zprava:
+        return jsonify({"ok": False, "error": "Zpráva nemůže být prázdná."}), 400
+
+    zaznam = sandbox_feedback.ulozit(jmeno=data.get("jmeno", ""), typ=typ, zprava=zprava)
+    if zaznam is None:
+        return jsonify({"ok": False, "error": "Zprávu se nepodařilo uložit."}), 400
+    return jsonify({"ok": True})
 
 
 @app.route("/soukromi")

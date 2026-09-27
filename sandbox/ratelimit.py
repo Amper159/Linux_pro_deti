@@ -27,10 +27,12 @@ from threading import Lock
 # (max_pokusů, okno_v_sekundách)
 IP_LIMIT = (20, 5 * 60)          # 20 pokusů o přihlášení/založení za 5 minut z jedné IP
 USERNAME_LOCKOUT = (5, 15 * 60)  # 5 špatných hesel za sebou k jednomu jménu -> zámek na 15 minut
+FEEDBACK_LIMIT = (5, 10 * 60)    # 5 zpráv zpětné vazby za 10 minut z jedné IP - proti spamu
 
 _lock = Lock()
 _ip_hits: dict[str, list[float]] = {}
 _username_fails: dict[str, list[float]] = {}
+_feedback_hits: dict[str, list[float]] = {}
 
 
 def _prune(hits: list[float], window: float, now: float) -> list[float]:
@@ -73,3 +75,16 @@ def record_success(username_key: str) -> None:
     """Úspěšné přihlášení smaže historii špatných pokusů k danému jménu."""
     with _lock:
         _username_fails.pop(username_key, None)
+
+
+def check_feedback(ip: str) -> float | None:
+    """Vrátí None, pokud IP může poslat další zprávu zpětné vazby, jinak počet sekund do dalšího pokusu."""
+    limit, window = FEEDBACK_LIMIT
+    now = time.time()
+    with _lock:
+        hits = _prune(_feedback_hits.get(ip, []), window, now)
+        _feedback_hits[ip] = hits
+        if len(hits) >= limit:
+            return window - (now - hits[0])
+        hits.append(now)
+    return None

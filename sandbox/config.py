@@ -13,6 +13,7 @@ PROGRESS_DIR = DATA_DIR / "progress"
 PYTHON_PROGRESS_DIR = DATA_DIR / "python_progress"
 USERS_FILE = DATA_DIR / "users.json"
 VISITS_FILE = DATA_DIR / "visits.json"
+FEEDBACK_FILE = DATA_DIR / "feedback.json"
 SECRET_FILE = DATA_DIR / ".flask_secret"
 
 SKEL_DIR = BASE_DIR / "skel"
