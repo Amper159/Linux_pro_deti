@@ -136,10 +136,16 @@
     </div>
 </header>
 
-<button id="story-open-button" class="shrink-0 mb-3 w-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-amber-400 text-slate-950 font-bold rounded-xl p-3 border-b-4 border-purple-800 active:translate-y-1 transition flex items-center justify-center gap-2 text-sm">
-    <span class="text-xl">🎮</span>
-    <span>Zahraj si interaktivní misi: ISKRA - a pak si zkus vlastní větvení příběhu napsat sám!</span>
-</button>
+<div class="shrink-0 mb-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <button id="story-open-button" class="w-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-amber-400 text-slate-950 font-bold rounded-xl p-3 border-b-4 border-purple-800 active:translate-y-1 transition flex items-center justify-center gap-2 text-sm">
+        <span class="text-xl">🎮</span>
+        <span>Mise: ISKRA - interaktivní příběh</span>
+    </button>
+    <button id="dungeon-open-button" class="w-full bg-gradient-to-r from-rose-700 via-orange-600 to-amber-500 text-slate-50 font-bold rounded-xl p-3 border-b-4 border-rose-900 active:translate-y-1 transition flex items-center justify-center gap-2 text-sm">
+        <span class="text-xl">🗡️</span>
+        <span>Hra: KOBKA - RPG s inventářem</span>
+    </button>
+</div>
 
 <!-- ============ OBSAH ============ -->
 <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 lg:min-h-0">
@@ -359,8 +365,61 @@ for j in ["Ema", "Tomas"]:
     </div>
 </div>
 
+<!-- ============ HRA: KOBKA ============ -->
+<div id="dungeon-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-2xl border-4 border-rose-600 shadow-[0_5px_0_#881337] space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-rose-300 uppercase">🗡️ Kobka</h2>
+            <button id="dungeon-close" class="text-slate-400 hover:text-slate-100 text-xl leading-none">&times;</button>
+        </div>
+
+        <div id="dungeon-status" class="hidden grid grid-cols-2 gap-2 text-xs font-bold">
+            <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+                ❤️ HP: <span id="dungeon-hp" class="text-rose-300">20 / 20</span>
+                <div class="w-full bg-slate-950 rounded-full h-2 mt-1 overflow-hidden">
+                    <div id="dungeon-hp-bar" class="bg-rose-500 h-2 rounded-full transition-all" style="width:100%"></div>
+                </div>
+            </div>
+            <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+                🎒 Inventář: <span id="dungeon-inventory" class="text-amber-300">-</span>
+            </div>
+        </div>
+
+        <div id="dungeon-intro" class="text-center space-y-3">
+            <p class="text-sm text-slate-300 leading-relaxed">
+                Vstupuješ do staré kobky. Čeká tě 6 místností plných příšer, pastí i pokladů,
+                a nakonec strážce hlubin. Přežiješ a dostaneš se ven?
+            </p>
+            <button id="dungeon-start" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-5 py-2.5 rounded-xl border-b-4 border-rose-800 active:translate-y-1 transition text-sm">
+                ⚔️ Vstoupit do kobky
+            </button>
+        </div>
+
+        <div id="dungeon-room-box" class="hidden bg-slate-900 rounded-xl p-4 border border-slate-700">
+            <p id="dungeon-room-label" class="text-[10px] text-rose-400 font-bold uppercase mb-1"></p>
+            <p id="dungeon-room-text" class="text-sm text-slate-100 leading-relaxed"></p>
+        </div>
+
+        <div id="dungeon-actions" class="hidden space-y-2"></div>
+
+        <div id="dungeon-code-box" class="hidden bg-slate-950 rounded-xl p-3 border border-slate-700">
+            <p class="text-[10px] text-rose-300 font-bold uppercase mb-1">🐍 Co se právě odehrálo v kódu:</p>
+            <pre id="dungeon-code" class="font-mono text-[11px] text-slate-300 overflow-x-auto"></pre>
+        </div>
+
+        <div id="dungeon-ending-box" class="hidden text-center space-y-3">
+            <p id="dungeon-ending-label" class="text-xl font-bold"></p>
+            <p id="dungeon-ending-detail" class="text-xs text-slate-400"></p>
+            <button id="dungeon-replay" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-5 py-2.5 rounded-xl border-b-4 border-rose-800 active:translate-y-1 transition text-sm">
+                🔁 Zkusit znovu
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 const $ = (id) => document.getElementById(id);
+
 
 // ---- přihlášení (identické API jako pískoviště) ----
 async function login() {
@@ -669,6 +728,189 @@ $("story-close").addEventListener("click", () => {
     $("story-modal").classList.remove("flex");
 });
 $("story-replay").addEventListener("click", () => renderStoryNode("start"));
+
+// ---- hra: Kobka ----
+const DUNGEON_MONSTERS = [
+    { name: "Kobkový krysák", obtiznost: 9, dmgMin: 2, dmgMax: 4 },
+    { name: "Kostěná hlídka", obtiznost: 12, dmgMin: 3, dmgMax: 5 },
+    { name: "Stínový plaz", obtiznost: 11, dmgMin: 2, dmgMax: 5 },
+];
+const DUNGEON_BOSS = { name: "Strážce hlubin", obtiznost: 14, dmgMin: 4, dmgMax: 7 };
+const DUNGEON_ITEMS = [
+    { name: "Ostrý meč", efekt: "attack", hodnota: 3 },
+    { name: "Kožená zbroj", efekt: "max_hp", hodnota: 5 },
+    { name: "Lektvar zdraví", efekt: "heal", hodnota: 7 },
+];
+const DUNGEON_ROOM_WEIGHTS = [["monster", 40], ["treasure", 25], ["trap", 15], ["fountain", 10], ["empty", 10]];
+const DUNGEON_TOTAL_ROOMS = 6;
+
+function dRandInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+function dChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function dPickRoom() {
+    const total = DUNGEON_ROOM_WEIGHTS.reduce((s, [, w]) => s + w, 0);
+    let r = Math.random() * total;
+    for (const [name, w] of DUNGEON_ROOM_WEIGHTS) {
+        if (r < w) return name;
+        r -= w;
+    }
+    return DUNGEON_ROOM_WEIGHTS[DUNGEON_ROOM_WEIGHTS.length - 1][0];
+}
+
+let dungeonPlayer = null;
+let dungeonRoomIndex = 0;
+
+function dungeonUpdateStatus() {
+    $("dungeon-hp").textContent = `${Math.max(0, dungeonPlayer.hp)} / ${dungeonPlayer.maxHp}`;
+    $("dungeon-hp-bar").style.width = Math.max(0, dungeonPlayer.hp / dungeonPlayer.maxHp * 100) + "%";
+    $("dungeon-inventory").textContent = dungeonPlayer.items.length ? dungeonPlayer.items.join(", ") : "prázdný";
+}
+
+function dungeonShowCode(code) {
+    $("dungeon-code-box").classList.remove("hidden");
+    $("dungeon-code").textContent = code;
+}
+
+function dungeonEnd(outcome) {
+    $("dungeon-room-box").classList.add("hidden");
+    $("dungeon-actions").classList.add("hidden");
+    $("dungeon-code-box").classList.add("hidden");
+    $("dungeon-ending-box").classList.remove("hidden");
+    if (outcome === "vitezstvi") {
+        $("dungeon-ending-label").className = "text-xl font-bold text-emerald-400";
+        $("dungeon-ending-label").textContent = "🏆 Vyhrál jsi! Strážce hlubin poražen.";
+        confettiBurst(120);
+    } else {
+        $("dungeon-ending-label").className = "text-xl font-bold text-rose-400";
+        $("dungeon-ending-label").textContent = "💀 Kobka tě přemohla...";
+    }
+    $("dungeon-ending-detail").textContent = `Nasbírané předměty: ${dungeonPlayer.items.length ? dungeonPlayer.items.join(", ") : "žádné"}`;
+}
+
+function dungeonFight(monster, onDone) {
+    const roll = dRandInt(1, 20);
+    const total = roll + dungeonPlayer.attack;
+    const vyhral = total >= monster.obtiznost;
+    dungeonShowCode(
+        `hod = random.randint(1, 20)  # padlo: ${roll}\n` +
+        `celkem = hod + hrac["attack"]  # ${roll} + ${dungeonPlayer.attack} = ${total}\n` +
+        `if celkem >= ${monster.name === DUNGEON_BOSS.name ? "boss" : "prisera"}["obtiznost"]:  # potřeba ${monster.obtiznost}\n` +
+        `    # ${vyhral ? "vyhrál jsi souboj!" : "prohrál jsi souboj, bereš zranění"}`
+    );
+    if (!vyhral) {
+        const dmg = dRandInt(monster.dmgMin, monster.dmgMax);
+        dungeonPlayer.hp -= dmg;
+    }
+    dungeonUpdateStatus();
+    onDone(vyhral);
+}
+
+function dungeonRenderActions(buttons) {
+    const box = $("dungeon-actions");
+    box.classList.remove("hidden");
+    box.innerHTML = "";
+    buttons.forEach(([label, handler]) => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left bg-slate-700 hover:bg-rose-700 text-slate-100 font-bold px-4 py-2.5 rounded-xl border-b-4 border-slate-900 active:translate-y-1 transition text-sm";
+        btn.textContent = label;
+        btn.addEventListener("click", handler);
+        box.appendChild(btn);
+    });
+}
+
+function dungeonNextRoom() {
+    if (dungeonPlayer.hp <= 0) { dungeonEnd("prohra"); return; }
+
+    if (dungeonRoomIndex >= DUNGEON_TOTAL_ROOMS) {
+        // finální boss
+        $("dungeon-room-label").textContent = "Poslední místnost";
+        $("dungeon-room-text").textContent = `Před tebou stojí ${DUNGEON_BOSS.name}, strážce hlubin kobky!`;
+        $("dungeon-room-box").classList.remove("hidden");
+        dungeonRenderActions([["⚔️ Utkat se s strážcem", () => {
+            dungeonFight(DUNGEON_BOSS, (vyhral) => {
+                $("dungeon-actions").classList.add("hidden");
+                if (dungeonPlayer.hp <= 0 || !vyhral) dungeonEnd("prohra");
+                else dungeonEnd("vitezstvi");
+            });
+        }]]);
+        return;
+    }
+
+    dungeonRoomIndex++;
+    $("dungeon-room-box").classList.remove("hidden");
+    $("dungeon-code-box").classList.add("hidden");
+    const room = dPickRoom();
+    $("dungeon-room-label").textContent = `Místnost ${dungeonRoomIndex} / ${DUNGEON_TOTAL_ROOMS}`;
+
+    if (room === "monster") {
+        const monster = dChoice(DUNGEON_MONSTERS);
+        $("dungeon-room-text").textContent = `Vyskočí na tebe ${monster.name}!`;
+        dungeonRenderActions([["⚔️ Zaútočit", () => {
+            dungeonFight(monster, () => {
+                $("dungeon-actions").classList.add("hidden");
+                setTimeout(dungeonNextRoom, 1200);
+            });
+        }]]);
+    } else if (room === "treasure") {
+        const item = dChoice(DUNGEON_ITEMS);
+        dungeonPlayer.items.push(item.name);
+        let efektPopis = "";
+        if (item.efekt === "attack") { dungeonPlayer.attack += item.hodnota; efektPopis = `+${item.hodnota} k útoku`; }
+        else if (item.efekt === "max_hp") { dungeonPlayer.maxHp += item.hodnota; dungeonPlayer.hp += item.hodnota; efektPopis = `+${item.hodnota} k max. HP`; }
+        else if (item.efekt === "heal") { dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + item.hodnota); efektPopis = `+${item.hodnota} HP`; }
+        $("dungeon-room-text").textContent = `Našel jsi poklad: ${item.name}! (${efektPopis})`;
+        dungeonShowCode(`hrac["inventar"].append("${item.name}")\n# efekt: ${efektPopis}`);
+        dungeonUpdateStatus();
+        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+    } else if (room === "trap") {
+        const dmg = dRandInt(1, 5);
+        dungeonPlayer.hp -= dmg;
+        $("dungeon-room-text").textContent = `Past! Ztrácíš ${dmg} HP.`;
+        dungeonShowCode(`poskozeni = random.randint(1, 5)  # ${dmg}\nhrac["hp"] -= poskozeni`);
+        dungeonUpdateStatus();
+        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+    } else if (room === "fountain") {
+        const heal = dRandInt(3, 8);
+        dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal);
+        $("dungeon-room-text").textContent = `Léčivá fontána! Získáváš zpět HP.`;
+        dungeonShowCode(`leceni = random.randint(3, 8)\nhrac["hp"] = min(hrac["max_hp"], hrac["hp"] + leceni)`);
+        dungeonUpdateStatus();
+        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+    } else {
+        $("dungeon-room-text").textContent = "Prázdná místnost. Jen ticho a prach.";
+        dungeonRenderActions([["➡️ Pokračovat", () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+    }
+}
+
+$("dungeon-open-button").addEventListener("click", () => {
+    dungeonPlayer = { hp: 20, maxHp: 20, attack: 1, items: [] };
+    dungeonRoomIndex = 0;
+    $("dungeon-intro").classList.remove("hidden");
+    $("dungeon-status").classList.add("hidden");
+    $("dungeon-room-box").classList.add("hidden");
+    $("dungeon-actions").classList.add("hidden");
+    $("dungeon-code-box").classList.add("hidden");
+    $("dungeon-ending-box").classList.add("hidden");
+    $("dungeon-modal").classList.remove("hidden");
+    $("dungeon-modal").classList.add("flex");
+});
+$("dungeon-close").addEventListener("click", () => {
+    $("dungeon-modal").classList.add("hidden");
+    $("dungeon-modal").classList.remove("flex");
+});
+$("dungeon-start").addEventListener("click", () => {
+    $("dungeon-intro").classList.add("hidden");
+    $("dungeon-status").classList.remove("hidden");
+    dungeonUpdateStatus();
+    dungeonNextRoom();
+});
+$("dungeon-replay").addEventListener("click", () => {
+    dungeonPlayer = { hp: 20, maxHp: 20, attack: 1, items: [] };
+    dungeonRoomIndex = 0;
+    $("dungeon-ending-box").classList.add("hidden");
+    $("dungeon-status").classList.remove("hidden");
+    dungeonUpdateStatus();
+    dungeonNextRoom();
+});
 
 loadState();
 </script>
