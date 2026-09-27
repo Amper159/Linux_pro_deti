@@ -742,7 +742,7 @@ const DUNGEON_ITEMS = [
     { name: "Lektvar zdraví", efekt: "heal", hodnota: 7, popis: "+7 HP okamžitě" },
 ];
 const DUNGEON_ROOM_WEIGHTS = [["monster", 40], ["treasure", 25], ["trap", 15], ["fountain", 10], ["empty", 10]];
-const DUNGEON_TOTAL_ROOMS = 6;
+const DUNGEON_TOTAL_ROOMS = 9;
 
 function dRandInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
 function dChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -929,15 +929,45 @@ function dungeonNextRoom() {
             }],
         ]);
     } else if (room === "fountain") {
-        const heal = dRandInt(3, 8);
-        dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal);
-        $("dungeon-room-text").textContent = `Léčivá fontána! Získáváš zpět HP.`;
-        dungeonShowCode(`leceni = random.randint(3, 8)\nhrac["hp"] = min(hrac["max_hp"], hrac["hp"] + leceni)`);
-        dungeonUpdateStatus();
-        dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+        $("dungeon-room-text").textContent = "Léčivá fontána! Jak z ní budeš pít?";
+        dungeonRenderActions([
+            ["💧 Napít se pořádně", "Velké okamžité léčení (5-10 HP)", () => {
+                const heal = dRandInt(5, 10);
+                dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal);
+                dungeonShowCode(`leceni = random.randint(5, 10)  # ${heal}\nhrac["hp"] = min(hrac["max_hp"], hrac["hp"] + leceni)`);
+                $("dungeon-room-text").textContent = `Napil ses pořádně a doléčil se o ${heal} HP.`;
+                dungeonUpdateStatus();
+                dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 500); }]]);
+            }],
+            ["🍶 Napít se šetrně a naplnit lahev", "Menší léčení teď (2-4 HP), ale +2 k max. HP navždy", () => {
+                const heal = dRandInt(2, 4);
+                dungeonPlayer.maxHp += 2;
+                dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal + 2);
+                dungeonPlayer.items.push("Lahev vody");
+                dungeonShowCode(`leceni = random.randint(2, 4)  # ${heal}\nhrac["max_hp"] += 2\nhrac["hp"] += leceni + 2\nhrac["inventar"].append("Lahev vody")`);
+                $("dungeon-room-text").textContent = `Napil ses šetrně a naplnil lahev - trvale silnější (+2 max. HP)!`;
+                dungeonUpdateStatus();
+                dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 500); }]]);
+            }],
+        ]);
     } else {
-        $("dungeon-room-text").textContent = "Prázdná místnost. Jen ticho a prach.";
-        dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 400); }]]);
+        $("dungeon-room-text").textContent = "Tahle místnost vypadá prázdná. Prozkoumáš ji pořádně?";
+        dungeonRenderActions([
+            ["🔦 Prozkoumat důkladně", "40% šance najít drobné léčení, jinak nic", () => {
+                const nasel = Math.random() < 0.4;
+                let heal = 0;
+                if (nasel) { heal = dRandInt(2, 5); dungeonPlayer.hp = Math.min(dungeonPlayer.maxHp, dungeonPlayer.hp + heal); }
+                dungeonShowCode(`nasel = random.random() < 0.4\nif nasel:\n    hrac["hp"] += random.randint(2, 5)  # ${nasel ? "+" + heal + " HP" : ""}`);
+                $("dungeon-room-text").textContent = nasel ? `Našel jsi skrytou zásobu a doléčil se o ${heal} HP!` : "Prohledal jsi místnost, ale nic jsi nenašel.";
+                dungeonUpdateStatus();
+                dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 500); }]]);
+            }],
+            ["🚶 Jít rovnou dál", "Bezpečné, ale jistě nic nezískáš", () => {
+                dungeonShowCode(`# rozhodl ses neriskovat a jít dál\npass`);
+                $("dungeon-room-text").textContent = "Prošel jsi bez zastavování dál.";
+                dungeonRenderActions([["➡️ Pokračovat", null, () => { $("dungeon-actions").classList.add("hidden"); setTimeout(dungeonNextRoom, 500); }]]);
+            }],
+        ]);
     }
 }
 
