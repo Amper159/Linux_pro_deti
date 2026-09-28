@@ -1,6 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
+import json
 from flask import Flask, render_template_string, request, make_response, jsonify
+from markupsafe import escape
 import os
 
 from sandbox import engine as sandbox_engine
@@ -52,17 +54,20 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Linuxhrou.cz – Objevuj svět Linuxu zábavně!</title>
+    <title>Linuxhrou.cz – Nauč se Linux a Python hrou | Zdarma pro děti</title>
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    {{ verify_tags|safe }}
+    <script type="application/ld+json">{{ jsonld|safe }}</script>
     <meta name="description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček. Zdarma pro děti, rodiče i školy.">
     <link rel="canonical" href="https://linuxhrou.cz/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Linuxhrou.cz – Objevuj svět Linuxu zábavně!">
+    <meta property="og:title" content="Linuxhrou.cz – Nauč se Linux a Python hrou | Zdarma pro děti">
     <meta property="og:description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
     <meta property="og:url" content="https://linuxhrou.cz/">
     <meta property="og:image" content="https://linuxhrou.cz/og-image.png">
     <meta property="og:locale" content="cs_CZ">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Linuxhrou.cz – Objevuj svět Linuxu zábavně!">
+    <meta name="twitter:title" content="Linuxhrou.cz – Nauč se Linux a Python hrou | Zdarma pro děti">
     <meta name="twitter:description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -116,11 +121,11 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     <span class="text-2xl font-black tracking-wider text-amber-400">Linux<span class="text-sky-400">hrou.cz</span></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="/python" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2 whitespace-nowrap">
+                    <a href="/python/" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2 whitespace-nowrap">
                         <span>🐍</span>
                         <span>PYTHON</span>
                     </a>
-                    <a href="/piskoviste" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2 whitespace-nowrap">
+                    <a href="/piskoviste/" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2 whitespace-nowrap">
                         <i class="fa-solid fa-terminal text-lg"></i>
                         <span>SPUSTIT TERMINÁL</span>
                     </a>
@@ -154,7 +159,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     Zjisti, jak funguje operační systém, na kterém běží rakety SpaceX, Android v mobilu i nejrychlejší superpočítače světa.
                 </p>
                 <p class="text-sm md:text-base font-bold text-blue-300">
-                    🐍 A když ti Linux nebude stačit, vyzkoušej si u nás rovnou i základy <a href="/python" class="underline decoration-yellow-400 hover:text-blue-200 transition">programování v Pythonu</a> — přímo v prohlížeči, žádná instalace.
+                    🐍 A když ti Linux nebude stačit, vyzkoušej si u nás rovnou i základy <a href="/python/" class="underline decoration-yellow-400 hover:text-blue-200 transition">programování v Pythonu</a> — přímo v prohlížeči, žádná instalace.
                 </p>
             </div>
 
@@ -200,7 +205,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
 
             <div class="pt-8 flex flex-wrap justify-center gap-4">
-                <a href="/piskoviste" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-8 py-4 rounded-2xl border-b-4 border-amber-600 active:translate-y-1 transition text-lg flex items-center space-x-3 shadow-lg shadow-amber-400/10">
+                <a href="/piskoviste/" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-8 py-4 rounded-2xl border-b-4 border-amber-600 active:translate-y-1 transition text-lg flex items-center space-x-3 shadow-lg shadow-amber-400/10">
                     <i class="fa-solid fa-rocket"></i>
                     <span>Vstoupit do skutečného terminálu</span>
                 </a>
@@ -217,7 +222,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <div class="p-2 bg-blue-500/10 rounded-lg text-blue-400 text-xl">🐍</div>
                 <h2 class="text-2xl font-bold text-slate-100">Python Lab: zahraj si přímo v prohlížeči</h2>
             </div>
-            <a href="/python" class="text-xs font-bold text-blue-400 hover:underline">Celý Python Lab (30+ úloh) →</a>
+            <a href="/python/" class="text-xs font-bold text-blue-400 hover:underline">Celý Python Lab (30+ úloh) →</a>
         </div>
         <p class="text-slate-400 text-sm max-w-2xl">
             Tři hry, žádné přihlášení potřeba. U každého rozhodnutí navíc uvidíš, jak by se to dalo napsat v Pythonu -
@@ -225,17 +230,17 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             a upravit si ji podle sebe třeba ve VS Code.
         </p>
         <div class="grid md:grid-cols-3 gap-4">
-            <a href="/python?hra=iskra" class="block bg-slate-900 rounded-2xl border-2 border-purple-500/40 hover:border-purple-400 p-5 card-hover transition">
+            <a href="/python/?hra=iskra" class="block bg-slate-900 rounded-2xl border-2 border-purple-500/40 hover:border-purple-400 p-5 card-hover transition">
                 <div class="text-3xl mb-2">🎮</div>
                 <h3 class="font-bold text-purple-300">Iskra</h3>
                 <p class="text-xs text-slate-400 mt-1">Interaktivní příběh s 10 rozhodnutími a 6 konci. Originální hrdinka zachraňuje město.</p>
             </a>
-            <a href="/python?hra=kobka" class="block bg-slate-900 rounded-2xl border-2 border-rose-500/40 hover:border-rose-400 p-5 card-hover transition">
+            <a href="/python/?hra=kobka" class="block bg-slate-900 rounded-2xl border-2 border-rose-500/40 hover:border-rose-400 p-5 card-hover transition">
                 <div class="text-3xl mb-2">🗡️</div>
                 <h3 class="font-bold text-rose-300">Kobka</h3>
                 <p class="text-xs text-slate-400 mt-1">Textové RPG s inventářem, HP a souboji na kostky. 9 místností + finální boss.</p>
             </a>
-            <a href="/python?hra=obesenec" class="block bg-slate-900 rounded-2xl border-2 border-teal-500/40 hover:border-teal-400 p-5 card-hover transition">
+            <a href="/python/?hra=obesenec" class="block bg-slate-900 rounded-2xl border-2 border-teal-500/40 hover:border-teal-400 p-5 card-hover transition">
                 <div class="text-3xl mb-2">🔤</div>
                 <h3 class="font-bold text-teal-300">Oběšenec</h3>
                 <p class="text-xs text-slate-400 mt-1">Klasická slovní hra se slovíčky z Pythonu a postavami z ostatních her.</p>
@@ -571,7 +576,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400 text-xl"><i class="fa-solid fa-code"></i></div>
                 <h2 class="text-2xl font-bold text-slate-100">Rychlý příkazový tahák</h2>
             </div>
-            <a href="/piskoviste" class="text-xs font-bold text-sky-400 hover:underline">Vyzkoušet ve skutečném terminálu →</a>
+            <a href="/piskoviste/" class="text-xs font-bold text-sky-400 hover:underline">Vyzkoušet ve skutečném terminálu →</a>
         </div>
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3 font-mono text-xs">
             <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
@@ -878,6 +883,43 @@ new Chart(ctx, {
 </html>
 """
 
+JSONLD_HOME = json.dumps({
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "WebSite",
+            "@id": "https://linuxhrou.cz/#website",
+            "url": "https://linuxhrou.cz/",
+            "name": "Linuxhrou.cz",
+            "inLanguage": "cs",
+            "description": "Vzdělávací portál, kde se děti i dospělí hravě učí Linux a základy Pythonu: "
+                           "skutečný terminál v bezpečném pískovišti, 90 úkolů, hry a odznaky.",
+        },
+        {
+            "@type": "EducationalOrganization",
+            "@id": "https://linuxhrou.cz/#organization",
+            "name": "Linuxhrou.cz",
+            "url": "https://linuxhrou.cz/",
+        },
+    ],
+}, ensure_ascii=False)
+
+
+def _verify_tags() -> str:
+    """Ověřovací meta tagy pro Google Search Console, Bing a Seznam Webmaster.
+    Hodnoty se berou z .env (GOOGLE_SITE_VERIFICATION, BING_SITE_VERIFICATION,
+    SEZNAM_WMT_VERIFICATION); co není vyplněné, se nevypíše."""
+    pairs = (
+        ("google-site-verification", os.environ.get("GOOGLE_SITE_VERIFICATION", "")),
+        ("msvalidate.01", os.environ.get("BING_SITE_VERIFICATION", "")),
+        ("seznam-wmt", os.environ.get("SEZNAM_WMT_VERIFICATION", "")),
+    )
+    return "".join(
+        f'<meta name="{name}" content="{escape(value.strip())}">\n    '
+        for name, value in pairs if value.strip()
+    )
+
+
 @app.route("/")
 def home():
     """Úvodní vzdělávací portál Linuxhrou.cz"""
@@ -901,6 +943,8 @@ def home():
         visits_total=visit_stats["total_unique"],
         total_completed=totals["completed"],
         total_xp=totals["xp"],
+        jsonld=JSONLD_HOME,
+        verify_tags=_verify_tags(),
     ))
     if is_real_visit:
         resp.set_cookie(
@@ -1032,14 +1076,23 @@ def og_image():
 @app.route("/robots.txt")
 def robots_txt():
     from flask import Response
-    body = "User-agent: *\nAllow: /\nDisallow: /piskoviste/api/\nSitemap: https://linuxhrou.cz/sitemap.xml\n"
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /api/\n"
+        "Disallow: /piskoviste/api/\n"
+        "Disallow: /piskoviste/reset-heslo\n"
+        "Disallow: /python/api/\n"
+        "Disallow: /python/hra/\n"
+        "Sitemap: https://linuxhrou.cz/sitemap.xml\n"
+    )
     return Response(body, mimetype="text/plain")
 
 
 @app.route("/sitemap.xml")
 def sitemap_xml():
     from flask import Response
-    urls = ["/", "/piskoviste/", "/soukromi"]
+    urls = ["/", "/python/", "/piskoviste/", "/soukromi"]
     body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for u in urls:
         body += f"  <url><loc>https://linuxhrou.cz{u}</loc></url>\n"
