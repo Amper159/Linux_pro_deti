@@ -10,6 +10,7 @@ import logging
 import re
 import smtplib
 from email.message import EmailMessage
+from email.utils import formataddr
 
 from . import config
 
@@ -76,17 +77,22 @@ def send_feedback_notification(zaznam: dict) -> None:
 
     typ_popis = {
         "libi": "👍 Líbí se mi", "nelibi": "👎 Nelíbí se mi",
-        "navrh": "💡 Návrh", "skola": "🏫 Škola / kroužek",
+        "navrh": "💡 Návrh", "skola": "🏫 Škola / kroužek", "dotaz": "❓ Dotaz / jiné",
     }.get(zaznam["typ"], zaznam["typ"])
     kontakt = zaznam.get("kontakt", "")
 
     message = EmailMessage()
-    message["Subject"] = f"Nová zpětná vazba na Linuxhrou.cz ({typ_popis})"
+    # Předmět obsahuje typ i jméno, ať je v doručené poště hned vidět, od koho zpráva je.
+    message["Subject"] = f"Linuxhrou.cz – {typ_popis} – {zaznam['jmeno']}"
     message["From"] = config.SMTP_FROM
     message["To"] = config.FEEDBACK_NOTIFY_EMAIL
     # Když je kontakt e-mail, půjde odpovědět rovnou tlačítkem "Odpovědět".
     if _EMAIL_RE.match(kontakt):
-        message["Reply-To"] = kontakt
+        try:
+            jmeno = zaznam["jmeno"]
+            message["Reply-To"] = kontakt if jmeno == "Anonym" else formataddr((jmeno, kontakt))
+        except ValueError:
+            message["Reply-To"] = kontakt
     message.set_content(
         f"Od: {zaznam['jmeno']}\n"
         f"Typ: {typ_popis}\n"

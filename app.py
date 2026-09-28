@@ -506,11 +506,12 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                         <button type="button" data-typ="nelibi" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👎 Nelíbí se mi</button>
                         <button type="button" data-typ="navrh" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">💡 Návrh</button>
                         <button type="button" data-typ="skola" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">🏫 Škola / kroužek</button>
+                        <button type="button" data-typ="dotaz" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition col-span-2">❓ Dotaz / jiné</button>
                     </div>
-                    <div id="feedback-kontakt-box" class="hidden space-y-1">
-                        <input type="text" id="feedback-kontakt" maxlength="100" placeholder="E-mail nebo telefon, kde se vám ozvu"
+                    <div class="space-y-1">
+                        <input type="text" id="feedback-kontakt" maxlength="100" placeholder="E-mail pro odpověď (nepovinné)"
                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400">
-                        <p class="text-[11px] text-slate-500">Použiju ho jen k odpovědi na tuhle zprávu.</p>
+                        <p id="feedback-kontakt-hint" class="text-[11px] text-slate-500">Vyplňte jen, pokud chcete odpověď. Děti se předem domluvte s rodiči.</p>
                     </div>
                 </div>
                 <textarea id="feedback-zprava" maxlength="2000" rows="5" placeholder="Napište svoji zprávu sem..."
@@ -531,7 +532,9 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <script>
 (function () {
     let vybranyTyp = null;
-    const kontaktBox = document.getElementById("feedback-kontakt-box");
+    const POVINNY_KONTAKT = ["skola", "dotaz"];
+    const kontaktInput = document.getElementById("feedback-kontakt");
+    const kontaktHint = document.getElementById("feedback-kontakt-hint");
     const setStatus = (text, cls) => {
         const status = document.getElementById("feedback-status");
         status.textContent = text;
@@ -547,17 +550,21 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             btn.classList.remove("border-slate-700", "bg-slate-800", "text-slate-300");
             btn.classList.add("border-sky-400", "bg-sky-500/20", "text-sky-300");
             vybranyTyp = btn.dataset.typ;
-            // kontakt se ptáme jen u dotazu ze školy - jinde by byl zbytečný
-            kontaktBox.classList.toggle("hidden", vybranyTyp !== "skola");
+            // U dotazu ze školy a obecného dotazu je kontakt povinný (jinak by nešlo odpovědět).
+            const povinny = POVINNY_KONTAKT.includes(vybranyTyp);
+            kontaktInput.placeholder = povinny ? "E-mail nebo telefon, kde se vám ozvu (povinné)" : "E-mail pro odpověď (nepovinné)";
+            kontaktHint.textContent = povinny
+                ? "Použiju ho jen k odpovědi na tuhle zprávu."
+                : "Vyplňte jen, pokud chcete odpověď. Děti se předem domluvte s rodiči.";
         });
     });
 
     document.getElementById("feedback-submit").addEventListener("click", async () => {
         const zprava = document.getElementById("feedback-zprava").value.trim();
-        const kontakt = document.getElementById("feedback-kontakt").value.trim();
+        const kontakt = kontaktInput.value.trim();
         if (!vybranyTyp) { setStatus("Vyberte prosím, čeho se zpráva týká.", "text-amber-400"); return; }
         if (!zprava) { setStatus("Napište prosím nějakou zprávu.", "text-amber-400"); return; }
-        if (vybranyTyp === "skola" && !kontakt) { setStatus("Napište prosím kontakt (e-mail nebo telefon), na který se vám můžu ozvat.", "text-amber-400"); return; }
+        if (POVINNY_KONTAKT.includes(vybranyTyp) && !kontakt) { setStatus("Napište prosím kontakt (e-mail nebo telefon), na který se vám můžu ozvat.", "text-amber-400"); return; }
 
         setStatus("Odesílám...", "text-slate-400");
         try {
@@ -566,7 +573,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 typ: vybranyTyp,
                 zprava: zprava,
             };
-            if (vybranyTyp === "skola") payload.kontakt = kontakt;
+            if (kontakt) payload.kontakt = kontakt;
             const res = await fetch("/api/feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -577,7 +584,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 setStatus("Díky! Zpráva byla odeslána. 🎉", "text-emerald-400");
                 document.getElementById("feedback-zprava").value = "";
                 document.getElementById("feedback-jmeno").value = "";
-                document.getElementById("feedback-kontakt").value = "";
+                kontaktInput.value = "";
             } else {
                 setStatus(data.error || "Něco se pokazilo, zkuste to znovu.", "text-rose-400");
             }
@@ -594,7 +601,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <p class="pt-1">
         <a href="/soukromi" class="text-sky-500 hover:underline">Ochrana soukromí</a>
         <span class="mx-2">·</span>
-        <a href="mailto:info@linuxhrou.cz" class="text-sky-500 hover:underline">info@linuxhrou.cz</a>
+        <a href="#pro-rodice" class="text-sky-500 hover:underline">Napsat mi</a>
     </p>
 </footer>
 
@@ -791,7 +798,7 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
             <li>Heslo - nikdy ne v čitelné podobě, jen jeho jednosměrně zahashovaný otisk (scrypt + sůl). Ani my ho nedokážeme zpětně přečíst.</li>
             <li>Tvůj postup v úkolech, odznaky a XP.</li>
             <li>Anonymní cookie s náhodným ID pro počítadlo návštěvnosti (víme jen "kolik různých lidí" přišlo, ne kdo).</li>
-            <li>Pokud pošleš zprávu přes formulář na hlavní stránce: text zprávy a jméno/přezdívka, pokud ji vyplníš (nepovinné). U dotazu ze školy nebo kroužku navíc kontakt (e-mail nebo telefon), který uvedeš, abych se mohl ozvat. Vidí to jen provozovatel webu, nikde se to veřejně nezobrazuje.</li>
+            <li>Pokud pošleš zprávu přes formulář na hlavní stránce: text zprávy a jméno/přezdívka, pokud ji vyplníš (nepovinné). Kontakt (e-mail nebo telefon), pokud ho uvedeš - u dotazu ze školy a obecného dotazu je povinný, u ostatních zpráv nepovinný - a používá se jen k odpovědi na tu jednu zprávu. Děti ať kontakt vyplňují jen po domluvě s rodiči. Vidí to jen provozovatel webu, nikde se to veřejně nezobrazuje.</li>
         </ul>
     </div>
 
@@ -808,14 +815,14 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
         <h2 class="font-bold text-lg text-amber-300">Smazání účtu</h2>
         <p class="text-sm text-slate-300">
             V pískovišti dole na stránce najdeš odkaz "Chci trvale smazat svůj účet a všechna data" -
-            smaže se tím okamžitě a nevratně účet, postup i domovská složka. Můžeš také napsat na e-mail níže.
+            smaže se tím okamžitě a nevratně účet, postup i domovská složka. Můžeš také napsat přes formulář na hlavní stránce (volba „Dotaz / jiné“).
         </p>
     </div>
 
     <div class="card p-5 space-y-2">
         <h2 class="font-bold text-lg text-rose-300">Kontakt</h2>
         <p class="text-sm text-slate-300">
-            Dotazy k datům nebo cokoliv jiného: <a href="mailto:info@linuxhrou.cz" class="text-sky-400 hover:underline">info@linuxhrou.cz</a>
+            Dotazy k datům nebo cokoliv jiného: napiš mi přes <a href="/#pro-rodice" class="text-sky-400 hover:underline">formulář na hlavní stránce</a> (volba „Dotaz / jiné“) a uveď e-mail nebo telefon, na který se ti mám ozvat.
         </p>
     </div>
 
@@ -853,8 +860,10 @@ def api_feedback():
         return jsonify({"ok": False, "error": "Vyber prosím, čeho se zpráva týká."}), 400
     if not zprava:
         return jsonify({"ok": False, "error": "Zpráva nemůže být prázdná."}), 400
-    if typ == "skola" and not kontakt:
+    if typ in sandbox_feedback.KONTAKT_POVINNY and not kontakt:
         return jsonify({"ok": False, "error": "Napište prosím kontakt (e-mail nebo telefon), na který se vám můžu ozvat."}), 400
+    if kontakt and not sandbox_feedback.kontakt_ok(kontakt):
+        return jsonify({"ok": False, "error": "Kontakt nevypadá jako e-mail ani telefon. Opravte ho, nebo pole nechte prázdné."}), 400
 
     zaznam = sandbox_feedback.ulozit(jmeno=data.get("jmeno", ""), typ=typ, zprava=zprava, kontakt=kontakt)
     if zaznam is None:
