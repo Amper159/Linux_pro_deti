@@ -7,12 +7,15 @@ vývojářském stroji bez poštovního serveru.
 """
 
 import logging
+import re
 import smtplib
 from email.message import EmailMessage
 
 from . import config
 
 logger = logging.getLogger(__name__)
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def _send(message: EmailMessage) -> None:
@@ -71,18 +74,24 @@ def send_feedback_notification(zaznam: dict) -> None:
         )
         return
 
-    typ_popis = {"libi": "👍 Líbí se mi", "nelibi": "👎 Nelíbí se mi", "navrh": "💡 Návrh"}.get(
-        zaznam["typ"], zaznam["typ"]
-    )
+    typ_popis = {
+        "libi": "👍 Líbí se mi", "nelibi": "👎 Nelíbí se mi",
+        "navrh": "💡 Návrh", "skola": "🏫 Škola / kroužek",
+    }.get(zaznam["typ"], zaznam["typ"])
+    kontakt = zaznam.get("kontakt", "")
 
     message = EmailMessage()
     message["Subject"] = f"Nová zpětná vazba na Linuxhrou.cz ({typ_popis})"
     message["From"] = config.SMTP_FROM
     message["To"] = config.FEEDBACK_NOTIFY_EMAIL
+    # Když je kontakt e-mail, půjde odpovědět rovnou tlačítkem "Odpovědět".
+    if _EMAIL_RE.match(kontakt):
+        message["Reply-To"] = kontakt
     message.set_content(
         f"Od: {zaznam['jmeno']}\n"
         f"Typ: {typ_popis}\n"
-        f"Čas: {zaznam['cas']}\n\n"
+        + (f"Kontakt: {kontakt}\n" if kontakt else "")
+        + f"Čas: {zaznam['cas']}\n\n"
         f"{zaznam['zprava']}\n"
     )
 

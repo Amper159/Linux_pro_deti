@@ -22,7 +22,8 @@ _LOCK = Lock()
 
 MAX_JMENO_DELKA = 40
 MAX_ZPRAVA_DELKA = 2000
-POVOLENE_TYPY = {"libi", "nelibi", "navrh"}
+MAX_KONTAKT_DELKA = 100
+POVOLENE_TYPY = {"libi", "nelibi", "navrh", "skola"}
 
 
 def _load() -> list:
@@ -41,11 +42,19 @@ def _save(data: list) -> None:
     tmp.replace(FEEDBACK_FILE)
 
 
-def ulozit(jmeno: str, typ: str, zprava: str) -> dict | None:
-    """Vrátí None při neplatném vstupu, jinak uložený záznam."""
+def ulozit(jmeno: str, typ: str, zprava: str, kontakt: str = "") -> dict | None:
+    """Vrátí None při neplatném vstupu, jinak uložený záznam.
+
+    Kontakt (e-mail nebo telefon) se ukládá jen u dotazu ze školy / kroužku,
+    kde je potřeba se ozvat zpátky. U ostatních typů se zahodí, i kdyby ho
+    někdo poslal - sbíráme jen to, co je nezbytné."""
     jmeno = (jmeno or "").strip()[:MAX_JMENO_DELKA]
     zprava = (zprava or "").strip()[:MAX_ZPRAVA_DELKA]
+    # zalomení řádků a nadbytečné mezery pryč (kontakt se dostane do e-mailu)
+    kontakt = " ".join((kontakt or "").split())[:MAX_KONTAKT_DELKA] if typ == "skola" else ""
     if typ not in POVOLENE_TYPY or not zprava:
+        return None
+    if typ == "skola" and not kontakt:
         return None
 
     zaznam = {
@@ -55,6 +64,8 @@ def ulozit(jmeno: str, typ: str, zprava: str) -> dict | None:
         "typ": typ,
         "zprava": zprava,
     }
+    if kontakt:
+        zaznam["kontakt"] = kontakt
     with _LOCK:
         data = _load()
         data.append(zaznam)

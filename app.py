@@ -467,6 +467,8 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     </section>
 
     <!-- bod 4: sekce pro rodiče a učitele -->
+    <!-- Pro rodiče, učitele i všechny ostatní: informace o bezpečnosti + jeden formulář.
+         Zpráva se nikde veřejně nezobrazuje, chodí provozovateli na e-mail (viz mailer.py). -->
     <section id="pro-rodice" class="bg-slate-900 rounded-3xl border-2 border-rose-500/30 p-8 space-y-6">
         <div class="flex items-center space-x-3">
             <div class="p-2 bg-rose-500/10 rounded-lg text-rose-400 text-xl"><i class="fa-solid fa-shield-heart"></i></div>
@@ -486,44 +488,41 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <p class="text-slate-400 text-xs">Sociální prvky jsou omezené na odznaky a žebříček – žádná otevřená komunikace s neznámými.</p>
             </div>
         </div>
-        <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-950/60 rounded-xl p-4 border border-slate-800">
-            <p class="text-sm text-slate-300">Učíte třídu nebo kroužek? Napište mi a domluvíme se, jak to nasadit u vás.</p>
-            <a href="mailto:info@linuxhrou.cz?subject=Linuxhrou.cz%20pro%20školu" class="bg-rose-500 hover:bg-rose-400 text-white font-bold px-5 py-2.5 rounded-xl border-b-4 border-rose-700 active:translate-y-1 transition text-sm whitespace-nowrap">
-                Napsat e-mail →
-            </a>
-        </div>
-    </section>
-
-    <!-- Zpětná vazba od návštěvníků - jednosměrná, nikde se veřejně nezobrazuje -->
-    <section id="zpetna-vazba" class="bg-slate-900 rounded-3xl border-2 border-sky-500/30 p-8 space-y-5">
-        <div class="flex items-center space-x-3">
-            <div class="p-2 bg-sky-500/10 rounded-lg text-sky-400 text-xl">💬</div>
-            <h2 class="text-2xl font-bold text-slate-100">Máš nápad nebo připomínku?</h2>
-        </div>
-        <p class="text-slate-400 text-sm max-w-2xl">
-            Napiš, co se ti na Linuxhrou.cz líbí, co by šlo zlepšit, nebo co bys tu uvítal/a. Zprávu si přečtu já
-            osobně - nikde na webu se veřejně nezobrazuje.
-        </p>
-
-        <div id="feedback-form" class="grid md:grid-cols-2 gap-4">
-            <div class="space-y-3">
-                <input type="text" id="feedback-jmeno" maxlength="40" placeholder="Jméno nebo přezdívka (nepovinné)"
-                       class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400">
-                <div class="flex flex-wrap gap-2" id="feedback-typ-buttons">
-                    <button type="button" data-typ="libi" class="feedback-typ-btn flex-1 min-w-[100px] bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👍 Líbí se mi</button>
-                    <button type="button" data-typ="nelibi" class="feedback-typ-btn flex-1 min-w-[100px] bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👎 Nelíbí se mi</button>
-                    <button type="button" data-typ="navrh" class="feedback-typ-btn flex-1 min-w-[100px] bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">💡 Návrh</button>
-                </div>
+        <div class="border-t border-slate-800 pt-6 space-y-5">
+            <div>
+                <h3 class="text-xl font-bold text-slate-100">💬 Máte dotaz, nápad nebo připomínku?</h3>
+                <p class="text-slate-400 text-sm max-w-2xl mt-1">
+                    Chcete web nasadit ve třídě nebo kroužku? Něco se vám líbí, nebo naopak chybí? Napište mi.
+                    Každou zprávu čtu osobně a nikde na webu se veřejně nezobrazuje.
+                </p>
             </div>
-            <textarea id="feedback-zprava" maxlength="2000" rows="4" placeholder="Napiš svoji zprávu sem..."
-                      class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 resize-none"></textarea>
-        </div>
 
-        <div class="flex items-center gap-4">
-            <button id="feedback-submit" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl border-b-4 border-sky-700 active:translate-y-1 transition text-sm">
-                Odeslat zpětnou vazbu
-            </button>
-            <p id="feedback-status" class="text-xs font-bold"></p>
+            <div id="feedback-form" class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-3">
+                    <input type="text" id="feedback-jmeno" maxlength="40" placeholder="Jméno nebo přezdívka (nepovinné)"
+                           class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400">
+                    <div class="grid grid-cols-2 gap-2" id="feedback-typ-buttons">
+                        <button type="button" data-typ="libi" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👍 Líbí se mi</button>
+                        <button type="button" data-typ="nelibi" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">👎 Nelíbí se mi</button>
+                        <button type="button" data-typ="navrh" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">💡 Návrh</button>
+                        <button type="button" data-typ="skola" class="feedback-typ-btn w-full bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 transition">🏫 Škola / kroužek</button>
+                    </div>
+                    <div id="feedback-kontakt-box" class="hidden space-y-1">
+                        <input type="text" id="feedback-kontakt" maxlength="100" placeholder="E-mail nebo telefon, kde se vám ozvu"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400">
+                        <p class="text-[11px] text-slate-500">Použiju ho jen k odpovědi na tuhle zprávu.</p>
+                    </div>
+                </div>
+                <textarea id="feedback-zprava" maxlength="2000" rows="5" placeholder="Napište svoji zprávu sem..."
+                          class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 resize-none"></textarea>
+            </div>
+
+            <div class="flex items-center gap-4 flex-wrap">
+                <button id="feedback-submit" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl border-b-4 border-sky-700 active:translate-y-1 transition text-sm">
+                    Odeslat zprávu
+                </button>
+                <p id="feedback-status" class="text-xs font-bold"></p>
+            </div>
         </div>
     </section>
 
@@ -532,6 +531,13 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <script>
 (function () {
     let vybranyTyp = null;
+    const kontaktBox = document.getElementById("feedback-kontakt-box");
+    const setStatus = (text, cls) => {
+        const status = document.getElementById("feedback-status");
+        status.textContent = text;
+        status.className = "text-xs font-bold " + cls;
+    };
+
     document.querySelectorAll(".feedback-typ-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".feedback-typ-btn").forEach((b) => {
@@ -541,40 +547,42 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             btn.classList.remove("border-slate-700", "bg-slate-800", "text-slate-300");
             btn.classList.add("border-sky-400", "bg-sky-500/20", "text-sky-300");
             vybranyTyp = btn.dataset.typ;
+            // kontakt se ptáme jen u dotazu ze školy - jinde by byl zbytečný
+            kontaktBox.classList.toggle("hidden", vybranyTyp !== "skola");
         });
     });
 
     document.getElementById("feedback-submit").addEventListener("click", async () => {
-        const status = document.getElementById("feedback-status");
         const zprava = document.getElementById("feedback-zprava").value.trim();
-        if (!vybranyTyp) { status.textContent = "Vyber prosím jednu z možností (líbí/nelíbí/návrh)."; status.className = "text-xs font-bold text-amber-400"; return; }
-        if (!zprava) { status.textContent = "Napiš prosím nějakou zprávu."; status.className = "text-xs font-bold text-amber-400"; return; }
+        const kontakt = document.getElementById("feedback-kontakt").value.trim();
+        if (!vybranyTyp) { setStatus("Vyberte prosím, čeho se zpráva týká.", "text-amber-400"); return; }
+        if (!zprava) { setStatus("Napište prosím nějakou zprávu.", "text-amber-400"); return; }
+        if (vybranyTyp === "skola" && !kontakt) { setStatus("Napište prosím kontakt (e-mail nebo telefon), na který se vám můžu ozvat.", "text-amber-400"); return; }
 
-        status.textContent = "Odesílám...";
-        status.className = "text-xs font-bold text-slate-400";
+        setStatus("Odesílám...", "text-slate-400");
         try {
+            const payload = {
+                jmeno: document.getElementById("feedback-jmeno").value,
+                typ: vybranyTyp,
+                zprava: zprava,
+            };
+            if (vybranyTyp === "skola") payload.kontakt = kontakt;
             const res = await fetch("/api/feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    jmeno: document.getElementById("feedback-jmeno").value,
-                    typ: vybranyTyp,
-                    zprava: zprava,
-                }),
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (data.ok) {
-                status.textContent = "Díky! Zpráva byla odeslána. 🎉";
-                status.className = "text-xs font-bold text-emerald-400";
+                setStatus("Díky! Zpráva byla odeslána. 🎉", "text-emerald-400");
                 document.getElementById("feedback-zprava").value = "";
                 document.getElementById("feedback-jmeno").value = "";
+                document.getElementById("feedback-kontakt").value = "";
             } else {
-                status.textContent = data.error || "Něco se pokazilo, zkus to znovu.";
-                status.className = "text-xs font-bold text-rose-400";
+                setStatus(data.error || "Něco se pokazilo, zkuste to znovu.", "text-rose-400");
             }
         } catch (e) {
-            status.textContent = "Něco se pokazilo, zkus to znovu.";
-            status.className = "text-xs font-bold text-rose-400";
+            setStatus("Něco se pokazilo, zkuste to znovu.", "text-rose-400");
         }
     });
 })();
@@ -783,7 +791,7 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
             <li>Heslo - nikdy ne v čitelné podobě, jen jeho jednosměrně zahashovaný otisk (scrypt + sůl). Ani my ho nedokážeme zpětně přečíst.</li>
             <li>Tvůj postup v úkolech, odznaky a XP.</li>
             <li>Anonymní cookie s náhodným ID pro počítadlo návštěvnosti (víme jen "kolik různých lidí" přišlo, ne kdo).</li>
-            <li>Pokud pošleš zpětnou vazbu přes formulář na hlavní stránce: text zprávy a jméno/přezdívka, pokud ji vyplníš (nepovinné). Vidí to jen provozovatel webu, nikde se to veřejně nezobrazuje.</li>
+            <li>Pokud pošleš zprávu přes formulář na hlavní stránce: text zprávy a jméno/přezdívka, pokud ji vyplníš (nepovinné). U dotazu ze školy nebo kroužku navíc kontakt (e-mail nebo telefon), který uvedeš, abych se mohl ozvat. Vidí to jen provozovatel webu, nikde se to veřejně nezobrazuje.</li>
         </ul>
     </div>
 
@@ -840,12 +848,15 @@ def api_feedback():
     data = request.get_json(silent=True) or {}
     typ = data.get("typ", "")
     zprava = (data.get("zprava") or "").strip()
+    kontakt = " ".join(str(data.get("kontakt") or "").split())
     if typ not in sandbox_feedback.POVOLENE_TYPY:
-        return jsonify({"ok": False, "error": "Vyber prosím jednu z možností (líbí/nelíbí/návrh)."}), 400
+        return jsonify({"ok": False, "error": "Vyber prosím, čeho se zpráva týká."}), 400
     if not zprava:
         return jsonify({"ok": False, "error": "Zpráva nemůže být prázdná."}), 400
+    if typ == "skola" and not kontakt:
+        return jsonify({"ok": False, "error": "Napište prosím kontakt (e-mail nebo telefon), na který se vám můžu ozvat."}), 400
 
-    zaznam = sandbox_feedback.ulozit(jmeno=data.get("jmeno", ""), typ=typ, zprava=zprava)
+    zaznam = sandbox_feedback.ulozit(jmeno=data.get("jmeno", ""), typ=typ, zprava=zprava, kontakt=kontakt)
     if zaznam is None:
         return jsonify({"ok": False, "error": "Zprávu se nepodařilo uložit."}), 400
     sandbox_mailer.send_feedback_notification(zaznam)
