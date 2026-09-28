@@ -723,7 +723,7 @@ def _verify_tags() -> str:
     pairs = (
         ("google-site-verification", os.environ.get("GOOGLE_SITE_VERIFICATION", "")),
         ("msvalidate.01", os.environ.get("BING_SITE_VERIFICATION", "")),
-        ("seznam-wmt", os.environ.get("SEZNAM_WMT_VERIFICATION", "")),
+        ("seznam-wmt", os.environ.get("SEZNAM_WMT_VERIFICATION", "CSOkmi4d8Xe9sB5DIYRfdEgcoSLLhFfa")),
     )
     return "".join(
         f'<meta name="{name}" content="{escape(value.strip())}">\n    '
