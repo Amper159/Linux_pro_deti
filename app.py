@@ -8,6 +8,7 @@ import os
 from sandbox import engine as sandbox_engine
 from sandbox import sandbox_bp
 from sandbox import python_lab_bp
+from sandbox import pages as sandbox_pages
 from sandbox import visits as sandbox_visits
 from sandbox import gamification as sandbox_gamification
 from sandbox import feedback as sandbox_feedback
@@ -47,6 +48,7 @@ app.config.update(
 # Nová stránka: /piskoviste – opravdový Linux v kontejneru.
 app.register_blueprint(sandbox_bp)
 app.register_blueprint(python_lab_bp)
+app.register_blueprint(sandbox_pages.bp)
 sandbox_engine.start_reaper()
 
 PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
@@ -72,7 +74,6 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
         body { font-family: 'Quicksand', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .font-mono { font-family: 'Fira Code', monospace; }
@@ -135,7 +136,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <a href="#o-linuxu" class="text-slate-300 hover:text-amber-400 transition whitespace-nowrap">Co je Linux?</a>
                 <a href="#mapa" class="text-slate-300 hover:text-emerald-400 transition whitespace-nowrap">Mapa kampaní</a>
                 <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition whitespace-nowrap">Kde všude běží?</a>
-                <a href="#distribuce" class="text-slate-300 hover:text-purple-400 transition whitespace-nowrap">Vyber si distribuci</a>
+                <a href="#navody" class="text-slate-300 hover:text-emerald-400 transition whitespace-nowrap">Návody</a>
                 <a href="#python-hry" class="text-blue-400 hover:text-blue-300 transition whitespace-nowrap">🎮 Hry v Pythonu</a>
                 <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition whitespace-nowrap">Odznaky</a>
                 <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition whitespace-nowrap">Pro rodiče</a>
@@ -368,195 +369,26 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 
 
 
-    <!-- ============ GRAF A SROVNÁNÍ DISTRIBUCÍ ============ -->
-    <section id="distribuce" class="space-y-6">
+    <!-- ============ NÁVODY: samostatné stránky, aby je šlo najít ve vyhledávačích ============ -->
+    <section id="navody" class="space-y-6">
         <div class="flex items-center space-x-3">
-            <div class="p-2 bg-sky-500/10 rounded-lg text-sky-400 text-xl"><i class="fa-solid fa-layer-group"></i></div>
-            <h2 class="text-2xl font-bold text-slate-100">Který Linux je pro tebe ten pravý?</h2>
+            <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 text-xl">📚</div>
+            <h2 class="text-2xl font-bold text-slate-100">Návody pro začátečníky</h2>
         </div>
         <p class="text-slate-400 text-sm max-w-2xl">
-            "Linux" není jeden systém, ale rodina desítek <b class="text-slate-200">distribucí</b> – různě poskládaný stejný základ.
-            Tady je srovnání těch nejoblíbenějších pro úplné začátečníky.
+            Podrobné návody, které vysvětlují věci od začátku: jak vybrat a nainstalovat Linux, jaké příkazy budeš
+            potřebovat a jak začít s Pythonem.
         </p>
-
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
-            <canvas id="distro-chart" height="110"></canvas>
-            <p class="text-[10px] text-slate-500 mt-3 text-center">
-                Zdroj: <a href="https://distrowatch.com/dwres.php?resource=popularity" class="text-sky-400 hover:underline" target="_blank">DistroWatch.com – Page Hit Ranking</a>,
-                posledních 6 měsíců (stav srpen 2026). Číslo ukazuje zájem návštěvníků webu, ne skutečný podíl uživatelů –
-                DistroWatch sám upozorňuje, že se nejedná o měřítko tržního podílu.
-            </p>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-4">
-            <div class="bg-slate-900 rounded-2xl border-2 border-emerald-500 p-5 card-hover space-y-2">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-emerald-300 text-lg">Linux Mint</h3>
-                    <span class="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-lg border border-emerald-500/40">DOPORUČENO PRO ZAČÁTEK</span>
-                </div>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Nabídka Start, hodiny vpravo dole, ikony v liště – vypadá a chová se nejpodobněji Windows ze všech.
-                    Nastavuje se skoro sám, funguje spolehlivě i na starších počítačích.
-                </p>
-                <p class="text-[11px] text-slate-500">Hodí se na: běžnou práci, školu, přechod z Windows</p>
-            </div>
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 card-hover space-y-2">
-                <h3 class="font-bold text-sky-300 text-lg">Zorin OS</h3>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Přímo nabízí vzhled "jako Windows" nebo "jako macOS" na výběr při instalaci. Skvělá volba,
-                    když se s vzhledem nechceš vůbec trápit.
-                </p>
-                <p class="text-[11px] text-slate-500">Hodí se na: co nejplynulejší přechod z Windows</p>
-            </div>
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 card-hover space-y-2">
-                <h3 class="font-bold text-amber-300 text-lg">Ubuntu</h3>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Nejrozšířenější a nejlépe zdokumentovaná distribuce – na cokoliv se zeptáš, najdeš návod.
-                    Vzhled je jinačí než Windows, ale zvykneš si rychle.
-                </p>
-                <p class="text-[11px] text-slate-500">Hodí se na: kdo chce nejvíc návodů a podpory na internetu</p>
-            </div>
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 card-hover space-y-2">
-                <h3 class="font-bold text-purple-300 text-lg">Pop!_OS</h3>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Postavené na Ubuntu, ale vyladěné pro hraní her a grafické karty. Skvělá volba, pokud
-                    chceš na Linuxu i hrát.
-                </p>
-                <p class="text-[11px] text-slate-500">Hodí se na: hraní her, grafické práce</p>
-            </div>
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 card-hover space-y-2">
-                <h3 class="font-bold text-rose-300 text-lg">Fedora</h3>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Vždy jedna z nejnovějších verzí softwaru, používají ji i profesionální vývojáři.
-                    O něco náročnější na začátek než Mint nebo Zorin.
-                </p>
-                <p class="text-[11px] text-slate-500">Hodí se na: programátory, nejnovější technologie</p>
-            </div>
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 card-hover space-y-2">
-                <h3 class="font-bold text-slate-300 text-lg">Manjaro</h3>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Umožňuje systém doslova poskládat podle sebe – obrovská volnost, ale i o dost víc věcí,
-                    které si musíš nastavit sám.
-                </p>
-                <p class="text-[11px] text-slate-500">Hodí se na: pokročilé uživatele, co chtějí vše na míru</p>
-            </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+            {% for a in articles %}
+            <a href="{{ a.path }}" class="block bg-slate-900 rounded-2xl border border-slate-800 hover:border-sky-400 p-5 card-hover transition">
+                <div class="text-2xl mb-2">{{ a.icon }}</div>
+                <h3 class="font-bold text-slate-100">{{ a.card_title }}</h3>
+                <p class="text-xs text-slate-400 mt-1">{{ a.card }}</p>
+            </a>
+            {% endfor %}
         </div>
     </section>
-
-    <!-- ============ NÁVOD NA INSTALACI Z USB ============ -->
-    <section id="instalace-navod" class="space-y-6">
-        <div class="flex items-center space-x-3">
-            <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 text-xl"><i class="fa-solid fa-download"></i></div>
-            <h2 class="text-2xl font-bold text-slate-100">Jak nainstalovat Linux z USB flashdisku</h2>
-        </div>
-        <p class="text-slate-400 text-sm max-w-2xl">
-            Budeš potřebovat prázdný USB flashdisk (aspoň 8 GB – jeho obsah se při přípravě smaže) a asi hodinu času.
-        </p>
-
-        <div class="space-y-3">
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 flex gap-4 items-start card-hover">
-                <div class="step-num bg-sky-500/20 text-sky-300 border-2 border-sky-500">1</div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Stáhni si instalační soubor (ISO)</h4>
-                    <p class="text-xs text-slate-400 mt-1">Jdi na oficiální stránky zvolené distribuce (např. linuxmint.com) a stáhni si soubor s příponou <span class="font-mono text-sky-300">.iso</span>. Je to celý systém zabalený v jednom souboru, obvykle 2–4 GB.</p>
-                </div>
-            </div>
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 flex gap-4 items-start card-hover">
-                <div class="step-num bg-sky-500/20 text-sky-300 border-2 border-sky-500">2</div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Vytvoř si bootovací USB</h4>
-                    <p class="text-xs text-slate-400 mt-1">Stáhni si zdarma program <span class="font-mono text-sky-300">Rufus</span> (rufus.ie) nebo <span class="font-mono text-sky-300">balenaEtcher</span>, vlož flashdisk do počítače, v programu vyber stažené ISO a klikni na vytvoření. Flashdisk se stane "spouštěcím" pro instalaci.</p>
-                </div>
-            </div>
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 flex gap-4 items-start card-hover">
-                <div class="step-num bg-sky-500/20 text-sky-300 border-2 border-sky-500">3</div>
-                <div class="flex-1">
-                    <h4 class="font-bold text-slate-100 text-sm">Restartuj počítač do boot menu</h4>
-                    <p class="text-xs text-slate-400 mt-1">Nech flashdisk zasunutý, restartuj počítač a hned na začátku několikrát zmáčkni klávesu pro boot menu — liší se podle výrobce, viz tabulka níže. Vyber odtud USB flashdisk.</p>
-
-                    <div class="mt-3 overflow-x-auto rounded-lg border border-slate-800">
-                        <table class="w-full text-[11px] text-left">
-                            <thead>
-                                <tr class="bg-slate-800 text-slate-300">
-                                    <th class="px-3 py-2 font-bold">Výrobce</th>
-                                    <th class="px-3 py-2 font-bold">Klávesa pro boot menu</th>
-                                    <th class="px-3 py-2 font-bold">Klávesa do BIOS/UEFI</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-slate-400">
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">Acer</td><td class="px-3 py-1.5 font-mono">F12 / Esc</td><td class="px-3 py-1.5 font-mono">F2 / Del</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">Asus</td><td class="px-3 py-1.5 font-mono">Esc / F8</td><td class="px-3 py-1.5 font-mono">F2 / Del</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">Dell</td><td class="px-3 py-1.5 font-mono">F12</td><td class="px-3 py-1.5 font-mono">F2</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">HP</td><td class="px-3 py-1.5 font-mono">Esc / F9</td><td class="px-3 py-1.5 font-mono">F10</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">Lenovo</td><td class="px-3 py-1.5 font-mono">F12 (nebo tlačítko Novo)</td><td class="px-3 py-1.5 font-mono">F1 / F2</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">MSI</td><td class="px-3 py-1.5 font-mono">F11</td><td class="px-3 py-1.5 font-mono">Del</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">Samsung</td><td class="px-3 py-1.5 font-mono">Esc / F2</td><td class="px-3 py-1.5 font-mono">F2</td></tr>
-                                <tr class="border-t border-slate-800"><td class="px-3 py-1.5 font-semibold text-slate-300">Toshiba</td><td class="px-3 py-1.5 font-mono">F12</td><td class="px-3 py-1.5 font-mono">F2</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="text-[10px] text-slate-500 mt-2">Přesná klávesa se může lišit podle konkrétního modelu — pokud žádná nezabere, zkus vyhledat "boot menu" spolu s modelem svého počítače.</p>
-                </div>
-            </div>
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 flex gap-4 items-start card-hover">
-                <div class="step-num bg-sky-500/20 text-sky-300 border-2 border-sky-500">4</div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Vyzkoušej si Linux nanečisto</h4>
-                    <p class="text-xs text-slate-400 mt-1">Naběhne nabídka – zvol <span class="font-mono text-sky-300">"Try/Zkusit"</span>. Linux se spustí přímo z flashky, aniž by se čehokoliv na disku dotkl. Klidně si to takhle jen prohlédni a nic neinstaluj.</p>
-                </div>
-            </div>
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 flex gap-4 items-start card-hover">
-                <div class="step-num bg-emerald-500/20 text-emerald-300 border-2 border-emerald-500">5</div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Spusť instalaci "vedle Windows"</h4>
-                    <p class="text-xs text-slate-400 mt-1">Pokud se ti líbí, klikni na ikonu instalace a zvol možnost <span class="font-mono text-emerald-300">"Instalovat vedle Windows"</span> (Install alongside Windows). Instalátor sám bezpečně zmenší místo pro Windows a vedle něj vytvoří místo pro Linux – Windows se nesmaže ani nijak nepoškodí.</p>
-                </div>
-            </div>
-            <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 flex gap-4 items-start card-hover">
-                <div class="step-num bg-emerald-500/20 text-emerald-300 border-2 border-emerald-500">6</div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Vyber si systém při každém zapnutí</h4>
-                    <p class="text-xs text-slate-400 mt-1">Po dokončení a restartu se objeví jednoduchá nabídka (tzv. <span class="font-mono text-emerald-300">GRUB</span>), kde si šipkami při každém zapnutí zvolíš, jestli chceš Windows, nebo svůj nový Linux.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
-            <i class="fa-solid fa-circle-info text-amber-400 mt-0.5"></i>
-            <p class="text-xs text-amber-200">
-                <b>Dobrá rada navíc:</b> i když instalátor Windows nemaže, před jakoukoliv instalací je vždycky rozumné
-                zálohovat si důležité soubory (fotky, dokumenty) na flashdisk nebo cloud – pro jistotu, ne proto, že by se něco muselo pokazit.
-            </p>
-        </div>
-    </section>
-
-    <!-- ============ LINUX VEDLE WINDOWS (DUAL-BOOT) ============ -->
-    <section id="dual-boot" class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/30 rounded-3xl border border-slate-800 p-8 space-y-4">
-        <div class="flex items-center space-x-3">
-            <div class="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 text-xl"><i class="fa-solid fa-window-restore"></i></div>
-            <h2 class="text-2xl font-bold text-slate-100">Linux a Windows na jednom počítači? Žádný problém.</h2>
-        </div>
-        <p class="text-slate-300 text-sm max-w-2xl leading-relaxed">
-            Tomuhle uspořádání se říká <b class="text-emerald-300">dual-boot</b> – oba systémy si "rozdělí" pevný disk mezi sebe
-            a žijí vedle sebe, aniž by se navzájem ovlivňovaly. Windows zůstane přesně tak, jak ho znáš, se všemi
-            soubory a programy – Linux dostane jen svoji vlastní, oddělenou část disku.
-        </p>
-        <div class="grid sm:grid-cols-3 gap-4 pt-2">
-            <div class="bg-slate-950/60 rounded-xl p-4 border border-slate-800 text-center">
-                <i class="fa-solid fa-hard-drive text-2xl text-sky-400 mb-2"></i>
-                <p class="text-xs text-slate-300">Disk se jen <b class="text-slate-100">rozdělí</b> na dvě části, nic se nemaže.</p>
-            </div>
-            <div class="bg-slate-950/60 rounded-xl p-4 border border-slate-800 text-center">
-                <i class="fa-solid fa-list-check text-2xl text-emerald-400 mb-2"></i>
-                <p class="text-xs text-slate-300">Při startu si vždy <b class="text-slate-100">vybereš</b>, který systém chceš spustit.</p>
-            </div>
-            <div class="bg-slate-950/60 rounded-xl p-4 border border-slate-800 text-center">
-                <i class="fa-solid fa-rotate-left text-2xl text-amber-400 mb-2"></i>
-                <p class="text-xs text-slate-300">Linux <b class="text-slate-100">jde kdykoliv odinstalovat</b> a vrátit disku plné místo Windows.</p>
-            </div>
-        </div>
-    </section>
-
 
     <!-- bod 5: rotující vtipná fakta -->
     <section class="space-y-6">
@@ -576,7 +408,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400 text-xl"><i class="fa-solid fa-code"></i></div>
                 <h2 class="text-2xl font-bold text-slate-100">Rychlý příkazový tahák</h2>
             </div>
-            <a href="/piskoviste/" class="text-xs font-bold text-sky-400 hover:underline">Vyzkoušet ve skutečném terminálu →</a>
+            <div class="flex gap-4 flex-wrap"><a href="/linux-prikazy/" class="text-xs font-bold text-purple-300 hover:underline">Všechny základní příkazy →</a><a href="/piskoviste/" class="text-xs font-bold text-sky-400 hover:underline">Vyzkoušet ve skutečném terminálu →</a></div>
         </div>
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3 font-mono text-xs">
             <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
@@ -842,42 +674,6 @@ const TUX_GREETINGS = [
 ];
 document.getElementById('tux-homepage-msg').textContent = TUX_GREETINGS[Math.floor(Math.random() * TUX_GREETINGS.length)];
 
-
-
-const ctx = document.getElementById('distro-chart').getContext('2d');
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        // Reálná data: DistroWatch Page Hit Ranking (hitů/den, posledních 6 měsíců, srpen 2026)
-        labels: ['Linux Mint', "Pop!_OS", 'Fedora', 'Zorin OS', 'Ubuntu', 'Manjaro'],
-        datasets: [
-            {
-                label: 'Zájem na DistroWatch (hitů/den, posl. 6 měsíců)',
-                data: [1790, 1206, 1114, 1112, 914, 837],
-                backgroundColor: ['#4ade80', '#a78bfa', '#fb7185', '#38bdf8', '#facc15', '#94a3b8'],
-                borderRadius: 6,
-            },
-        ],
-    },
-    options: {
-        indexAxis: 'y',
-        responsive: true,
-        scales: {
-            x: { beginAtZero: true, ticks: { color: '#cbd5e1' }, grid: { color: '#1e293b' } },
-            y: { ticks: { color: '#e2e8f0', font: { family: 'Quicksand', weight: '600' } }, grid: { display: false } },
-        },
-        plugins: {
-            legend: { display: false },
-            title: {
-                display: true,
-                text: 'Kolik zájmu weboví návštěvníci projevují o jednotlivé distribuce',
-                color: '#94a3b8',
-                font: { size: 12, family: 'Quicksand' },
-            },
-        },
-    },
-});
-
 </script>
 </body>
 </html>
@@ -944,6 +740,7 @@ def home():
         total_completed=totals["completed"],
         total_xp=totals["xp"],
         jsonld=JSONLD_HOME,
+        articles=sandbox_pages.ARTICLES,
         verify_tags=_verify_tags(),
     ))
     if is_real_visit:
@@ -1092,7 +889,7 @@ def robots_txt():
 @app.route("/sitemap.xml")
 def sitemap_xml():
     from flask import Response
-    urls = ["/", "/python/", "/piskoviste/", "/soukromi"]
+    urls = ["/", "/python/", "/piskoviste/"] + [a["path"] for a in sandbox_pages.ARTICLES] + ["/soukromi"]
     body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for u in urls:
         body += f"  <url><loc>https://linuxhrou.cz{u}</loc></url>\n"

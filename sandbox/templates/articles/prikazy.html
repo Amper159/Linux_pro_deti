@@ -1,0 +1,57 @@
+{% extends "articles/base.html" %}
+{% block content %}
+<p class="lead">Terminál je způsob, jak počítači říkat, co má udělat, psaním příkazů místo klikání. Vypadá to zpočátku divně, ale drtivá většina práce se opírá o několik desítek příkazů. Tady je jich přes třicet, s vysvětlením a příklady. Všechny si můžeš vyzkoušet v <a href="/piskoviste/">Pískovišti</a>, kde je skutečný Linux přímo v prohlížeči.</p>
+
+<nav class="toc" aria-label="Obsah taháku"><strong>Obsah</strong>
+<ol>
+<li><a href="#terminal">Jak terminál otevřít a jak číst příklady</a></li>
+{% for g in groups %}<li><a href="#{{ g.id }}">{{ g.title }}</a></li>
+{% endfor %}<li><a href="#tipy">Tipy, které ti ušetří čas</a></li>
+<li><a href="#nebezpeci">Nebezpečné příkazy</a></li>
+</ol></nav>
+
+<h2 id="terminal">Jak terminál otevřít a jak číst příklady</h2>
+<p>Na většině distribucí Linuxu otevřeš terminál klávesami <code>Ctrl + Alt + T</code> nebo vyhledáním „Terminál“ v nabídce programů. Můžeš také použít <a href="/piskoviste/">Pískoviště</a> a nic neinstalovat.</p>
+<p>V příkladech níže je nalevo vždy to, co napíšeš, a napravo vysvětlení. Příkazy se potvrzují klávesou Enter. Části v příkazu oddělené mezerou se říká <strong>parametry</strong>. Ty začínající pomlčkou (například <code>-l</code>) mění chování příkazu.</p>
+<div class="note"><strong>Velká a malá písmena se rozlišují</strong>V Linuxu jsou <code>soubor.txt</code> a <code>Soubor.txt</code> dva různé soubory. Příkazy se píšou malými písmeny.</div>
+
+{% for g in groups %}
+<h2 id="{{ g.id }}">{{ g.title }}</h2>
+<p>{{ g.intro }}</p>
+{% for item in g["items"] %}
+<h3 id="prikaz-{{ item.slug or item.cmd }}"><code>{{ item.cmd }}</code> – {{ item.label }}</h3>
+<p>{{ item.what }}</p>
+{% if item.warn %}<div class="danger"><strong>Pozor</strong>{{ item.warn }}</div>{% endif %}
+<div class="tablewrap"><table>
+<thead><tr><th>Příkaz</th><th>Co udělá</th></tr></thead>
+<tbody>
+{% for ex in item.examples %}<tr><td><code>{{ ex[0] }}</code></td><td>{{ ex[1] }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endfor %}
+{% endfor %}
+
+<h2 id="tipy">Tipy, které ti ušetří čas</h2>
+<ul>
+<li><strong>Klávesa Tab</strong> dokončí název souboru nebo složky. Napíšeš pár začátečních písmen a Tab zbytek doplní.</li>
+<li><strong>Šipka nahoru</strong> vrátí předchozí příkaz, takže ho nemusíš psát znovu.</li>
+<li><strong>Ctrl + C</strong> přeruší příkaz, který běží nebo se zasekl.</li>
+<li><strong>Ctrl + L</strong> (nebo příkaz <code>clear</code>) vyčistí obrazovku.</li>
+<li><strong><code>--help</code></strong> za názvem příkazu (například <code>ls --help</code>) vypíše jeho stručnou nápovědu. Podrobnější manuál otevře <code>man</code> s názvem příkazu (například <code>man ls</code>), ukončí se klávesou <code>q</code>.</li>
+</ul>
+
+<h2 id="nebezpeci">Nebezpečné příkazy</h2>
+<p>Terminál dělá přesně to, co mu řekneš, a nikdy se neptá „opravdu?“. Pár věcí proto vyžaduje zvláštní pozornost:</p>
+<ul>
+<li><code>rm</code> maže natrvalo, bez koše. S parametry <code>-rf</code> smaže složku i s obsahem bez jediného upozornění.</li>
+<li><code>sudo</code> před příkazem ho spustí s právy správce. Zadávej ho jen u příkazů, kterým rozumíš, protože správce smí v systému všechno včetně rozbití.</li>
+<li>Příkazy z internetu nekopíruj naslepo. Než je vložíš do terminálu, zjisti, co dělají.</li>
+</ul>
+<p>Právě proto je dobré začít v prostředí, kde se nic nedá rozbít. V našem Pískovišti běží každý kadet ve vlastním izolovaném kontejneru, takže si můžeš zkoušet, co chceš.</p>
+
+<div class="cta">
+<h2>Procvič si to na 90 úkolech</h2>
+<p>Příkazy z taháku se v Pískovišti učíš postupně, od nejjednodušších. Každý úkol se kontroluje proti skutečnému systému.</p>
+<a class="btn btn-green" href="/piskoviste/">Otevřít Pískoviště</a>
+<a class="btn btn-amber" href="/jak-nainstalovat-linux/">Jak nainstalovat Linux</a>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "articles/base.html" %}
+{% block content %}
+<p class="lead">Linux můžeš mít na počítači vedle Windows a při každém zapnutí si vybrat, který systém spustíš. Tomu se říká <strong>dual boot</strong>. Tenhle návod tě provede celým postupem od stažení systému po první spuštění. Zabere zhruba hodinu a nepotřebuješ žádné předchozí zkušenosti.</p>
+
+<div class="note"><strong>Pro koho návod platí</strong>Pro běžný počítač nebo notebook s Windows 10 nebo 11 v režimu UEFI (to je dnes skoro každý). Macy a počítače s procesory ARM se instalují jinak.</div>
+
+<nav class="toc" aria-label="Obsah návodu"><strong>Obsah</strong>
+<ol>
+<li><a href="#bez-instalace">Nejdřív si Linux vyzkoušej bez instalace</a></li>
+<li><a href="#co-potrebujes">Co budeš potřebovat</a></li>
+<li><a href="#priprava-windows">Příprava Windows</a></li>
+<li><a href="#usb">Stažení systému a vytvoření USB</a></li>
+<li><a href="#boot">Spuštění z USB</a></li>
+<li><a href="#instalace">Instalace vedle Windows</a></li>
+<li><a href="#po-instalaci">Po instalaci</a></li>
+<li><a href="#problemy">Časté problémy</a></li>
+<li><a href="#odebrani">Jak Linux případně odebrat</a></li>
+</ol></nav>
+
+<h2 id="bez-instalace">Nejdřív si Linux vyzkoušej bez instalace</h2>
+<p>Instalace není jediný způsob, jak Linux poznat. Než začneš dělit disk, zvaž tyhle možnosti, které nic na počítači nemění:</p>
+<ul>
+<li><strong>Live USB.</strong> Většina distribucí se umí spustit přímo z flashky, aniž by sáhla na disk. Dostaneš plnohodnotný systém na zkoušku. Postup je v kroku o spuštění z USB níže.</li>
+<li><strong>Linux v prohlížeči.</strong> V <a href="/piskoviste/">Pískovišti</a> na tomhle webu je skutečný Linux terminál. Nic neinstaluješ a nemůžeš nic rozbít.</li>
+<li><strong>WSL ve Windows.</strong> Ve Windows 10 a 11 stačí v PowerShellu spuštěném jako správce zadat příkaz <code>wsl --install</code> a po restartu dostaneš Linux terminál uvnitř Windows. Hodí se, když ti jde jen o příkazovou řádku.</li>
+<li><strong>Virtuální počítač.</strong> Program jako VirtualBox spustí Linux v okně, bez zásahu do disku.</li>
+</ul>
+
+<h2 id="co-potrebujes">Co budeš potřebovat</h2>
+<ul class="check">
+<li>USB flash disk s kapacitou aspoň 8 GB (jeho obsah se při přípravě smaže).</li>
+<li>Volné místo na disku: aspoň 30 GB, pohodlně 50 GB a víc.</li>
+<li>Připojení k internetu na stažení systému (podle distribuce asi 2 až 6 GB).</li>
+<li>Zálohu důležitých souborů (fotky, dokumenty) uloženou mimo počítač.</li>
+<li>Notebook připojený k nabíječce a asi hodinu času.</li>
+</ul>
+<p>Nevíš, kterou distribuci zvolit? Podívej se na <a href="/ktery-linux-vybrat/">srovnání distribucí pro začátečníky</a>. Pro první instalaci se nejčastěji doporučuje Linux Mint.</p>
+
+<h2 id="priprava-windows">Příprava Windows</h2>
+<p>Tyhle tři věci rozhodují o tom, jestli instalace proběhne hladce. Nepřeskakuj je.</p>
+
+<h3 id="zaloha">1. Záloha</h3>
+<p>Instalace vedle Windows bývá bezpečná, ale při práci s diskovými oddíly může jít cokoliv špatně: výpadek proudu, chyba, překlik ve výběru. Důležité soubory ulož jinam, než tenhle postup začneš.</p>
+
+<h3 id="bitlocker">2. Šifrování BitLocker</h3>
+<div class="warn"><strong>Pozor na šifrovaný disk</strong>Na nových noteboocích s Windows 11 bývá zapnuté šifrování zařízení (BitLocker). Instalátor Linuxu takový oddíl neumí zmenšit a změna spouštění může vyvolat žádost o obnovovací klíč. Bez klíče se do Windows nedostaneš.</div>
+<p>Ve Windows vyhledej „BitLocker“ nebo „Šifrování zařízení“ a zjisti, jestli je zapnuté. Pokud ano, uložení obnovovacího klíče si ověř na stránce <code>account.microsoft.com/devices/recoverykey</code> a šifrování před instalací vypni. Dešifrování disku chvíli trvá, počkej, až doběhne.</p>
+
+<h3 id="rychle-spusteni">3. Rychlé spuštění Windows</h3>
+<p>Funkce Rychlé spuštění nechává disk Windows po „vypnutí“ v napůl uspaném stavu. Linux se k němu pak nemusí dostat a může dojít k poškození dat. Vypni ji:</p>
+<ol>
+<li>Otevři Ovládací panely a přejdi na Možnosti napájení.</li>
+<li>Klikni na „Vyberte, co se stane po stisknutí tlačítka napájení“.</li>
+<li>Klikni na „Změnit nastavení, která nejsou aktuálně dostupná“.</li>
+<li>Odškrtni „Zapnout rychlé spuštění“ a ulož změny.</li>
+</ol>
+
+<h3 id="misto">4. Uvolnění místa (volitelné)</h3>
+<p>Instalátor Linuxu umí disk zmenšit sám. Jestli chceš mít místo pod kontrolou, můžeš to udělat ve Windows: stiskni <code>Win + R</code>, napiš <code>diskmgmt.msc</code>, klikni pravým tlačítkem na oddíl C:, zvol „Zmenšit svazek“ a zadej velikost v megabajtech (například 60000 pro zhruba 60 GB). Vzniklé nepřidělené místo pak Linux použije.</p>
+
+<h2 id="usb">Stažení systému a vytvoření USB</h2>
+<ol class="steps">
+<li><strong>Stáhni ISO soubor.</strong> Otevři oficiální stránku zvolené distribuce a stáhni obraz s příponou <code>.iso</code>. Je to celý systém v jednom souboru. Stahuj vždy jen z oficiálních stránek.</li>
+<li><strong>Ověř kontrolní součet (doporučeno).</strong> Ve Windows otevři PowerShell ve složce se staženým souborem a zadej <code>Get-FileHash .\soubor.iso -Algorithm SHA256</code>. Výsledek porovnej s hodnotou uvedenou na stránce ke stažení. Když nesedí, soubor se stáhl špatně.</li>
+<li><strong>Vytvoř spouštěcí USB.</strong> Stáhni si zdarma program <strong>Rufus</strong> (rufus.ie) nebo <strong>balenaEtcher</strong>. V Rufusu vyber flash disk a stažený ISO soubor, schéma oddílů nech na GPT (moderní počítače s UEFI) a klikni na START. Pokud se Rufus zeptá na režim zápisu, zvol doporučený režim ISO. Obsah flash disku se smaže.</li>
+</ol>
+
+<h2 id="boot">Spuštění z USB</h2>
+<p>Nech flash disk zasunutý a počítač restartuj. Hned po zapnutí opakovaně mačkej klávesu, která otevře nabídku zařízení pro spuštění (boot menu). Podle značky počítače je to:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Výrobce</th><th>Boot menu</th><th>Nastavení BIOS/UEFI</th></tr></thead>
+<tbody>
+{% for maker, boot, bios in boot_keys %}<tr><td>{{ maker }}</td><td><code>{{ boot }}</code></td><td><code>{{ bios }}</code></td></tr>
+{% endfor %}</tbody></table></div>
+<p class="src">Klávesa se může lišit podle konkrétního modelu. Pokud žádná nezabere, vyhledej „boot menu“ spolu s přesným modelem svého počítače.</p>
+
+<div class="note"><strong>Alternativa přímo z Windows</strong>Když nestíháš mačkat klávesu, podrž ve Windows klávesu <code>Shift</code> a klikni na Restartovat. V modré nabídce zvol „Použít zařízení“ a pak USB. Počítač naběhne z flashky.</div>
+
+<p>Vyber USB disk a v nabídce, která se objeví, zvol první možnost (spustit systém, případně „Try“ nebo „Start“). Linux naběhne z flashky a na disku se nic nezmění. <strong>Tady si můžeš systém klidně jen prohlédnout a nic neinstalovat.</strong></p>
+<p>Většina běžných distribucí (Ubuntu, Linux Mint, Fedora, Zorin OS) funguje se zapnutým Secure Boot. Pokud se USB přesto nespustí, nejdřív zkontroluj výběr v boot menu a teprve potom zkus Secure Boot v UEFI dočasně vypnout.</p>
+
+<h2 id="instalace">Instalace vedle Windows</h2>
+<div class="danger"><strong>Nejdůležitější upozornění</strong>V instalátoru <strong>nikdy nevybírej</strong> možnost typu „Smazat disk a nainstalovat“ (Erase disk and install). Tahle volba smaže Windows i všechna data.</div>
+<ol class="steps">
+<li><strong>Vyzkoušej hardware.</strong> V běžícím live systému ověř, že funguje wifi, zvuk a obraz. Pokud ano, s instalací nebudou potíže.</li>
+<li><strong>Spusť instalátor.</strong> Na ploše je ikona „Install“ (Nainstalovat).</li>
+<li><strong>Vyber jazyk a klávesnici.</strong> Češtinu i českou klávesnici.</li>
+<li><strong>Multimédia.</strong> Zaškrtni instalaci multimediálních kodeků nebo softwaru třetích stran, ať se ti hned přehrají videa a hudba.</li>
+<li><strong>Typ instalace.</strong> Vyber „Nainstalovat vedle Windows Boot Manager“ (Install alongside Windows Boot Manager). Instalátor ukáže posuvník pro rozdělení místa. Linuxu dej aspoň 30 GB, lépe 50 GB a víc.</li>
+<li><strong>Účet.</strong> Zvol časové pásmo, jméno, název počítače a heslo.</li>
+<li><strong>Dokonči.</strong> Počkej na konec instalace a restartuj. Když instalátor vyzve, vytáhni USB disk.</li>
+</ol>
+<p>Nenabízí instalátor možnost „vedle Windows“? Nejčastější příčiny jsou zapnutý BitLocker, zapnuté Rychlé spuštění nebo málo volného místa. Vrať se do části o přípravě Windows.</p>
+
+<h2 id="po-instalaci">Po instalaci</h2>
+<h3 id="grub">Výběr systému při startu</h3>
+<p>Po restartu se objeví nabídka zavaděče (nejčastěji GRUB). Šipkami vybereš, jestli chceš spustit Linux, nebo Windows (položka „Windows Boot Manager“). Když nic nevybereš, po několika sekundách se spustí výchozí systém.</p>
+<h3 id="aktualizace">Aktualizace</h3>
+<p>První věc po instalaci jsou aktualizace. V Linux Mintu, Ubuntu a Zorin OS použij správce aktualizací nebo v terminálu:</p>
+<pre><code>sudo apt update
+sudo apt upgrade</code></pre>
+<p>Ve Fedoře je to <code>sudo dnf upgrade</code>. Příkazy z terminálu si můžeš předem procvičit v našem <a href="/linux-prikazy/">taháku základních příkazů</a>.</p>
+
+<h2 id="problemy">Časté problémy</h2>
+<h3 id="problem-usb">USB se nespustí</h3>
+<p>Zkus jiný USB port (nejlépe starší USB 2.0), znovu vytvoř flash disk s jiným schématem oddílů (GPT nebo MBR) a zkontroluj, že v boot menu vybíráš správné zařízení, často je uvedené dvakrát (s předponou UEFI a bez ní).</p>
+<h3 id="problem-disk">Instalátor nevidí disk</h3>
+<p>Na některých noteboocích, hlavně od Dellu a HP, je v BIOSu režim disku „RAID“ nebo „Intel RST“ a Linux pak disk nenajde. Řešením je přepnout na AHCI, ale nejdřív si vyhledej postup pro svůj model. Windows po přepnutí nemusí naběhnout, pokud se to neudělá správně.</p>
+<h3 id="problem-zavadec">Zmizela nabídka výběru systému</h3>
+<p>Velké aktualizace Windows někdy přepíšou pořadí spouštění a počítač pak naběhne rovnou do Windows. Otevři boot menu (klávesy z tabulky) a vyber Linux, nebo v UEFI nastav jako první položku svůj Linux.</p>
+<h3 id="problem-hodiny">Špatný čas po přepnutí mezi systémy</h3>
+<p>Windows a Linux si jinak vykládají hardwarové hodiny, proto se po přepnutí čas rozjede o hodiny. Z Linuxu to opravíš příkazem:</p>
+<pre><code>timedatectl set-local-rtc 1 --adjust-system-clock</code></pre>
+<h3 id="problem-ovladace">Nefunguje wifi nebo grafická karta</h3>
+<p>Připoj se kabelem nebo přes mobilní sdílení a v systému otevři správce ovladačů. Doporučené ovladače, například pro grafiku NVIDIA, se tam instalují několika kliknutími.</p>
+
+<h2 id="odebrani">Jak Linux případně odebrat</h2>
+<p>Linux jde z počítače odstranit, ale není to jedno kliknutí. Je potřeba smazat jeho oddíly, vrátit místo Windows a odstranit záznam zavaděče, aby počítač nehledal zmizelý systém. Přesný postup závisí na tom, jak instalace proběhla, proto ho tady nepíšu jako jednoduchý návod. Před smazáním jakýchkoliv oddílů vždy zálohuj a vyhledej si aktuální postup pro odebrání dual bootu Linuxu a Windows v režimu UEFI.</p>
+
+<div class="cta">
+<h2>Nejdřív si vyzkoušej příkazovou řádku</h2>
+<p>Než na počítači cokoliv měníš, můžeš si Linux terminál vyzkoušet přímo v prohlížeči. Za 90 úkolů se naučíš příkazy, které budeš po instalaci potřebovat.</p>
+<a class="btn btn-green" href="/piskoviste/">Otevřít Pískoviště</a>
+<a class="btn btn-amber" href="/linux-prikazy/">Taháček příkazů</a>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "articles/base.html" %}
+
+{% macro run(key) %}{% set e = ex[key] %}
+<pre><code>{{ e.code }}</code></pre>
+{% if e.shown %}<p class="label">Ukázka běhu</p><pre class="out"><code>{{ e.shown }}</code></pre>
+{% elif e.out is defined %}<p class="label">Výstup</p><pre class="out"><code>{{ e.out }}</code></pre>
+{% endif %}{% endmacro %}
+
+{% macro chyba(key) %}{% set e = ex[key] %}
+<pre><code>{{ e.code }}</code></pre>
+<p class="label">Chybová hláška</p><pre class="err"><code>{{ e.error }}</code></pre>{% endmacro %}
+
+{% block content %}
+<p class="lead">Python je jazyk, který se často doporučuje jako první. Jeho zápis je blízký běžné angličtině a málo se v něm píše zbytečností. Tenhle návod ti ukáže základy: proměnné, podmínky, smyčky, seznamy a funkce. Každý příklad je otestovaný a výstup pod ním je skutečný. Můžeš si ho ihned vyzkoušet v <a href="/python/">Python Labu</a>, přímo v prohlížeči.</p>
+
+<nav class="toc" aria-label="Obsah návodu"><strong>Obsah</strong>
+<ol>
+<li><a href="#co-je-python">Co je Python a proč začít právě jím</a></li>
+<li><a href="#spusteni">Kde Python spustit</a></li>
+<li><a href="#print">První program: print</a></li>
+<li><a href="#promenne">Proměnné a typy hodnot</a></li>
+<li><a href="#pocitani">Počítání a spojování textu</a></li>
+<li><a href="#podminky">Podmínky: if, elif, else</a></li>
+<li><a href="#odsazeni">Odsazení: pravidlo, které Python odlišuje</a></li>
+<li><a href="#smycky">Smyčky: for a while</a></li>
+<li><a href="#seznamy">Seznamy a slovníky</a></li>
+<li><a href="#funkce">Funkce</a></li>
+<li><a href="#chyby">Časté chyby začátečníků</a></li>
+<li><a href="#dal">Co dál</a></li>
+</ol></nav>
+
+<h2 id="co-je-python">Co je Python a proč začít právě jím</h2>
+<p>Python je programovací jazyk, ve kterém se dají psát hry, weby, analýzy dat i skripty pro automatizaci. Používá ho spousta firem a škol. Pro začátek se hodí, protože se dá číst skoro jako věty a nutí tě psát přehledně: struktura programu se pozná podle odsazení řádků.</p>
+
+<h2 id="spusteni">Kde Python spustit</h2>
+<ul>
+<li><strong>Online v prohlížeči.</strong> V <a href="/python/">Python Labu</a> na tomhle webu napíšeš kód a hned ho spustíš. Nic neinstaluješ.</li>
+<li><strong>Na svém počítači.</strong> Ve Windows a macOS stáhni Python 3 ze stránky <code>python.org/downloads</code>. Při instalaci ve Windows zaškrtni „Add python.exe to PATH“, jinak ho terminál nenajde. Na většině distribucí Linuxu je Python už předinstalovaný, ověříš to příkazem <code>python3 --version</code>.</li>
+<li><strong>Editor.</strong> Pro psaní programů se hodí Thonny (jednoduchý, určený začátečníkům) nebo Visual Studio Code s rozšířením pro Python.</li>
+</ul>
+<p>Program uložený v souboru <code>muj_program.py</code> spustíš v terminálu příkazem <code>python muj_program.py</code> (v Linuxu a macOS <code>python3 muj_program.py</code>).</p>
+
+<h2 id="print">První program: print</h2>
+<p>Funkce <code>print()</code> vypíše text na obrazovku. Text musí být v uvozovkách.</p>
+{{ run('print') }}
+
+<h2 id="promenne">Proměnné a typy hodnot</h2>
+<p><strong>Proměnná</strong> je jméno, pod kterým si Python zapamatuje hodnotu, aby ji šlo použít znovu. Znaménko <code>=</code> tady neznamená „rovná se“ jako v matematice, ale „ulož hodnotu vpravo do proměnné vlevo“.</p>
+{{ run('promenne') }}
+<p>Hodnoty mají různé <strong>typy</strong>. Text je <code>str</code>, celé číslo <code>int</code>, desetinné číslo <code>float</code> a pravda či nepravda <code>bool</code>. Typ zjistíš funkcí <code>type()</code>:</p>
+{{ run('typy') }}
+<p>Text v uvozovkách a číslo bez nich jsou pro Python různé věci. <code>"12"</code> je text, se kterým se nedá počítat, <code>12</code> je číslo.</p>
+
+<h2 id="pocitani">Počítání a spojování textu</h2>
+<p>Python počítá jako kalkulačka. Kromě základních operací umí dělení beze zbytku (<code>//</code>), zbytek po dělení (<code>%</code>) a mocninu (<code>**</code>).</p>
+{{ run('pocitani') }}
+<p>Text s proměnnými se nejpohodlněji spojuje pomocí <strong>f-řetězce</strong>: před uvozovky se napíše <code>f</code> a proměnné se vloží do složených závorek.</p>
+{{ run('fstring') }}
+<p>Program se může uživatele i ptát pomocí funkce <code>input()</code>:</p>
+{{ run('input') }}
+<div class="note"><strong>Poznámka</strong>Úlohy v Python Labu se obejdou bez <code>input()</code>. Programy, které se ptají uživatele, si vyzkoušíš u sebe: v Python Labu si můžeš stáhnout plně funkční skripty her a spustit je na svém počítači.</div>
+
+<h2 id="podminky">Podmínky: if, elif, else</h2>
+<p>Podmínka nechá program rozhodnout se podle situace. <code>if</code> zkusí první podmínku, <code>elif</code> („else if“) další, pokud ta první neplatila, a <code>else</code> se provede ve všech ostatních případech. Části <code>elif</code> a <code>else</code> jsou nepovinné.</p>
+{{ run('podminky') }}
+<p>Podmínky se dají kombinovat pomocí <code>and</code> (musí platit obě), <code>or</code> (stačí jedna) a <code>not</code> (obrácení). Porovnávat lze pomocí <code>==</code> (rovná se), <code>!=</code> (nerovná se), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code> a <code>&gt;=</code>. Pozor, na porovnání se používají dvě rovnítka, jedno by hodnotu ukládalo.</p>
+{{ run('logika') }}
+
+<h2 id="odsazeni">Odsazení: pravidlo, které Python odlišuje</h2>
+<p>Ve většině jazyků se bloky kódu ohraničují závorkami. Python místo toho pozná, co patří „dovnitř“ podmínky, smyčky nebo funkce, podle odsazení řádku. Doporučuje se <strong>4 mezery</strong>. Řádek, po kterém následuje odsazený blok, končí dvojtečkou.</p>
+<p>Pravidlo je přísné: kód uvnitř bloku musí být odsazený stejně a nesmíš míchat mezery s tabulátory. Většina editorů to hlídá za tebe, klávesa Tab vloží odsazení.</p>
+
+<h2 id="smycky">Smyčky: for a while</h2>
+<p>Smyčka opakuje kus kódu, abys ho nemusel psát pořád dokola. <code>for</code> použij, když víš dopředu, přes co procházíš. Funkce <code>range(1, 4)</code> vytvoří čísla od 1 do 3, koncové číslo se nezahrnuje.</p>
+{{ run('for') }}
+<p><code>while</code> se opakuje, <strong>dokud platí podmínka</strong>, a hodí se, když předem nevíš, kolikrát. Nezapomeň v ní něco měnit, jinak vznikne nekonečná smyčka.</p>
+{{ run('while') }}
+
+<h2 id="seznamy">Seznamy a slovníky</h2>
+<p><strong>Seznam</strong> (list) drží více hodnot ve správném pořadí. Prvky se číslují od nuly. Přidat prvek umí <code>append()</code>, délku zjistí <code>len()</code>.</p>
+{{ run('seznam') }}
+<p><strong>Slovník</strong> (dict) páruje klíč s hodnotou, třeba jméno hrdiny s počtem životů. K hodnotě se dostaneš přes klíč v hranatých závorkách.</p>
+{{ run('slovnik') }}
+
+<h2 id="funkce">Funkce</h2>
+<p><strong>Funkce</strong> je vlastní příkaz, který si napíšeš a pak podle jména voláš, kdykoliv ho potřebuješ. Definuje se klíčovým slovem <code>def</code>, parametry jsou v závorce a odsazené tělo funkce obsahuje, co se má stát.</p>
+{{ run('funkce') }}
+<p>Časté nedorozumění je rozdíl mezi <code>print()</code> a <code>return</code>. <code>print()</code> jen <strong>vypíše</strong> hodnotu na obrazovku. <code>return</code> ji <strong>vrátí</strong> tomu, kdo funkci zavolal, aby se s ní dalo dál pracovat, například ji uložit do proměnné.</p>
+{{ run('return') }}
+
+<h2 id="chyby">Časté chyby začátečníků</h2>
+<p>Chyby jsou úplně normální a Python ti k nim napíše, co je špatně. Nejčastější z nich vypadají takhle. Přesné znění hlášek se mezi verzemi Pythonu mírně liší.</p>
+
+<h3 id="chyba-syntax">SyntaxError: chybí dvojtečka</h3>
+<p>Za <code>if</code>, <code>for</code>, <code>while</code> a <code>def</code> musí být dvojtečka.</p>
+{{ chyba('err_syntax') }}
+
+<h3 id="chyba-indent">IndentationError: chybí odsazení</h3>
+<p>Řádek po dvojtečce musí být odsazený.</p>
+{{ chyba('err_indent') }}
+
+<h3 id="chyba-name">NameError: překlep v názvu</h3>
+<p>Python nezná proměnnou, kterou nikdo nevytvořil. Nejčastěji je za tím překlep. Python často navíc napíše, jak by se proměnná mohla jmenovat správně.</p>
+{{ chyba('err_name') }}
+
+<h3 id="chyba-type">TypeError: spojení textu s číslem</h3>
+<p>Text a číslo se nedají sečíst. Číslo musíš převést na text funkcí <code>str()</code> nebo použít f-řetězec.</p>
+{{ chyba('err_type') }}
+
+<h3 id="chyba-zero">ZeroDivisionError: dělení nulou</h3>
+<p>Nulou se dělit nedá. Před dělením hlídej, jestli dělitel není nula.</p>
+{{ chyba('err_zero') }}
+
+<h2 id="dal">Co dál</h2>
+<p>Nejlepší způsob, jak se programovat naučit, je psát programy. V Python Labu je <strong>35 úloh</strong> s automatickou kontrolou, které navazují na věci z tohoto návodu, a tři hry, u kterých vidíš, jak se rozhodování zapisuje v kódu:</p>
+<ul>
+<li><strong>Iskra</strong>: interaktivní příběh s 10 rozhodnutími a 6 konci.</li>
+<li><strong>Kobka</strong>: textové RPG s inventářem a souboji na kostky.</li>
+<li><strong>Oběšenec</strong>: klasická slovní hra.</li>
+</ul>
+<p>Každou hru si můžeš stáhnout jako skript v Pythonu, spustit u sebe a upravit podle sebe. A protože se Python často používá spolu s Linuxem, zkus i <a href="/linux-prikazy/">příkazy Linuxu</a>.</p>
+
+<div class="cta">
+<h2>Pusť se do psaní kódu</h2>
+<p>Bez instalace a bez přihlášení si zahraješ hry. Pro úlohy s kontrolou se stačí přihlásit.</p>
+<a class="btn btn-blue" href="/python/">Otevřít Python Lab</a>
+<a class="btn btn-amber" href="/python/?hra=iskra">Zahrát si Iskru</a>
+</div>
+{% endblock %}

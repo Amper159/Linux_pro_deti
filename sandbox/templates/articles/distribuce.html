@@ -1,0 +1,101 @@
+{% extends "articles/base.html" %}
+{% block content %}
+<p class="lead">Slovem „Linux“ se říká celé rodině systémů, kterým se říká <strong>distribuce</strong>. Mají stejný základ, ale jinak poskládaný vzhled, programy a pravidla aktualizací. Pro první zkušenost stačí vybrat jednu z několika osvědčených. Tady je srovnání šesti distribucí, které se hodí pro začátečníky.</p>
+
+<div class="note"><strong>Rychlá odpověď</strong>Pokud nevíš, začni s <strong>Linux Mintem</strong> (edice Cinnamon). Ovládá se nejpodobněji Windows, je stabilní a jde na něj najít spoustu návodů. Pokud chceš rozložení co nejbližší Windows nebo macOS už při prvním nastavení, podívej se na <strong>Zorin OS</strong>.</div>
+
+<nav class="toc" aria-label="Obsah"><strong>Obsah</strong>
+<ol>
+<li><a href="#co-je-distribuce">Co je distribuce</a></li>
+<li><a href="#srovnani">Srovnání šesti distribucí</a></li>
+<li><a href="#graf">Které distribuce lidé nejvíc sledují</a></li>
+<li><a href="#jak-vybrat">Jak se rozhodnout</a></li>
+<li><a href="#prostredi">Vzhled a ovládání: desktopová prostředí</a></li>
+<li><a href="#lts">Pravidelné a průběžné aktualizace</a></li>
+<li><a href="#dal">Co dál</a></li>
+</ol></nav>
+
+<h2 id="co-je-distribuce">Co je distribuce</h2>
+<p>Jádro Linuxu vytvořil v roce 1991 Linus Torvalds. Samotné jádro ale není použitelný systém, chybí mu grafické rozhraní, programy a instalátor. Právě to všechno dohromady balí distribuce. Proto jich existují desítky: každá dává důraz na něco jiného, třeba jednoduchost, nejnovější programy nebo stabilitu.</p>
+<p>Všechny distribuce jsou zdarma a dají se vyzkoušet z USB flashky bez instalace. Nemusíš se tedy rozhodnout napoprvé správně, můžeš jich několik prozkoumat.</p>
+
+<h2 id="srovnani">Srovnání šesti distribucí</h2>
+{% for d in distros %}
+<h3 id="{{ d.name|lower|replace(' ', '-')|replace('!', '') }}">{{ d.name }}{% if d.badge %}<span class="badge">{{ d.badge }}</span>{% endif %}</h3>
+<p>{{ d.text }}</p>
+<ul>
+<li><strong>Základ:</strong> {{ d.base }}</li>
+<li><strong>Prostředí:</strong> {{ d.desktop }}</li>
+<li><strong>Hodí se pro:</strong> {{ d.fit }}</li>
+</ul>
+{% endfor %}
+
+<h2 id="graf">Které distribuce lidé nejvíc sledují</h2>
+<p>Graf ukazuje zájem návštěvníků webu DistroWatch o stránky jednotlivých distribucí za posledních šest měsíců.</p>
+<div class="chartbox"><canvas id="distro-chart" role="img" aria-label="Sloupcový graf zájmu o distribuce podle DistroWatch. Hodnoty jsou uvedené v tabulce pod grafem."></canvas></div>
+<p class="src">Zdroj: <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noopener" target="_blank">DistroWatch – Page Hit Ranking</a>, posledních 6 měsíců, stav srpen 2026. Číslo znamená průměrný počet zobrazení stránky distribuce za den. <strong>Není to podíl uživatelů</strong>, DistroWatch sám upozorňuje, že nejde o měřítko tržního podílu. V grafu je jen šest distribucí vybraných pro začátečníky, žebříček DistroWatch jich obsahuje víc.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Distribuce</th><th>Zobrazení stránky za den</th></tr></thead>
+<tbody>{% for d in distros %}<tr><td>{{ d.name }}</td><td>{{ d.hits }}</td></tr>{% endfor %}</tbody>
+</table></div>
+
+<h2 id="jak-vybrat">Jak se rozhodnout</h2>
+<p>Projdi si tyhle situace a vyber tu, která ti sedí nejvíc:</p>
+<ul>
+<li><strong>Chci co nejméně překvapení po přechodu z Windows.</strong> Linux Mint (Cinnamon) nebo Zorin OS.</li>
+<li><strong>Mám starší, pomalý počítač.</strong> Linux Mint v edici Xfce. Existují i další odlehčené varianty, například Xubuntu nebo Lubuntu.</li>
+<li><strong>Chci hrát hry.</strong> Pop!_OS, Linux Mint nebo Fedora. Většina her ze Steamu běží přes vrstvu Proton, rozdíl je hlavně v podpoře grafické karty. Jestli konkrétní hra funguje, zjistíš na webu ProtonDB.</li>
+<li><strong>Chci programovat a mít nejnovější nástroje.</strong> Fedora nebo Ubuntu.</li>
+<li><strong>Chci se Linux naučit do hloubky.</strong> Ubuntu, ke kterému je nejvíc návodů. Později můžeš zkusit Debian nebo Arch.</li>
+</ul>
+
+<h2 id="prostredi">Vzhled a ovládání: desktopová prostředí</h2>
+<p>To, jak systém vypadá a ovládá se, určuje <strong>desktopové prostředí</strong>. Stejná distribuce se často dodává v několika variantách:</p>
+<ul>
+<li><strong>GNOME</strong> je moderní a minimalistické (Ubuntu, Fedora).</li>
+<li><strong>KDE Plasma</strong> je bohaté na nastavení a vzhledem blízké Windows.</li>
+<li><strong>Cinnamon</strong> má klasický panel s nabídkou Start a seznamem oken (Linux Mint).</li>
+<li><strong>Xfce</strong> je lehké a rychlé i na starších počítačích.</li>
+</ul>
+
+<h2 id="lts">Pravidelné a průběžné aktualizace</h2>
+<p>Distribuce se liší tím, jak často přinášejí nové verze programů. <strong>Vydání s dlouhou podporou (LTS)</strong>, například Ubuntu LTS, mění věci málo a zaručují opravy zabezpečení po několik let, takže jsou klidné a předvídatelné. Distribuce s <strong>průběžnými aktualizacemi</strong> (rolling release), třeba Manjaro, mají nejnovější programy hned, ale častěji se stane, že aktualizace něco rozbije. Pro začátečníka je klidnější první varianta.</p>
+
+<h2 id="dal">Co dál</h2>
+<p>Až si vybereš, další krok je <a href="/jak-nainstalovat-linux/">instalace Linuxu vedle Windows z USB</a>. A pokud se chceš hned pustit do učení, začni v <a href="/piskoviste/">Pískovišti</a>, kde je skutečný Linux terminál přímo v prohlížeči.</p>
+
+<div class="cta">
+<h2>Vyzkoušej Linux ještě dnes</h2>
+<p>Bez instalace, bez rizika. 90 úkolů, odznaky a žebříček.</p>
+<a class="btn btn-green" href="/piskoviste/">Otevřít Pískoviště</a>
+<a class="btn btn-amber" href="/jak-nainstalovat-linux/">Návod k instalaci</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="chart-data" type="application/json">{{ chart|tojson }}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
+{% raw %}
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+    var canvas = document.getElementById('distro-chart');
+    if (!canvas || typeof Chart === 'undefined') { return; }
+    var d = JSON.parse(document.getElementById('chart-data').textContent);
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: { labels: d.labels, datasets: [{ label: 'Zobrazení stránky za den', data: d.data, backgroundColor: d.colors, borderRadius: 6 }] },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true, ticks: { color: '#cbd5e1' }, grid: { color: '#1e293b' } },
+                y: { ticks: { color: '#e2e8f0' }, grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+});
+</script>
+{% endraw %}
+{% endblock %}
