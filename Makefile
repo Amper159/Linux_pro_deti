@@ -27,7 +27,7 @@ PROXY       := --profile proxy
 
 APP_URL := http://$(or $(APP_BIND),127.0.0.1):$(or $(APP_PORT),8000)
 
-.PHONY: help init preflight deploy update wait-healthy smoke \
+.PHONY: help init preflight deploy update wait-healthy check-tasks smoke \
         build up up-proxy down restart ps logs logs-web logs-caddy shell config \
         dev dev-logs dev-shell dev-down dev-clean \
         sandbox-image sandboxes clean-sandboxes backup
@@ -113,6 +113,9 @@ wait-healthy:  ## Wait until the app answers on APP_BIND:APP_PORT
 	done
 	echo "x app did not answer at $(APP_URL) - see: make logs-web"
 	exit 1
+
+check-tasks:  ## Verify sandbox/tasks.py: hints pass their own checks, goal text matches the hint
+	@python3 sandbox/check_tasks.py
 
 smoke:  ## End-to-end check: log in and run a real command in the sandbox
 	@jar=$$(mktemp)
