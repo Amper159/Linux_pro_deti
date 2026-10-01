@@ -24,7 +24,7 @@ TASKS = [
         "cmd_name": "pwd",
         "title": "Kde právě jsem?",
         "story": "Přistál jsi na vesmírné stanici TUX-1. Čas prozkoumat, co máš k dispozici.",
-        "goal": "Zjisti, ve které složce právě stojíš (pwd), a výstup ulož do souboru. Výstup ulož do souboru 'misto1.txt'.",
+        "goal": "Zjisti, ve které složce právě stojíš (pwd) a výstup ulož do souboru 'misto1.txt'.",
         "hint": "cd ~\npwd > misto1.txt",
         "commands": [
             "pwd",
@@ -87,7 +87,7 @@ TASKS = [
         "cmd_name": "ls",
         "title": "Co je kolem mě?",
         "story": "Ve složce může být spousta věcí – vypiš si je.",
-        "goal": "Vypiš obsah složky a ulož výstup do souboru 'obsah1.txt'.",
+        "goal": "Vypiš obsah své domovské složky (ls) a ulož výstup do souboru 'obsah1.txt'.",
         "hint": "cd ~\nls > obsah1.txt",
         "commands": [
             "ls",
@@ -108,7 +108,7 @@ TASKS = [
         "cmd_name": "ls",
         "title": "Co je kolem mě?",
         "story": "Ve složce může být spousta věcí – vypiš si je.",
-        "goal": "Vypiš obsah složky a ulož výstup do souboru 'obsah2.txt'.",
+        "goal": "Vypiš obsah složky 'data' (ls data) a výstup ulož do souboru 'obsah2.txt' ve své domovské složce.",
         "hint": "cd ~\nls data > obsah2.txt",
         "commands": [
             "ls",
@@ -129,7 +129,7 @@ TASKS = [
         "cmd_name": "ls",
         "title": "Co je kolem mě?",
         "story": "Ve složce může být spousta věcí – vypiš si je.",
-        "goal": "Vypiš obsah složky a ulož výstup do souboru 'obsah3.txt'.",
+        "goal": "Vypiš podrobný obsah složky, včetně práv a velikostí (ls -l), a ulož výstup do souboru 'obsah3.txt'.",
         "hint": "cd ~\nls -l > obsah3.txt",
         "commands": [
             "ls",
@@ -137,8 +137,8 @@ TASKS = [
         ],
         "checks": [
             {
-                "label": "soubor 'obsah3.txt' obsahuje výpis (najdeš tam 'README.txt')",
-                "test": "grep -qF \"README.txt\" \"$HOME/obsah3.txt\""
+                "label": "'obsah3.txt' obsahuje podrobný výpis (ls -l), ne jen obyčejný ls",
+                "test": "grep -qE \"^-[rwx-]{9}.*README.txt\" \"$HOME/obsah3.txt\""
             }
         ]
     },
@@ -402,7 +402,7 @@ TASKS = [
         "cmd_name": "mkdir",
         "title": "Postav nový hangár",
         "story": "Základna potřebuje další úložné prostory.",
-        "goal": "Vytvoř novou složku 'hangar1'.",
+        "goal": "Vytvoř novou složku 'hangar1' (mkdir).",
         "hint": "cd ~\nmkdir hangar1",
         "commands": [
             "mkdir"
@@ -422,7 +422,7 @@ TASKS = [
         "cmd_name": "mkdir",
         "title": "Postav nový hangár",
         "story": "Základna potřebuje další úložné prostory.",
-        "goal": "Vytvoř novou složku 'hangar2'.",
+        "goal": "Vytvoř novou složku 'hangar2' (mkdir).",
         "hint": "cd ~\nmkdir hangar2",
         "commands": [
             "mkdir"
@@ -442,7 +442,7 @@ TASKS = [
         "cmd_name": "mkdir",
         "title": "Postav nový hangár",
         "story": "Základna potřebuje další úložné prostory.",
-        "goal": "Vytvoř novou složku 'hangar3'.",
+        "goal": "Vytvoř novou složku 'hangar3' (mkdir).",
         "hint": "cd ~\nmkdir hangar3",
         "commands": [
             "mkdir"
@@ -462,7 +462,7 @@ TASKS = [
         "cmd_name": "touch",
         "title": "Založ nový soubor",
         "story": "Ve složce 'hangar1' zatím nic není.",
-        "goal": "Ve složce 'hangar1' vytvoř prázdný soubor 'seznam_lodi.txt'.",
+        "goal": "Ve složce 'hangar1' vytvoř prázdný soubor 'seznam_lodi.txt' (touch).",
         "hint": "cd ~\ntouch hangar1/seznam_lodi.txt",
         "commands": [
             "touch"
@@ -482,7 +482,7 @@ TASKS = [
         "cmd_name": "touch",
         "title": "Založ nový soubor",
         "story": "Ve složce 'hangar2' zatím nic není.",
-        "goal": "Ve složce 'hangar2' vytvoř prázdný soubor 'zasoby.txt'.",
+        "goal": "Ve složce 'hangar2' vytvoř prázdný soubor 'zasoby.txt' (touch).",
         "hint": "cd ~\ntouch hangar2/zasoby.txt",
         "commands": [
             "touch"
@@ -502,7 +502,7 @@ TASKS = [
         "cmd_name": "touch",
         "title": "Založ nový soubor",
         "story": "Ve složce 'hangar3' zatím nic není.",
-        "goal": "Ve složce 'hangar3' vytvoř prázdný soubor 'posadka.txt'.",
+        "goal": "Ve složce 'hangar3' vytvoř prázdný soubor 'posadka.txt' (touch).",
         "hint": "cd ~\ntouch hangar3/posadka.txt",
         "commands": [
             "touch"
@@ -585,7 +585,7 @@ TASKS = [
         "cmd_name": "rm",
         "title": "Ukliď nepotřebný soubor",
         "story": "Soubor 'smaz1.txt' už nikdo nepotřebuje.",
-        "goal": "Smaž soubor 'smaz1.txt'.",
+        "goal": "Smaž soubor 'smaz1.txt' (rm).",
         "hint": "cd ~\nrm smaz1.txt",
         "commands": [
             "rm"
@@ -605,7 +605,7 @@ TASKS = [
         "cmd_name": "rm",
         "title": "Ukliď nepotřebný soubor",
         "story": "Soubor 'smaz2.txt' už nikdo nepotřebuje.",
-        "goal": "Smaž soubor 'smaz2.txt'.",
+        "goal": "Smaž soubor 'smaz2.txt' (rm).",
         "hint": "cd ~\nrm smaz2.txt",
         "commands": [
             "rm"
@@ -625,7 +625,7 @@ TASKS = [
         "cmd_name": "rm",
         "title": "Ukliď nepotřebný soubor",
         "story": "Soubor 'smaz3.txt' už nikdo nepotřebuje.",
-        "goal": "Smaž soubor 'smaz3.txt'.",
+        "goal": "Smaž soubor 'smaz3.txt' (rm).",
         "hint": "cd ~\nrm smaz3.txt",
         "commands": [
             "rm"
@@ -645,7 +645,7 @@ TASKS = [
         "cmd_name": "cp",
         "title": "Vytvoř zálohu",
         "story": "Než cokoliv upravíš, vždycky si to nejdřív zálohuj.",
-        "goal": "Zkopíruj soubor 'data/planety.txt' do nového souboru 'zaloha_planet.txt'.",
+        "goal": "Zkopíruj soubor 'data/planety.txt' do nového souboru 'zaloha_planet.txt' (cp).",
         "hint": "cd ~\ncp data/planety.txt zaloha_planet.txt",
         "commands": [
             "cp"
@@ -669,7 +669,7 @@ TASKS = [
         "cmd_name": "cp",
         "title": "Vytvoř zálohu",
         "story": "Než cokoliv upravíš, vždycky si to nejdřív zálohuj.",
-        "goal": "Zkopíruj soubor 'data/posadka.txt' do nového souboru 'zaloha_posadky.txt'.",
+        "goal": "Zkopíruj soubor 'data/posadka.txt' do nového souboru 'zaloha_posadky.txt' (cp).",
         "hint": "cd ~\ncp data/posadka.txt zaloha_posadky.txt",
         "commands": [
             "cp"
@@ -693,7 +693,7 @@ TASKS = [
         "cmd_name": "cp",
         "title": "Vytvoř zálohu",
         "story": "Než cokoliv upravíš, vždycky si to nejdřív zálohuj.",
-        "goal": "Zkopíruj soubor 'README.txt' do nového souboru 'zaloha_readme.txt'.",
+        "goal": "Zkopíruj soubor 'README.txt' do nového souboru 'zaloha_readme.txt' (cp).",
         "hint": "cd ~\ncp README.txt zaloha_readme.txt",
         "commands": [
             "cp"
@@ -789,7 +789,7 @@ TASKS = [
         "cmd_name": "find",
         "title": "Najdi soubor v systému",
         "story": "Nevíš přesně, kde soubor leží? Nech to najít 'find'.",
-        "goal": "Najdi v domovské složce soubory podle vzoru '*.sh' a výstup ulož do 'vsechny_sh.txt'.",
+        "goal": "Najdi v domovské složce soubory podle vzoru '*.sh' (find . -name) a výstup ulož do 'vsechny_sh.txt'.",
         "hint": "cd ~\nfind . -name \"*.sh\" > vsechny_sh.txt",
         "commands": [
             "find",
@@ -810,7 +810,7 @@ TASKS = [
         "cmd_name": "find",
         "title": "Najdi soubor v systému",
         "story": "Nevíš přesně, kde soubor leží? Nech to najít 'find'.",
-        "goal": "Najdi v domovské složce soubory podle vzoru 'planety.txt' a výstup ulož do 'hledej_planety.txt'.",
+        "goal": "Najdi v domovské složce soubory podle vzoru 'planety.txt' (find . -name) a výstup ulož do 'hledej_planety.txt'.",
         "hint": "cd ~\nfind . -name \"planety.txt\" > hledej_planety.txt",
         "commands": [
             "find",
@@ -831,7 +831,7 @@ TASKS = [
         "cmd_name": "find",
         "title": "Najdi soubor v systému",
         "story": "Nevíš přesně, kde soubor leží? Nech to najít 'find'.",
-        "goal": "Najdi v domovské složce soubory podle vzoru '.tajny_kod.txt' a výstup ulož do 'hledej_kod.txt'.",
+        "goal": "Najdi v domovské složce soubory podle vzoru '.tajny_kod.txt' (find . -name) a výstup ulož do 'hledej_kod.txt'.",
         "hint": "cd ~\nfind . -name \".tajny_kod.txt\" > hledej_kod.txt",
         "commands": [
             "find",
