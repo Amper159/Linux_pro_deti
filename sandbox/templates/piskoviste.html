@@ -212,7 +212,10 @@
             <h2 class="text-base font-bold text-amber-300 uppercase mb-2">
                 <i class="fa-solid fa-award"></i> Odznaky
             </h2>
-            <div id="badges" class="flex lg:grid lg:grid-cols-4 gap-1.5 overflow-x-auto lg:overflow-visible custom-scrollbar pb-1"></div>
+            <div class="relative">
+                <div id="badges" class="flex lg:grid lg:grid-cols-4 gap-1.5 overflow-x-auto lg:overflow-visible custom-scrollbar pb-1"></div>
+                <div class="absolute top-0 right-0 bottom-1 w-6 bg-gradient-to-l from-slate-900 to-transparent pointer-events-none lg:hidden"></div>
+            </div>
         </div>
 
         <div class="shrink-0 border-t-2 border-slate-800 pt-3">

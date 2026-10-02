@@ -115,21 +115,24 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-amber-400 text-slate-950 p-2 rounded-xl font-bold text-xl">
+                <div class="flex items-center space-x-1.5 sm:space-x-3 min-w-0">
+                    <div class="bg-amber-400 text-slate-950 p-1 sm:p-2 rounded-xl font-bold text-sm sm:text-xl shrink-0">
                         <i class="fa-solid fa-terminal"></i>
                     </div>
-                    <span class="text-2xl font-black tracking-wider text-amber-400">Linux<span class="text-sky-400">hrou.cz</span></span>
+                    <span class="text-sm sm:text-2xl font-black tracking-wider text-amber-400 whitespace-nowrap">Linux<span class="text-sky-400">hrou.cz</span></span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <a href="/python/" class="hidden sm:flex bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition items-center space-x-2 whitespace-nowrap">
+                <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+                    <a href="/python/" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition flex items-center space-x-1 sm:space-x-2 whitespace-nowrap text-xs sm:text-base shrink-0">
                         <span>🐍</span>
-                        <span>PYTHON</span>
+                        <span class="hidden sm:inline">PYTHON</span>
                     </a>
-                    <a href="/piskoviste/" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-2 whitespace-nowrap">
-                        <i class="fa-solid fa-terminal text-lg"></i>
-                        <span>SPUSTIT TERMINÁL</span>
+                    <a href="/piskoviste/" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-2.5 sm:px-5 py-2 sm:py-2.5 rounded-xl border-b-4 border-emerald-700 active:translate-y-0.5 transition flex items-center space-x-1 sm:space-x-2 whitespace-nowrap text-xs sm:text-base shrink-0">
+                        <i class="fa-solid fa-terminal text-sm sm:text-lg"></i>
+                        <span><span class="hidden sm:inline">SPUSTIT </span>TERMINÁL</span>
                     </a>
+                    <button id="mobile-menu-button" class="lg:hidden bg-slate-800 hover:bg-slate-700 text-slate-100 p-2 rounded-xl border-b-4 border-slate-950 active:translate-y-0.5 transition shrink-0" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu-panel">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                 </div>
             </div>
             <div class="hidden lg:flex items-center justify-center flex-wrap gap-x-7 gap-y-1 text-[13px] font-bold border-t border-slate-800/80 py-2.5">
@@ -142,8 +145,44 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition whitespace-nowrap">Pro rodiče</a>
                 <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition whitespace-nowrap">Slovník příkazů</a>
             </div>
+            <div id="mobile-menu-panel" class="hidden lg:hidden flex-col gap-0.5 border-t border-slate-800/80 py-2 text-sm font-bold">
+                <a href="#o-linuxu" class="text-slate-300 hover:text-amber-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Co je Linux?</a>
+                <a href="#mapa" class="text-slate-300 hover:text-emerald-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Mapa kampaní</a>
+                <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Kde všude běží?</a>
+                <a href="#navody" class="text-slate-300 hover:text-emerald-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Návody</a>
+                <a href="#python-hry" class="text-blue-400 hover:text-blue-300 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">🎮 Hry v Pythonu</a>
+                <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Odznaky</a>
+                <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Pro rodiče</a>
+                <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Slovník příkazů</a>
+            </div>
         </div>
     </nav>
+    <script>
+    (function () {
+        var btn = document.getElementById('mobile-menu-button');
+        var panel = document.getElementById('mobile-menu-panel');
+        if (!btn || !panel) return;
+        function closeMenu() {
+            panel.classList.add('hidden');
+            panel.classList.remove('flex');
+            btn.setAttribute('aria-expanded', 'false');
+        }
+        btn.addEventListener('click', function () {
+            var isHidden = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !isHidden ? true : false);
+            if (isHidden) {
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+                btn.setAttribute('aria-expanded', 'true');
+            } else {
+                closeMenu();
+            }
+        });
+        panel.querySelectorAll('a').forEach(function (a) {
+            a.addEventListener('click', closeMenu);
+        });
+    })();
+    </script>
 
     <!-- ============ HERO + ŽIVÁ STATISTIKA + MINI TERMINÁL ============ -->
     <header class="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 py-14 px-4 border-b border-slate-800">
