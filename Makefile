@@ -114,7 +114,7 @@ wait-healthy:  ## Wait until the app answers on APP_BIND:APP_PORT
 	echo "x app did not answer at $(APP_URL) - see: make logs-web"
 	exit 1
 
-check-tasks:  ## Verify sandbox/tasks.py: hints pass their own checks, goal text matches the hint
+check-tasks:  ## Verify Linux tasks and Python Lab tasks: hints pass their checks, wording and story are consistent
 	@python3 sandbox/check_tasks.py
 
 smoke:  ## End-to-end check: log in and run a real command in the sandbox

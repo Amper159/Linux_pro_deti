@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, render_template, request, session, send_fi
 
 from . import auth
 from . import python_gamification as gamification
-from .python_tasks import PYTHON_TASKS
+from .python_tasks import PYTHON_TASKS, CHAPTERS, PROLOGUE, EPILOGUE
 from .story_data import STORY
 from .routes import SESSION_USER, SESSION_UID, SESSION_SV
 
@@ -76,6 +76,9 @@ def api_state():
         "ok": True,
         "user": {"username": user.username},
         "tasks": _public_tasks(),
+        "chapters": CHAPTERS,
+        "prologue": PROLOGUE,
+        "epilogue": EPILOGUE,
         "progress": summary,
         "leaderboard": gamification.leaderboard(),
     })

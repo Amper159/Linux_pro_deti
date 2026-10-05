@@ -2,7 +2,9 @@ PYTHON_TASKS = [
     {
         "id": 1, "set": 1,
         "title": "Ahoj, Pythone!",
-        "story": "Vítej v Pythoním doupěti! Prvním kouzlem každého programátora je vypsat pozdrav.",
+        "tip": "Prvním kouzlem každého programátora je vypsat pozdrav.",
+        "story": "Po zkratu jsem přišel o hlas. Pomoz mi promluvit: moje první slova ať jsou pozdrav.",
+        "victory": "Slyším sám sebe! První slova po zkratu jsou venku.",
         "goal": "Použij print() a vypiš přesně: Ahoj, Pythone!",
         "starter_code": "# napiš svůj kód sem\n",
         "hint": 'print("Ahoj, Pythone!")',
@@ -11,7 +13,9 @@ PYTHON_TASKS = [
     {
         "id": 2, "set": 1,
         "title": "Tvoje první proměnná",
-        "story": "Proměnná je jako krabička, do které si uložíš hodnotu na později.",
+        "tip": "Proměnná je jako krabička, do které si uložíš hodnotu na později.",
+        "story": "Nevím, komu vlastně pomáhám. Zapiš mi do paměti své jméno, ať si ho pamatuju.",
+        "victory": "Teď už vím, jak se jmenuješ. Je to uložené v paměti.",
         "goal": "Vytvoř proměnnou jmeno s tvým jménem (text) a pak ji vypiš pomocí print().",
         "starter_code": "jmeno = \"\"\n\n",
         "hint": 'jmeno = "Kadet"\nprint(jmeno)',
@@ -20,7 +24,9 @@ PYTHON_TASKS = [
     {
         "id": 3, "set": 1,
         "title": "Počítání jako profík",
-        "story": "Python umí počítat rychleji než kalkulačka.",
+        "tip": "Python umí počítat rychleji než kalkulačka.",
+        "story": "Počítadlo zásob ukazuje nesmysly. Začneme něčím jednoduchým: sčítáním.",
+        "victory": "Čísla sedí a počítadlo zásob zase ukazuje pravdu.",
         "goal": "Ulož do proměnné vysledek součet čísel 15 a 27.",
         "starter_code": "vysledek = 0\n",
         "hint": "vysledek = 15 + 27",
@@ -29,7 +35,9 @@ PYTHON_TASKS = [
     {
         "id": 4, "set": 1,
         "title": "Spojování textu",
-        "story": "Texty (řetězce) jde spojovat dohromady pomocí f-stringů.",
+        "tip": "Texty (řetězce) jde spojovat dohromady pomocí f-stringů.",
+        "story": "Hlášení pro posádku má znít jako normální věta, ne jako hromada slov.",
+        "victory": "Hlášení zní skoro jako od člověka.",
         "goal": "Vytvoř proměnnou vek s číslem 12, pak proměnnou zprava, která pomocí f-stringu vypíše 'Je mi 12 let'.",
         "starter_code": "vek = 0\nzprava = \"\"\n",
         "hint": 'vek = 12\nzprava = f"Je mi {vek} let"',
@@ -38,7 +46,9 @@ PYTHON_TASKS = [
     {
         "id": 5, "set": 1,
         "title": "Rozhodni se!",
-        "story": "Programy umí reagovat jinak podle situace - k tomu slouží if.",
+        "tip": "Programy umí reagovat jinak podle situace - k tomu slouží if.",
+        "story": "Dveře do strojovny posílají sudé a liché kódy každý jinam. Já se potřebuju umět rozhodovat.",
+        "victory": "Dveře vědí, kam s kterým kódem. Rozhodování mi funguje.",
         "goal": "Vytvoř proměnnou cislo = 7. Pomocí if/else vypiš 'sude' pokud je sudé, jinak 'liche'.",
         "starter_code": "cislo = 7\n\n",
         "hint": 'cislo = 7\nif cislo % 2 == 0:\n    print("sude")\nelse:\n    print("liche")',
@@ -47,7 +57,9 @@ PYTHON_TASKS = [
     {
         "id": 6, "set": 1,
         "title": "Opakuj se mnou (for)",
-        "story": "Smyčka for umí zopakovat kus kódu vícekrát bez zbytečného opisování.",
+        "tip": "Smyčka for umí zopakovat kus kódu vícekrát bez zbytečného opisování.",
+        "story": "Kontrolky na panelu se rozsvěcují jedna po druhé. Psát každé číslo zvlášť je zbytečná dřina.",
+        "victory": "Všech pět kontrolek svítí. Smyčka odvedla práci za mě.",
         "goal": "Pomocí for a range(1, 6) vypiš čísla 1 až 5, každé na svůj řádek.",
         "starter_code": "\n",
         "hint": "for i in range(1, 6):\n    print(i)",
@@ -56,7 +68,9 @@ PYTHON_TASKS = [
     {
         "id": 7, "set": 2,
         "title": "Sečti smyčkou",
-        "story": "Smyčky se dají použít i na sčítání - třeba součet čísel v seznamu.",
+        "tip": "Smyčky se dají použít i na sčítání - třeba součet čísel v seznamu.",
+        "story": "Skladník zapsal počty beden za sebou. Sečti je, ať nemusím počítat každou zvlášť.",
+        "victory": "Sklad je sečtený, takže vím, kolik toho máme.",
         "goal": "Máš seznam cisla. Pomocí for smyčky spočítej jejich součet do proměnné soucet.",
         "starter_code": "cisla = [3, 7, 2, 9, 5]\nsoucet = 0\n\n",
         "hint": "cisla = [3, 7, 2, 9, 5]\nsoucet = 0\nfor c in cisla:\n    soucet += c",
@@ -65,7 +79,9 @@ PYTHON_TASKS = [
     {
         "id": 8, "set": 2,
         "title": "Seznam úkolů",
-        "story": "Seznam (list) umí držet víc hodnot pohromadě, ve správném pořadí.",
+        "tip": "Seznam (list) umí držet víc hodnot pohromadě, ve správném pořadí.",
+        "story": "Údržba stanice má spoustu práce a já si ji neumím zapamatovat. Potřebuju seznam úkolů.",
+        "victory": "Seznam údržby mám u sebe a můžu ho dál doplňovat.",
         "goal": "Vytvoř seznam ukoly se třemi řetězci podle svého výběru, pak na konec přidej (append) 'ulozit soubor'.",
         "starter_code": "ukoly = []\n",
         "hint": 'ukoly = ["uklidit", "napsat kod", "najist se"]\nukoly.append("ulozit soubor")',
@@ -74,7 +90,9 @@ PYTHON_TASKS = [
     {
         "id": 9, "set": 2,
         "title": "Projdi seznam",
-        "story": "Přes seznam se dá procházet stejně jako přes range().",
+        "tip": "Přes seznam se dá procházet stejně jako přes range().",
+        "story": "V biologické sekci žijí zvířata. Obejdi je všechna a vypiš jejich jména.",
+        "victory": "Všichni obyvatelé biologické sekce jsou na seznamu.",
         "goal": "Máš seznam zvirata. Pomocí for vypiš každé zvíře na svůj řádek.",
         "starter_code": "zvirata = [\"pes\", \"kocka\", \"papousek\"]\n\n",
         "hint": 'zvirata = ["pes", "kocka", "papousek"]\nfor z in zvirata:\n    print(z)',
@@ -83,7 +101,9 @@ PYTHON_TASKS = [
     {
         "id": 10, "set": 2,
         "title": "Slovník s informacemi",
-        "story": "Slovník (dict) páruje klíč s hodnotou - třeba jméno s věkem.",
+        "tip": "Slovník (dict) páruje klíč s hodnotou - třeba jméno s věkem.",
+        "story": "Každý člen posádky má průkaz s kolonkami. Vystavíme ho i tobě.",
+        "victory": "Průkaz kadeta je vystavený. Teď jsi na palubě oficiálně.",
         "goal": "Vytvoř slovník kadet s klíči 'jmeno' (text) a 'level' (číslo 1).",
         "starter_code": "kadet = {}\n",
         "hint": 'kadet = {"jmeno": "Kadet", "level": 1}',
@@ -92,7 +112,9 @@ PYTHON_TASKS = [
     {
         "id": 11, "set": 3,
         "title": "Tvoje první funkce",
-        "story": "Funkce je jako vlastní příkaz, který si sám naprogramuješ.",
+        "tip": "Funkce je jako vlastní příkaz, který si sám naprogramuješ.",
+        "story": "Posádku zdravím pořád stejně. Uděláme z toho jediný příkaz, který stačí zavolat.",
+        "victory": "Funkce funguje: stačí ji zavolat a pozdrav je tu.",
         "goal": "Napiš funkci pozdrav(), která vypíše 'Ahoj z funkce!'. Pak ji zavolej.",
         "starter_code": "def pozdrav():\n    pass\n\n",
         "hint": 'def pozdrav():\n    print("Ahoj z funkce!")\n\npozdrav()',
@@ -101,7 +123,9 @@ PYTHON_TASKS = [
     {
         "id": 12, "set": 3,
         "title": "Funkce s parametrem",
-        "story": "Funkce může přijímat vstupní hodnoty (parametry) a s nimi pracovat.",
+        "tip": "Funkce může přijímat vstupní hodnoty (parametry) a s nimi pracovat.",
+        "story": "Tentokrát nástroj na sčítání: dostane dvě čísla a vrátí výsledek.",
+        "victory": "Nástroj na sčítání jde použít kdykoliv.",
         "goal": "Napiš funkci secti(a, b), která vrátí (return) součet dvou čísel. Zavolej secti(4, 5) a výsledek ulož do proměnné vysledek.",
         "starter_code": "def secti(a, b):\n    pass\n\nvysledek = 0\n",
         "hint": "def secti(a, b):\n    return a + b\n\nvysledek = secti(4, 5)",
@@ -110,7 +134,9 @@ PYTHON_TASKS = [
     {
         "id": 13, "set": 3,
         "title": "Podmínka uvnitř funkce",
-        "story": "Funkce a podmínky se dají krásně kombinovat.",
+        "tip": "Funkce a podmínky se dají krásně kombinovat.",
+        "story": "Do reaktorové sekce smí jen dospělí. Potřebuju funkci, která řekne ano, nebo ne.",
+        "victory": "Hlídač u reaktoru umí rozhodovat podle věku.",
         "goal": "Napiš funkci je_plnolety(vek), která vrátí True, pokud je vek >= 18, jinak False.",
         "starter_code": "def je_plnolety(vek):\n    pass\n",
         "hint": "def je_plnolety(vek):\n    return vek >= 18",
@@ -119,7 +145,9 @@ PYTHON_TASKS = [
     {
         "id": 14, "set": 3,
         "title": "While - opakuj, dokud...",
-        "story": "Smyčka while opakuje kód, dokud platí podmínka.",
+        "tip": "Smyčka while opakuje kód, dokud platí podmínka.",
+        "story": "Záchranné kapsle startují po odpočtu. Dokud není nula, počítám dál.",
+        "victory": "Odpočet doběhl na nulu a smyčka se nezasekla.",
         "goal": "Pomocí while sniž proměnnou pocitadlo z 5 na 0 a při každém kroku ji vypiš.",
         "starter_code": "pocitadlo = 5\n\n",
         "hint": "pocitadlo = 5\nwhile pocitadlo > 0:\n    print(pocitadlo)\n    pocitadlo -= 1",
@@ -128,7 +156,9 @@ PYTHON_TASKS = [
     {
         "id": 15, "set": 3,
         "title": "Závěrečná mise: seznam jmen",
-        "story": "Poslední úkol kombinuje funkce, seznamy i smyčky dohromady - přesně jako ve skutečném programování.",
+        "tip": "Poslední úkol kombinuje funkce, seznamy i smyčky dohromady - přesně jako ve skutečném programování.",
+        "story": "Poslední nástroj dílny: pozdravit celou posádku najednou, ať se jména mění, jak chtějí.",
+        "victory": "Celá posádka je pozdravená. Dílna je hotová.",
         "goal": "Napiš funkci pozdrav_vsechny(jmena), která pro každé jméno v seznamu vypíše 'Ahoj, <jméno>!'. Zavolej ji se seznamem ['Ema', 'Jakub', 'Tereza'].",
         "starter_code": "def pozdrav_vsechny(jmena):\n    pass\n\n",
         "hint": 'def pozdrav_vsechny(jmena):\n    for j in jmena:\n        print(f"Ahoj, {j}!")\n\npozdrav_vsechny(["Ema", "Jakub", "Tereza"])',
@@ -138,7 +168,9 @@ PYTHON_TASKS = [
     {
         "id": 16, "set": 4,
         "title": "Velká a malá písmena",
-        "story": "Level 2! Texty umí i samy sebe upravit - třeba přepnout na velká písmena.",
+        "tip": "Texty umí samy sebe upravit, třeba přepnout na velká písmena.",
+        "story": "Zprávy ze Země chodí malými písmeny, ale hlášení musí být velkými.",
+        "victory": "Hlášení je velkými písmeny, slyší ho celá stanice.",
         "goal": "Vytvoř text = 'ahoj pythone' a proměnnou velka pomocí text.upper() (celý text velkými písmeny).",
         "starter_code": "text = \"ahoj pythone\"\nvelka = \"\"\n",
         "hint": 'text = "ahoj pythone"\nvelka = text.upper()',
@@ -147,7 +179,9 @@ PYTHON_TASKS = [
     {
         "id": 17, "set": 4,
         "title": "Délka a znaky textu",
-        "story": "Text je vlastně seznam znaků - dá se zjistit jeho délka i sáhnout na konkrétní písmeno.",
+        "tip": "Text je vlastně seznam znaků - dá se zjistit jeho délka i sáhnout na konkrétní písmeno.",
+        "story": "Volací znak lodi je kód, ve kterém záleží na délce i na prvním znaku.",
+        "victory": "Délka i první znak hlásí správně.",
         "goal": "Máš slovo = 'kadet'. Ulož do delka jeho délku (len) a do prvni_pismeno jeho první znak (index 0).",
         "starter_code": "slovo = \"kadet\"\ndelka = 0\nprvni_pismeno = \"\"\n",
         "hint": 'slovo = "kadet"\ndelka = len(slovo)\nprvni_pismeno = slovo[0]',
@@ -156,7 +190,9 @@ PYTHON_TASKS = [
     {
         "id": 18, "set": 4,
         "title": "Rozděl větu na slova",
-        "story": "split() rozseká text na kusy podle mezery (nebo jiného znaku).",
+        "tip": "split() rozseká text na kusy podle mezery (nebo jiného znaku).",
+        "story": "Vysílačka přijala celou větu v jednom kuse. Rozlož ji na jednotlivá slova.",
+        "victory": "Věta je rozložená na slova.",
         "goal": "Máš veta = 'Python je super'. Pomocí .split() ulož do slova seznam jednotlivých slov.",
         "starter_code": "veta = \"Python je super\"\nslova = []\n",
         "hint": 'veta = "Python je super"\nslova = veta.split()',
@@ -165,7 +201,9 @@ PYTHON_TASKS = [
     {
         "id": 19, "set": 4,
         "title": "Spoj seznam zpátky do textu",
-        "story": "join() je opak split() - slepí seznam textů dohromady s oddělovačem, jaký si zvolíš.",
+        "tip": "join() je opak split() - slepí seznam textů dohromady s oddělovačem, jaký si zvolíš.",
+        "story": "Teď naopak: ze slov složíme jedno hlášení.",
+        "victory": "Slova jsou slepená do jednoho hlášení.",
         "goal": "Máš slova = ['Ahoj', 'kadete']. Pomocí ' '.join(slova) ulož výsledek do vysledek (slova oddělená mezerou).",
         "starter_code": "slova = [\"Ahoj\", \"kadete\"]\nvysledek = \"\"\n",
         "hint": 'slova = ["Ahoj", "kadete"]\nvysledek = " ".join(slova)',
@@ -174,7 +212,9 @@ PYTHON_TASKS = [
     {
         "id": 20, "set": 4,
         "title": "Řezy - vezmi jen kousek",
-        "story": "Řez (slice) vybere jen část seznamu nebo textu - třeba 'od druhého do čtvrtého prvku'.",
+        "tip": "Řez (slice) vybere jen část seznamu nebo textu - třeba 'od druhého do čtvrtého prvku'.",
+        "story": "Záznam z kamer je dlouhý a já potřebuju jen jeho střední úsek.",
+        "victory": "Vyřízl jsi přesně ten kousek, který jsem potřeboval.",
         "goal": "Máš cisla = [10, 20, 30, 40, 50]. Ulož do vyrez prvky na indexech 1 až 3 (tedy cisla[1:4]).",
         "starter_code": "cisla = [10, 20, 30, 40, 50]\nvyrez = []\n",
         "hint": "cisla = [10, 20, 30, 40, 50]\nvyrez = cisla[1:4]",
@@ -183,7 +223,9 @@ PYTHON_TASKS = [
     {
         "id": 21, "set": 4,
         "title": "Seřaď seznam",
-        "story": "sorted() vrátí nový seřazený seznam, od nejmenšího po největší.",
+        "tip": "sorted() vrátí nový seřazený seznam, od nejmenšího po největší.",
+        "story": "Měření ze senzorů přišla zamíchaná. Seřaď je od nejmenšího po největší.",
+        "victory": "Měření stojí v pořádné řadě.",
         "goal": "Máš cisla = [5, 1, 4, 2, 3]. Ulož do serazeno výsledek sorted(cisla).",
         "starter_code": "cisla = [5, 1, 4, 2, 3]\nserazeno = []\n",
         "hint": "cisla = [5, 1, 4, 2, 3]\nserazeno = sorted(cisla)",
@@ -192,7 +234,9 @@ PYTHON_TASKS = [
     {
         "id": 22, "set": 4,
         "title": "Největší, nejmenší, součet",
-        "story": "Python má vestavěné funkce na časté úkoly, ať si je nemusíš psát sám.",
+        "tip": "Python má vestavěné funkce na časté úkoly, ať si je nemusíš psát sám.",
+        "story": "Z měření chci tři údaje: největší, nejmenší a součet.",
+        "victory": "Všechny tři údaje sedí. Senzory mluví jasně.",
         "goal": "Máš cisla = [4, 9, 2, 7]. Ulož nejvetsi = max(cisla), nejmensi = min(cisla), soucet = sum(cisla).",
         "starter_code": "cisla = [4, 9, 2, 7]\nnejvetsi = 0\nnejmensi = 0\nsoucet = 0\n",
         "hint": "cisla = [4, 9, 2, 7]\nnejvetsi = max(cisla)\nnejmensi = min(cisla)\nsoucet = sum(cisla)",
@@ -201,7 +245,9 @@ PYTHON_TASKS = [
     {
         "id": 23, "set": 4,
         "title": "Kombinuj podmínky (and / or)",
-        "story": "Podmínky se dají spojovat - 'and' (obě musí platit), 'or' (aspoň jedna musí platit).",
+        "tip": "Podmínky se dají spojovat - 'and' (obě musí platit), 'or' (aspoň jedna musí platit).",
+        "story": "Do simulátoru letu smí jen ten, komu to věk dovolí a kdo má povolení. Musí platit obojí zároveň.",
+        "victory": "Simulátor pouští jen ty správné lidi.",
         "goal": "Napiš funkci muze_hrat(vek, ma_povoleni), která vrátí True, jen pokud je vek >= 12 A ZÁROVEŇ ma_povoleni je True.",
         "starter_code": "def muze_hrat(vek, ma_povoleni):\n    pass\n",
         "hint": "def muze_hrat(vek, ma_povoleni):\n    return vek >= 12 and ma_povoleni",
@@ -210,7 +256,9 @@ PYTHON_TASKS = [
     {
         "id": 24, "set": 4,
         "title": "Smyčka ve smyčce",
-        "story": "Smyčky se dají vnořit jedna do druhé - třeba pro tabulku nebo mřížku.",
+        "tip": "Smyčky se dají vnořit jedna do druhé - třeba pro tabulku nebo mřížku.",
+        "story": "Trup stanice kontroluju po sektorech: řádek po řádku a v každém sektor po sektoru. Smyčka ve smyčce.",
+        "victory": "Všechny čtyři sektory jsou prohledané.",
         "goal": "Pomocí dvou vnořených for smyček vypiš všechny dvojice (i, j) pro i i j v range(1, 3) ve formátu 'i-j' (celkem 4 řádky: 1-1, 1-2, 2-1, 2-2).",
         "starter_code": "\n",
         "hint": 'for i in range(1, 3):\n    for j in range(1, 3):\n        print(f"{i}-{j}")',
@@ -219,7 +267,9 @@ PYTHON_TASKS = [
     {
         "id": 25, "set": 5,
         "title": "N-tice (tuple)",
-        "story": "N-tice je jako seznam, ale jednou vytvořená se už nedá měnit - hodí se na pevné dvojice hodnot.",
+        "tip": "N-tice je jako seznam, ale jednou vytvořená se už nedá měnit - hodí se na pevné dvojice hodnot.",
+        "story": "Souřadnice jsou dvojice čísel, která se nemá měnit: bod na mapě.",
+        "victory": "Bod na mapě je zapsaný a rozdělený na x a y.",
         "goal": "Vytvoř n-tici bod = (3, 7). Pak si z ní pomocí rozbalení (x, y = bod) ulož souřadnice do x a y.",
         "starter_code": "bod = (0, 0)\nx = 0\ny = 0\n",
         "hint": "bod = (3, 7)\nx, y = bod",
@@ -228,7 +278,9 @@ PYTHON_TASKS = [
     {
         "id": 26, "set": 5,
         "title": "Množina bez duplicit",
-        "story": "Množina (set) automaticky odstraní duplicitní hodnoty - hodí se na 'jaké unikátní hodnoty tu mám'.",
+        "tip": "Množina (set) automaticky odstraní duplicitní hodnoty - hodí se na 'jaké unikátní hodnoty tu mám'.",
+        "story": "Anténa zachytila stejné signály několikrát. Každý chci mít jen jednou.",
+        "victory": "Duplikáty zmizely a zůstaly jen různé signály.",
         "goal": "Máš cisla = [1, 2, 2, 3, 3, 3]. Pomocí set(cisla) ulož do unikatni množinu bez duplicit, pak pomocí len() ulož jejich počet do pocet.",
         "starter_code": "cisla = [1, 2, 2, 3, 3, 3]\nunikatni = set()\npocet = 0\n",
         "hint": "cisla = [1, 2, 2, 3, 3, 3]\nunikatni = set(cisla)\npocet = len(unikatni)",
@@ -237,7 +289,9 @@ PYTHON_TASKS = [
     {
         "id": 27, "set": 5,
         "title": "Výchozí hodnota parametru",
-        "story": "Parametr funkce může mít výchozí hodnotu, která se použije, když ho při volání nezadáš.",
+        "tip": "Parametr funkce může mít výchozí hodnotu, která se použije, když ho při volání nezadáš.",
+        "story": "Autopilot zdraví výchozím pozdravem, dokud mu nikdo neřekne jiný.",
+        "victory": "Autopilot umí pozdravit i bez zadání, a přesto jde pozdrav změnit.",
         "goal": "Napiš funkci pozdrav(jmeno, pozdrav_slovo='Ahoj'), která vrátí f'{pozdrav_slovo}, {jmeno}!'.",
         "starter_code": "def pozdrav(jmeno, pozdrav_slovo=\"Ahoj\"):\n    pass\n",
         "hint": 'def pozdrav(jmeno, pozdrav_slovo="Ahoj"):\n    return f"{pozdrav_slovo}, {jmeno}!"',
@@ -246,7 +300,9 @@ PYTHON_TASKS = [
     {
         "id": 28, "set": 5,
         "title": "Ošetři chybu (try/except)",
-        "story": "Někdy se program pokusí o něco, co selže (třeba dělení nulou) - try/except to odchytí, ať program nespadne.",
+        "tip": "Někdy se program pokusí o něco, co selže (třeba dělení nulou) - try/except to odchytí, ať program nespadne.",
+        "story": "Při výpočtu dráhy se někdo pokusil dělit nulou. Stanice kvůli tomu nesmí spadnout.",
+        "victory": "Chyba je odchycená a stanice jede dál.",
         "goal": "Napiš try/except kolem vysledek = 10 / 0, který při chybě ZeroDivisionError vypíše 'Nelze delit nulou'.",
         "starter_code": "\n",
         "hint": 'try:\n    vysledek = 10 / 0\nexcept ZeroDivisionError:\n    print("Nelze delit nulou")',
@@ -255,7 +311,9 @@ PYTHON_TASKS = [
     {
         "id": 29, "set": 5,
         "title": "Náhodné číslo",
-        "story": "Modul random umí generovat náhodná čísla - třeba pro hru s kostkou.",
+        "tip": "Modul random umí generovat náhodná čísla - třeba pro hru s kostkou.",
+        "story": "Meteorický roj přijde v náhodnou chvíli. Potřebuju umět losovat, třeba hodem kostkou.",
+        "victory": "Kostka padla. Náhodu už umím.",
         "goal": "Naimportuj random, pak pomocí random.randint(1, 6) ulož do hod výsledek hodu kostkou (číslo 1 až 6).",
         "starter_code": "import random\nhod = 0\n",
         "hint": "import random\nhod = random.randint(1, 6)",
@@ -264,7 +322,9 @@ PYTHON_TASKS = [
     {
         "id": 30, "set": 5,
         "title": "Závěrečná mise: hra s kostkou",
-        "story": "Poslední mise levelu 2 - spoj náhodná čísla, podmínky i funkce do jedné malé hry.",
+        "tip": "Spoj náhodná čísla, podmínky i funkce do jedné malé hry.",
+        "story": "Zkušební let: spojíme náhodu, rozhodování a funkce do jedné malé hry s kostkou.",
+        "victory": "Hra s kostkou běží. Zkušební dráha je splněná.",
         "goal": "Napiš funkci hod_kostkou(), která vrátí náhodné číslo 1 až 6 (pomocí random.randint). Pak napiš funkci vyhodnot(hod), která vrátí 'vyhra' pokud je hod == 6, jinak 'zkus znovu'. Zavolej vyhodnot(6) a výsledek vypiš.",
         "starter_code": "import random\n\ndef hod_kostkou():\n    pass\n\ndef vyhodnot(hod):\n    pass\n\n",
         "hint": 'import random\n\ndef hod_kostkou():\n    return random.randint(1, 6)\n\ndef vyhodnot(hod):\n    if hod == 6:\n        return "vyhra"\n    else:\n        return "zkus znovu"\n\nprint(vyhodnot(6))',
@@ -274,7 +334,9 @@ PYTHON_TASKS = [
     {
         "id": 31, "set": 6,
         "title": "Jedna volba, tři cesty",
-        "story": "Přesně jako u Iskry - jedna volba může vést na tři různá místa v příběhu.",
+        "tip": "Přesně jako u Iskry - jedna volba může vést na tři různá místa v příběhu.",
+        "story": "Holodeck se rozjel, ale zná jen jednu scénu. Naučme ho rozlišit tři cesty.",
+        "victory": "Holodeck už umí vybrat scénu podle volby.",
         "goal": "Napiš funkci scena(volba): pro volba==1 vrať 'tovarna', pro volba==2 vrať 'svedek', pro cokoliv jiného vrať 'kabely'. Zavolej scena(2) a výsledek ulož do vysledek.",
         "starter_code": "def scena(volba):\n    pass\n\nvysledek = \"\"\n",
         "hint": 'def scena(volba):\n    if volba == 1:\n        return "tovarna"\n    elif volba == 2:\n        return "svedek"\n    else:\n        return "kabely"\n\nvysledek = scena(2)',
@@ -283,7 +345,9 @@ PYTHON_TASKS = [
     {
         "id": 32, "set": 6,
         "title": "Dvě rozhodnutí za sebou",
-        "story": "Skutečné příběhy mívají víc než jedno rozhodnutí za sebou - záleží na kombinaci obou voleb.",
+        "tip": "Skutečné příběhy mívají víc než jedno rozhodnutí za sebou - záleží na kombinaci obou voleb.",
+        "story": "Dobrý příběh se větví podle několika voleb za sebou. Zkombinuj dvě rozhodnutí.",
+        "victory": "Dvě volby, jedna správná cesta.",
         "goal": "Napiš funkci pribeh(volba1, volba2). Když volba1==1 a volba2==1, vrať 'potichu'. Když volba1==1 a volba2==2, vrať 'primo'. Jinak vrať 'jinam'.",
         "starter_code": "def pribeh(volba1, volba2):\n    pass\n",
         "hint": 'def pribeh(volba1, volba2):\n    if volba1 == 1 and volba2 == 1:\n        return "potichu"\n    elif volba1 == 1 and volba2 == 2:\n        return "primo"\n    else:\n        return "jinam"',
@@ -292,7 +356,9 @@ PYTHON_TASKS = [
     {
         "id": 33, "set": 6,
         "title": "Konec podle skóre",
-        "story": "Konec příběhu často závisí na tom, kolik dobrých rozhodnutí jsi cestou udělal.",
+        "tip": "Konec příběhu často závisí na tom, kolik dobrých rozhodnutí jsi cestou udělal.",
+        "story": "Podle počtu dobrých rozhodnutí se hráči zobrazí jiný konec.",
+        "victory": "Konec se teď volí podle skóre.",
         "goal": "Napiš funkci konec(body): pokud body >= 3 vrať 'vitezstvi', pokud body >= 1 vrať 'castecny_uspech', jinak vrať 'prohra'.",
         "starter_code": "def konec(body):\n    pass\n",
         "hint": 'def konec(body):\n    if body >= 3:\n        return "vitezstvi"\n    elif body >= 1:\n        return "castecny_uspech"\n    else:\n        return "prohra"',
@@ -301,7 +367,9 @@ PYTHON_TASKS = [
     {
         "id": 34, "set": 6,
         "title": "Sečti rozhodnutí do skóre",
-        "story": "Volby v příběhu se dají počítat - a spojit to se smyčkou, kterou už znáš.",
+        "tip": "Volby v příběhu se dají počítat - a spojit to se smyčkou, kterou už znáš.",
+        "story": "Skóre se musí počítat samo. Projdi seznam voleb a započítej ty dobré.",
+        "victory": "Skóre se počítá samo.",
         "goal": "Máš volby = [1, 2, 1, 1, 2] (1 = dobré rozhodnutí = +1 bod, cokoliv jiné = 0 bodů). Pomocí for a if spočítej součet do proměnné skore.",
         "starter_code": "volby = [1, 2, 1, 1, 2]\nskore = 0\n\n",
         "hint": "volby = [1, 2, 1, 1, 2]\nskore = 0\nfor v in volby:\n    if v == 1:\n        skore += 1",
@@ -310,13 +378,64 @@ PYTHON_TASKS = [
     {
         "id": 35, "set": 6,
         "title": "Závěrečná mise: napiš vlastní mini-příběh",
-        "story": "Teď jsi na řadě ty. Napiš krátkou vlastní větev příběhu - aspoň dva různé konce podle volby.",
+        "tip": "Teď jsi na řadě ty. Napiš krátkou vlastní větev příběhu - aspoň dva různé konce podle volby.",
+        "story": "Teď jsi na řadě ty. Napiš vlastní větev příběhu: na tomhle principu stojí hry v herním sále.",
+        "victory": "Tvůj příběh se větví a holodeck je v provozu.",
         "goal": "Napiš funkci muj_pribeh(volba), která pro aspoň 2 různé hodnoty volba vrátí aspoň 2 RŮZNÉ texty (tvoje vlastní konce příběhu). Použij if/elif/else - na obsahu textu nezáleží, jen ať se opravdu liší.",
         "starter_code": "def muj_pribeh(volba):\n    pass\n",
         "hint": 'def muj_pribeh(volba):\n    if volba == 1:\n        return "Vydal ses doleva a nasel poklad!"\n    elif volba == 2:\n        return "Vydal ses doprava a potkal draka."\n    else:\n        return "Zustal jsi stat a nic se nestalo."',
         "check": 'vysledky = [muj_pribeh(1), muj_pribeh(2), muj_pribeh(3)]\nassert all(isinstance(v, str) and len(v) > 0 for v in vysledky), "Funkce musí pro každou volbu vrátit neprázdný text"\nassert len(set(vysledky)) >= 2, "Aspoň dvě různé volby musí vést k různému textu (jinak to není větvení)"',
     },
 ]
+
+
+# ---------------------------------------------------------------- příběh
+# Pyt je palubní počítač stanice TUX-1 (stejné stanice jako v Pískovišti). Po zkratu přišel o programy
+# a kadet mu je v Pythonu píše znovu. Každá sada úkolů je jedna kapitola opravy stanice.
+# U úkolu: "story" = děj (hlas Pyta), "tip" = výklad učiva, "victory" = reakce po splnění.
+# Zadání ("goal") s příběhem nesouvisí a vždy říká, co přesně udělat.
+CHAPTERS = [
+    {
+        "set": 1,
+        "title": "Probuzení",
+        "intro": "Zkrat vypnul skoro všechno. Začneme tím nejmenším: ať umím mluvit, pamatovat si, počítat a rozhodovat se.",
+        "outro": "Hlavní systémy běží. Umím mluvit, pamatovat si, počítat, rozhodovat se i opakovat. Díky, kadete!"
+    },
+    {
+        "set": 2,
+        "title": "Sklad a evidence",
+        "intro": "Sklad stanice je plný, ale přišel jsem o evidenci. Seznamy a slovníky mi pomůžou udržet pořádek.",
+        "outro": "Evidence je zpátky. Vím, co kde leží a kdo je kdo."
+    },
+    {
+        "set": 3,
+        "title": "Dílna",
+        "intro": "Psát pořád dokola totéž je zbytečné. V dílně si vyrobíme vlastní nástroje, kterým se říká funkce.",
+        "outro": "Dílna běží a nástroje se dají používat znovu a znovu."
+    },
+    {
+        "set": 4,
+        "title": "Komunikační centrum",
+        "intro": "Ze Země chodí zprávy, měření a povolení. Abych jim rozuměl, musím umět pracovat s texty, čísly i podmínkami.",
+        "outro": "Spojení se Zemí je obnovené a poslední zprávy konečně dávají smysl."
+    },
+    {
+        "set": 5,
+        "title": "Zkušební dráha",
+        "intro": "Před startem musí navigace zvládat souřadnice, chyby i náhodu. Meteorický roj nikdo předem nenaplánuje.",
+        "outro": "Zkušební dráha je splněná. Navigace zvládne i chybu ve výpočtu."
+    },
+    {
+        "set": 6,
+        "title": "Holodeck",
+        "intro": "Poslední sekce stanice je holodeck, kde si posádka hraje příběhy. Rozhodovat se už umíš, teď to využijeme k vyprávění.",
+        "outro": "Holodeck je opravený. Teď si v něm můžeš vymýšlet vlastní příběhy."
+    }
+]
+
+PROLOGUE = "Ahoj, kadete! Jsem Pyt, palubní počítač stanice TUX-1. Po zkratu jsem přišel o všechny programy. Tux opravuje stanici zvenku, z terminálu, a já potřebuju tebe, abys mi programy znovu napsal v Pythonu."
+
+EPILOGUE = "Všechny systémy stanice TUX-1 běží a já mám zpátky hlas i paměť. Z tebe je Pythonista, kadete. Díky!"
 
 
 def all_tasks():

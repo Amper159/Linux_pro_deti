@@ -23,6 +23,8 @@ CI/pre-commit, i když to teď volá jen Makefile cíl 'check-tasks'.
 """
 from __future__ import annotations
 
+import contextlib
+import io
 import os
 import re
 import shutil
@@ -118,6 +120,55 @@ def over_duplicitni_vety(task: dict) -> list[str]:
     return []
 
 
+def over_python_lab() -> int:
+    """Python Lab: reference řešení projdou kontrolou a příběh je kompletní. Vrací počet chyb."""
+    from sandbox.python_tasks import PYTHON_TASKS, CHAPTERS, PROLOGUE, EPILOGUE
+
+    chyb = 0
+
+    def chyba(zprava: str) -> None:
+        nonlocal chyb
+        print(f"x PYTHON LAB: {zprava}")
+        chyb += 1
+
+    # 1) funkčně - úkoly se řeší postupně v jednom sdíleném prostředí (jako v Pyodide v prohlížeči)
+    ns: dict = {}
+    for t in sorted(PYTHON_TASKS, key=lambda x: x["id"]):
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                exec(t["hint"], ns)
+            ns["_stdout_capture"] = buf.getvalue()
+            exec(t["check"], ns)
+        except Exception as e:  # noqa: BLE001 - chceme zachytit cokoliv
+            chyba(f"#{t['id']} hint neprojde vlastní kontrolou ({type(e).__name__}: {e})")
+
+    # 2) příběh: každý úkol má děj, výklad i reakci a texty se vejdou do bubliny/konzole
+    sady = {c["set"] for c in CHAPTERS}
+    for t in PYTHON_TASKS:
+        for pole, limit in (("story", 170), ("victory", 110), ("tip", 200)):
+            hodnota = t.get(pole, "")
+            if not hodnota.strip():
+                chyba(f"#{t['id']} chybí pole '{pole}'")
+            elif len(hodnota) > limit:
+                chyba(f"#{t['id']} pole '{pole}' má {len(hodnota)} znaků (limit {limit})")
+        if t["set"] not in sady:
+            chyba(f"#{t['id']} patří do sady {t['set']}, ke které není kapitola")
+        if t.get("story", "").strip() == t["goal"].strip():
+            chyba(f"#{t['id']} děj je shodný se zadáním")
+    for c in CHAPTERS:
+        for pole in ("title", "intro", "outro"):
+            if not c.get(pole, "").strip():
+                chyba(f"kapitola sady {c['set']} nemá '{pole}'")
+    if not PROLOGUE.strip() or not EPILOGUE.strip():
+        chyba("chybí prolog nebo epilog")
+    for sada in {t["set"] for t in PYTHON_TASKS} - sady:
+        chyba(f"sada {sada} nemá kapitolu")
+
+    print(f"Python Lab: zkontrolováno úkolů {len(PYTHON_TASKS)}, kapitol {len(CHAPTERS)}, chyb {chyb}")
+    return chyb
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="tasks_check_") as tmp:
         # JEDNA trvalá domovská složka pro všech 90 úkolů po sobě - stejně jako
@@ -150,6 +201,7 @@ def main() -> int:
 
         print()
         print(f"Zkontrolováno úkolů: {len(TASKS)}, přeskočeno (síť): {preskoceno}, chyb: {celkem_chyb}")
+        celkem_chyb += over_python_lab()
         if celkem_chyb:
             print("Někde se nápověda/kontrola rozchází se zadáním, co vidí dítě. Oprav a spusť znovu.")
             return 1
