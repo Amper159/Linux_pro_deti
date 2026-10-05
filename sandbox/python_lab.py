@@ -48,6 +48,13 @@ def page():
     return render_template("python.html")
 
 
+@bp.get("/pyodide-worker.js")
+def pyodide_worker():
+    """Web Worker, ve kterém běží Pyodide (viz komentář v souboru)."""
+    cesta = Path(__file__).parent / "static_js" / "pyodide_worker.js"
+    return send_file(cesta, mimetype="text/javascript", max_age=0)
+
+
 @bp.get("/hra/<jmeno>.py")
 def stahni_hru(jmeno):
     """Stažitelná, plně funkční Python verze hry - skutečný input()/print(),

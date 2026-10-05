@@ -131,9 +131,10 @@ def over_python_lab() -> int:
         print(f"x PYTHON LAB: {zprava}")
         chyb += 1
 
-    # 1) funkčně - úkoly se řeší postupně v jednom sdíleném prostředí (jako v Pyodide v prohlížeči)
-    ns: dict = {}
+    # 1) funkčně - každé spuštění v Python Labu má čistý jmenný prostor (viz pyodide_worker.js),
+    #    takže každé řešení musí projít samo o sobě, bez pomoci toho, co zbylo z předchozích úkolů
     for t in sorted(PYTHON_TASKS, key=lambda x: x["id"]):
+        ns: dict = {"__name__": "__main__"}
         buf = io.StringIO()
         try:
             with contextlib.redirect_stdout(buf):

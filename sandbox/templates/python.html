@@ -19,7 +19,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
     <style>
         body {
             font-family: 'Quicksand', sans-serif;
@@ -724,13 +723,74 @@ function confettiBurst(count = 60) {
     }
 }
 
-// ---- Pyodide ----
-let pyodideReady = null;
-async function initPyodide() {
-    pyodideReady = await loadPyodide();
-    $("pyodide-badge").textContent = "Python připraven ✓";
+// ---- Python (Pyodide ve Web Workeru) ----
+// Kód dítěte běží ve workeru, ne na stránce. Když běží déle než limit (třeba nekonečný while),
+// worker ukončíme a spustíme znovu, takže stránka nezamrzne.
+const PY_LIMIT_MS = 5000;
+let pyWorker = null;
+let pyReady = false;
+let pyPending = null;
+let pyCallId = 0;
+let pyRunning = false;
+
+function startPython() {
+    pyReady = false;
+    $("pyodide-badge").textContent = "Načítám Python…";
+    if (typeof Worker === "undefined") {
+        $("pyodide-badge").textContent = "Tenhle prohlížeč neumí spustit Python";
+        return;
+    }
+    const worker = new Worker("/python/pyodide-worker.js");
+    pyWorker = worker;
+    worker.onmessage = (e) => {
+        if (worker !== pyWorker) return;           // zpráva od už ukončeného workeru
+        const m = e.data;
+        if (m.type === "ready") {
+            pyReady = true;
+            $("pyodide-badge").textContent = "Python připraven ✓";
+        } else if (m.type === "init-error") {
+            $("pyodide-badge").textContent = "Python se nepodařilo načíst";
+        } else if (pyPending && m.id === pyPending.id) {
+            clearTimeout(pyPending.timer);
+            const done = pyPending;
+            pyPending = null;
+            done.resolve(m);
+        }
+    };
+    worker.onerror = () => {
+        if (worker !== pyWorker) return;
+        if (pyPending) {
+            clearTimeout(pyPending.timer);
+            const done = pyPending;
+            pyPending = null;
+            restartPython();
+            done.resolve({ timeout: true, crashed: true });
+        } else {
+            $("pyodide-badge").textContent = "Python se nepodařilo načíst";
+        }
+    };
 }
-initPyodide();
+
+function restartPython() {
+    if (pyWorker) pyWorker.terminate();
+    startPython();
+}
+
+// Pošle zprávu workeru a počká na odpověď; po limitu worker ukončí a vrátí {timeout: true}.
+function pyCall(message) {
+    return new Promise((resolve) => {
+        const id = ++pyCallId;
+        const timer = setTimeout(() => {
+            pyPending = null;
+            restartPython();
+            resolve({ timeout: true });
+        }, PY_LIMIT_MS);
+        pyPending = { id, resolve, timer };
+        pyWorker.postMessage({ ...message, id });
+    });
+}
+
+startPython();
 
 $("hint-button").addEventListener("click", () => {
     if (!currentTask) return;
@@ -766,25 +826,27 @@ $("code-editor").addEventListener("keydown", (e) => {
 
 $("run-button").addEventListener("click", async () => {
     if (!currentTask) { writeConsole("Nejdřív si vyber úkol vlevo.", "#f87171"); return; }
-    if (!pyodideReady) { writeConsole("Python se ještě načítá, chvilku počkej…", "#f87171"); return; }
+    if (!pyReady) { writeConsole("Python se ještě načítá, chvilku počkej…", "#f87171"); return; }
+    if (pyRunning) return;
 
     const task = currentTask;   // úkol, který se právě kontroluje (uživatel mezitím může kliknout jinam)
     const code = $("code-editor").value;
     $("console-output").innerHTML = "";
     $("run-spinner").classList.remove("hidden");
+    pyRunning = true;
 
     try {
-        pyodideReady.runPython("import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = sys.stdout");
-        let userError = null;
-        try {
-            pyodideReady.runPython(code);
-        } catch (e) {
-            userError = e.message.split("\n").slice(-2).join("\n");
+        const run = await pyCall({ type: "run", code: code });
+        if (run.timeout) {
+            writeConsole("Program běžel déle než 5 sekund, tak jsem ho zastavil. Nemáš někde nekonečnou smyčku? " +
+                "U while hlídej, aby se podmínka jednou přestala splňovat (třeba zmenšováním počítadla). " +
+                "Python se na chvilku restartuje, pak to zkus znovu.", "#fbbf24");
+            $("pyt-message").textContent = "Smyčka se nezastavila, ale to se stává. Podívej se, co se uvnitř while mění.";
+            return;
         }
-        const stdout = pyodideReady.runPython("sys.stdout.getvalue()");
-        if (stdout) writeConsole(stdout);
-        if (userError) {
-            writeConsole("Chyba v kódu:\n" + userError, "#f87171");
+        if (run.stdout) writeConsole(run.stdout);
+        if (run.error) {
+            writeConsole("Chyba v kódu:\n" + run.error, "#f87171");
             $("pyt-message").textContent = "Nevadí, chyby jsou normální. Zkus se podívat, na kterém řádku to zlobí.";
             return;
         }
@@ -794,11 +856,15 @@ $("run-button").addEventListener("click", async () => {
         const checkData = await checkRes.json();
         if (!checkData.ok) { writeConsole("Nepodařilo se ověřit úkol, zkus to znovu.", "#f87171"); return; }
 
-        pyodideReady.globals.set("_stdout_capture", stdout);
-        try {
-            pyodideReady.runPython(checkData.check);
-        } catch (e) {
-            writeConsole("Ještě to není ono: " + e.message.split("\n").pop(), "#fbbf24");
+        const chk = await pyCall({ type: "check", check: checkData.check });
+        if (chk.timeout) {
+            writeConsole("Kontrola trvala moc dlouho, tak jsem ji zastavil. Nejspíš některá tvoje funkce běží donekonečna. " +
+                "Python se na chvilku restartuje.", "#fbbf24");
+            $("pyt-message").textContent = "Něco se nezastavilo. Zkontroluj smyčky ve svých funkcích.";
+            return;
+        }
+        if (!chk.ok) {
+            writeConsole("Ještě to není ono: " + chk.message, "#fbbf24");
             $("pyt-message").textContent = "Skoro! Zkontroluj si zadání ještě jednou.";
             return;
         }
@@ -820,9 +886,11 @@ $("run-button").addEventListener("click", async () => {
             onTaskCompleted(task, completeData);
         }
     } finally {
+        pyRunning = false;
         $("run-spinner").classList.add("hidden");
     }
 });
+
 
 // ---- hratelná mise: Iskra ----
 let STORY_DATA = null;
