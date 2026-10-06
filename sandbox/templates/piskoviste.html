@@ -655,14 +655,23 @@ function renderLeaderboard(entries) {
     const container = $("leaderboard");
     container.innerHTML = "";
     const medals = ["🥇", "🥈", "🥉"];
+    let prev = 0;
     (entries || []).forEach((entry, i) => {
+        const rank = entry.rank || (i + 1);
+        if (prev && rank > prev + 1) {
+            const gap = document.createElement("div");
+            gap.className = "text-center text-slate-500 text-xs leading-none";
+            gap.textContent = "⋮";
+            container.appendChild(gap);
+        }
+        prev = rank;
         const isMe = state.user && entry.username.toLowerCase() === state.user.username.toLowerCase();
         const row = document.createElement("div");
         row.className = "flex items-center justify-between px-2 py-1 rounded-lg text-xs " +
             (isMe ? "bg-sky-900/50 border border-sky-500/50" : "bg-slate-900/50 border border-slate-800");
         row.innerHTML = `
             <span class="font-bold ${isMe ? "text-sky-300" : "text-slate-300"} truncate">
-                ${medals[i] || (i + 1) + "."} ${entry.username}${isMe ? " (Ty)" : ""}
+                ${medals[rank - 1] || rank + "."} ${entry.username}${isMe ? " (Ty)" : ""}
             </span>
             <span class="font-mono ${isMe ? "text-sky-200" : "text-slate-400"} shrink-0 ml-2">${entry.xp} XP</span>
         `;

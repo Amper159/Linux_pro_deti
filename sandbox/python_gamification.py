@@ -98,7 +98,27 @@ def summary(user: auth.SandboxUser) -> dict:
     }
 
 
-def leaderboard(limit: int = 10) -> List[dict]:
+LEADERBOARD_SIZE = 20
+
+
+def _with_me(entries: List[dict], me, limit: int) -> List[dict]:
+    """Očísluje pořadí; když je přihlášený hráč mimo top, připojí ho na konec se skutečným pořadím."""
+    for i, e in enumerate(entries, 1):
+        e["rank"] = i
+    top = entries[:limit]
+    if me is not None:
+        for e in entries:
+            if e["username"].lower() == me.username.lower():
+                e["me"] = True
+    if me is not None and not any(e["username"].lower() == me.username.lower() for e in top):
+        for e in entries[limit:]:
+            if e["username"].lower() == me.username.lower():
+                top.append(e)
+                break
+    return top
+
+
+def leaderboard(me=None, limit: int = LEADERBOARD_SIZE) -> List[dict]:
     entries = []
     for user in auth.all_users():
         progress = load_progress(user)
@@ -111,4 +131,4 @@ def leaderboard(limit: int = 10) -> List[dict]:
             "completed": done,
         })
     entries.sort(key=lambda e: (-e["xp"], e["username"].lower()))
-    return entries[:limit]
+    return _with_me(entries, me, limit)

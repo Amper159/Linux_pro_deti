@@ -52,7 +52,7 @@ def _state(user: auth.SandboxUser) -> dict:
         "engine": engine_kind,
         "container": container_state,
         "gamification": gamification.player_summary(user),
-        "leaderboard": gamification.leaderboard(),
+        "leaderboard": gamification.leaderboard(user),
     }
 
 
@@ -252,7 +252,7 @@ def api_check():
             "progress": progress,
             "newly_passed": newly_passed,
             "gamification": gamification.player_summary(user),
-            "leaderboard": gamification.leaderboard(),
+            "leaderboard": gamification.leaderboard(user),
             **result,
         }
     )
@@ -275,6 +275,6 @@ def api_reset():
             "cwd": user.container_home,
             "progress": {},
             "gamification": gamification.player_summary(user),
-            "leaderboard": gamification.leaderboard(),
+            "leaderboard": gamification.leaderboard(user),
         }
     )

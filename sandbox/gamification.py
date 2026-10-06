@@ -124,22 +124,37 @@ def player_summary(user: auth.SandboxUser) -> dict:
     }
 
 
-def leaderboard(limit: int = 10) -> List[dict]:
-    """Žebříček všech registrovaných hráčů podle XP (pak podle streaku)."""
+LEADERBOARD_SIZE = 20
+
+
+def leaderboard(me=None, limit: int = LEADERBOARD_SIZE) -> List[dict]:
+    """Žebříček hráčů s aspoň jedním splněným úkolem podle XP (pak podle streaku).
+    Když je přihlášený hráč mimo top, připojí se na konec se svým skutečným pořadím."""
     entries = []
     for user in auth.all_users():
         progress = auth.load_progress(user)
+        done = completed_count(progress)
+        if done == 0:
+            continue
         stats = auth.load_stats(user)
         entries.append(
             {
                 "username": user.username,
                 "xp": xp_for(progress),
-                "completed": completed_count(progress),
+                "completed": done,
                 "streak": stats.get("streak", 0),
             }
         )
     entries.sort(key=lambda e: (-e["xp"], -e["streak"], e["username"].lower()))
-    return entries[:limit]
+    for i, e in enumerate(entries, 1):
+        e["rank"] = i
+    top = entries[:limit]
+    if me is not None and not any(e["username"].lower() == me.username.lower() for e in top):
+        for e in entries[limit:]:
+            if e["username"].lower() == me.username.lower():
+                top.append(e)
+                break
+    return top
 
 
 def site_totals() -> dict:

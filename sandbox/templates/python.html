@@ -662,10 +662,27 @@ function renderLeaderboard(rows) {
         box.innerHTML = '<p class="text-[11px] text-slate-500">Zatím tu nikdo nesplnil žádný úkol.</p>';
         return;
     }
+    let prev = 0;
     rows.forEach((r, i) => {
+        const rank = r.rank || (i + 1);
+        if (rank > prev + 1 && prev) {
+            const gap = document.createElement("div");
+            gap.className = "text-center text-slate-500 text-[11px] leading-none";
+            gap.textContent = "⋮";
+            box.appendChild(gap);
+        }
+        prev = rank;
+        const isMe = !!r.me;
         const row = document.createElement("div");
-        row.className = "flex items-center justify-between text-[11px] bg-slate-800/60 rounded-lg px-2 py-1";
-        row.innerHTML = `<span class="font-bold">#${i + 1} ${r.username}</span><span class="text-yellow-300 font-bold">${r.xp} XP</span>`;
+        row.className = "flex items-center justify-between text-[11px] rounded-lg px-2 py-1 " +
+            (isMe ? "bg-sky-900/50 border border-sky-500/50" : "bg-slate-800/60");
+        const left = document.createElement("span");
+        left.className = "font-bold truncate";
+        left.textContent = `#${rank} ${r.username}${isMe ? " (Ty)" : ""}`;
+        const right = document.createElement("span");
+        right.className = "text-yellow-300 font-bold shrink-0 ml-2";
+        right.textContent = `${r.xp} XP`;
+        row.append(left, right);
         box.appendChild(row);
     });
 }

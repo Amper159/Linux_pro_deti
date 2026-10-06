@@ -87,7 +87,7 @@ def api_state():
         "prologue": PROLOGUE,
         "epilogue": EPILOGUE,
         "progress": summary,
-        "leaderboard": gamification.leaderboard(),
+        "leaderboard": gamification.leaderboard(user),
     })
 
 
@@ -123,5 +123,5 @@ def api_complete():
         "ok": True,
         "newly_completed": not already_done,
         "progress": summary,
-        "leaderboard": gamification.leaderboard(),
+        "leaderboard": gamification.leaderboard(user),
     })
