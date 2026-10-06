@@ -115,12 +115,12 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-1.5 sm:space-x-3 min-w-0">
+                <a href="/" id="logo-link" aria-label="Linuxhrou.cz - zpět nahoru" class="flex items-center space-x-1.5 sm:space-x-3 min-w-0">
                     <div class="bg-amber-400 text-slate-950 p-1 sm:p-2 rounded-xl font-bold text-sm sm:text-xl shrink-0">
                         <i class="fa-solid fa-terminal"></i>
                     </div>
                     <span class="text-sm sm:text-2xl font-black tracking-wider text-amber-400 whitespace-nowrap">Linux<span class="text-sky-400">hrou.cz</span></span>
-                </div>
+                </a>
                 <div class="flex items-center gap-1 sm:gap-2 shrink-0">
                     <a href="/python/" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition flex items-center space-x-1 sm:space-x-2 whitespace-nowrap text-xs sm:text-base shrink-0">
                         <span>🐍</span>
@@ -728,6 +728,27 @@ const TUX_GREETINGS = [
 ];
 document.getElementById('tux-homepage-msg').textContent = TUX_GREETINGS[Math.floor(Math.random() * TUX_GREETINGS.length)];
 
+</script>
+<button type="button" id="to-top" aria-label="Zpět nahoru" title="Zpět nahoru"
+    class="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 z-40 w-12 h-12 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xl shadow-lg border-b-4 border-amber-600 flex items-center justify-center transition-all duration-200 opacity-0 pointer-events-none translate-y-2">
+    <i class="fa-solid fa-arrow-up"></i>
+</button>
+<script>
+(function () {
+    var btn = document.getElementById('to-top');
+    var logo = document.getElementById('logo-link');
+    function toTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function update() {
+        var show = window.scrollY > 400;
+        btn.classList.toggle('opacity-0', !show);
+        btn.classList.toggle('pointer-events-none', !show);
+        btn.classList.toggle('translate-y-2', !show);
+    }
+    btn.addEventListener('click', toTop);
+    if (logo) logo.addEventListener('click', function (e) { e.preventDefault(); toTop(); });
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+})();
 </script>
 </body>
 </html>
