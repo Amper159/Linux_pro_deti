@@ -21,11 +21,13 @@ from pathlib import Path
 from threading import Lock
 from typing import List, Optional, Tuple
 
+from .namefilter import is_inappropriate
 from .config import (
     CONTAINER_USER_PREFIX,
     HOMES_DIR,
     PASSWORD_RESET_TTL_SECONDS,
     PROGRESS_DIR,
+    PYTHON_PROGRESS_DIR,
     SKEL_DIR,
     USERS_FILE,
     ensure_dirs,
@@ -137,6 +139,8 @@ def login_or_register(username: str, password: str, email: str = "") -> SandboxU
         record = users.get(key)
 
         if record is None:
+            if is_inappropriate(username):
+                raise AuthError("Tohle jméno není vhodné pro dětský web. Vyber si prosím jiné.")
             salt = os.urandom(16).hex()
             record = {
                 "username": username,
@@ -338,13 +342,16 @@ def delete_account(user: SandboxUser) -> None:
 
     progress_path(user).unlink(missing_ok=True)
     stats_path(user).unlink(missing_ok=True)
+    PYTHON_PROGRESS_DIR.joinpath(f"{user.uid}.json").unlink(missing_ok=True)
 
 
 def all_users() -> List[SandboxUser]:
-    """Všichni registrovaní hráči – pro výpočet žebříčku."""
+    """Všichni registrovaní hráči – pro výpočet žebříčku.
+    Účty s nevhodným jménem se do žebříčku nikdy nedostanou."""
     return [
         SandboxUser(record["username"], record["uid"])
         for record in _load_users().values()
+        if not is_inappropriate(record["username"])
     ]
 
 

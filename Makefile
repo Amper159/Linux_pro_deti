@@ -30,7 +30,7 @@ APP_URL := http://$(or $(APP_BIND),127.0.0.1):$(or $(APP_PORT),8000)
 .PHONY: help init preflight deploy update wait-healthy check-tasks smoke \
         build up up-proxy down restart ps logs logs-web logs-caddy shell config \
         dev dev-logs dev-shell dev-down dev-clean \
-        sandbox-image sandboxes clean-sandboxes backup
+        sandbox-image sandboxes clean-sandboxes backup delete-user
 
 help:  ## Show this help
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -236,3 +236,7 @@ backup:  ## Archive SANDBOX_DATA into BACKUP_DIR (accounts, homes, progress)
 	tar -czf $(BACKUP_DIR)/sandbox_data-$$(date +%Y%m%d-%H%M%S).tar.gz \
 		-C $$(dirname $(SANDBOX_DATA)) $$(basename $(SANDBOX_DATA))
 	ls -lh $(BACKUP_DIR) | tail -1
+
+delete-user:  ## Permanently delete an account: make delete-user USER_NAME=name
+	@test -n "$(USER_NAME)" || { echo "usage: make delete-user USER_NAME=name"; exit 1; }
+	@$(COMPOSE) exec web python -m sandbox.admin delete "$(USER_NAME)"
