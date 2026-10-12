@@ -80,9 +80,6 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
         .font-mono { font-family: 'Fira Code', monospace; }
         .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
         .card-hover:hover { transform: translateY(-4px); }
-        @media (max-width: 1023px) {
-            #demo-input { font-size: 16px !important; }
-        }
 
     body { font-family: 'Quicksand', sans-serif; background-color: #0f172a; color: #f8fafc; }
     .font-mono { font-family: 'Fira Code', monospace; }
@@ -191,7 +188,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     })();
     </script>
 
-    <!-- ============ HERO + ŽIVÁ STATISTIKA + MINI TERMINÁL ============ -->
+    <!-- ============ HERO + ŽIVÁ STATISTIKA ============ -->
     <header class="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 py-14 px-4 border-b border-slate-800">
         <div class="max-w-6xl mx-auto">
 
@@ -200,7 +197,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     🚀 Vzdělávací portál pro malé i velké SysAdminy
                 </span>
                 <h1 class="text-4xl md:text-6xl font-black text-slate-100 leading-tight">
-                    Ovládni počítač jako superfrajer pomocí <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400">Příkazové Řádky!</span>
+                    Ovládni počítač jako superfrajer pomocí <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400">příkazové řádky!</span>
                 </h1>
                 <p class="text-slate-400 text-base md:text-lg font-medium">
                     Zjisti, jak funguje operační systém, na kterém běží rakety SpaceX, Android v mobilu i nejrychlejší superpočítače světa.
@@ -229,29 +226,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <div class="mt-10 max-w-2xl mx-auto bg-slate-900 rounded-2xl border-2 border-sky-500/40 shadow-lg shadow-sky-500/5 overflow-hidden">
-                <div class="bg-slate-800 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 border-b-2 border-slate-700">
-                    <div class="flex items-center space-x-2 min-w-0">
-                        <span class="w-3 h-3 rounded-full bg-rose-500 shrink-0"></span>
-                        <span class="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
-                        <span class="w-3 h-3 rounded-full bg-emerald-400 shrink-0"></span>
-                        <span class="text-[11px] font-bold text-slate-400 ml-1 sm:ml-2 font-mono truncate">
-                            <span class="hidden sm:inline">ukázka – zkus to na nečisto</span>
-                            <span class="sm:hidden">ukázka</span>
-                        </span>
-                    </div>
-                    <span class="text-[9px] sm:text-[10px] font-bold text-sky-400 uppercase tracking-wide shrink-0 bg-sky-500/10 sm:bg-transparent px-2 py-0.5 sm:px-0 sm:py-0 rounded-full">bez přihlášení</span>
-                </div>
-                <div id="demo-output" class="p-3 sm:p-4 font-mono text-[13px] sm:text-[12px] text-left text-slate-300 min-h-[92px] leading-relaxed break-words"></div>
-                <div class="flex items-center px-3 sm:px-4 py-3 bg-slate-950 border-t-2 border-slate-700">
-                    <span class="font-mono text-emerald-400 font-bold mr-2 shrink-0">~$</span>
-                    <input id="demo-input" type="text" autocomplete="off" spellcheck="false"
-                        class="flex-1 min-w-0 bg-transparent font-mono text-[13px] sm:text-[12px] text-slate-100 focus:outline-none"
-                        placeholder="zkus: ls, pwd, help">
-                </div>
-            </div>
-
-            <div class="pt-8 flex flex-wrap justify-center gap-4">
+            <div class="pt-10 flex flex-wrap justify-center gap-4">
                 <a href="/piskoviste/" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-8 py-4 rounded-2xl border-b-4 border-amber-600 active:translate-y-1 transition text-lg flex items-center space-x-3 shadow-lg shadow-amber-400/10">
                     <i class="fa-solid fa-rocket"></i>
                     <span>Vstoupit do skutečného terminálu</span>
@@ -269,7 +244,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <div class="p-2 bg-blue-500/10 rounded-lg text-blue-400 text-xl">🐍</div>
                 <h2 class="text-2xl font-bold text-slate-100">Python Lab: zahraj si přímo v prohlížeči</h2>
             </div>
-            <a href="/python/" class="text-xs font-bold text-blue-400 hover:underline">Celý Python Lab (30+ úloh) →</a>
+            <a href="/python/" class="text-xs font-bold text-blue-400 hover:underline">Celý Python Lab (35 úloh) →</a>
         </div>
         <p class="text-slate-400 text-sm max-w-2xl">
             Tři hry, žádné přihlášení potřeba. U každého rozhodnutí navíc uvidíš, jak by se to dalo napsat v Pythonu -
@@ -322,7 +297,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="text-4xl tux-idle shrink-0">🐧</div>
             <div class="bg-slate-800 rounded-xl px-4 py-3 speech-bubble border-2 border-slate-700">
                 <p class="text-sm font-semibold text-slate-100" id="tux-homepage-msg">
-                    Ahoj! Já jsem Tux a provedu tě celým Linuxhrou.cz. Klidně si nejdřív zkus terminál nahoře – nic tím nerozbiješ!
+                    Ahoj! Já jsem Tux a provedu tě celým Linuxhrou.cz. Klidně se rovnou pusť do terminálu – nic tím nerozbiješ!
                 </p>
             </div>
         </div>
@@ -360,19 +335,19 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     <div class="w-14 h-14 rounded-full bg-sky-500/20 flex items-center justify-center text-2xl mb-3 mx-auto border-2 border-sky-400">🛰️</div>
                     <h3 class="text-center font-bold text-sky-300">1. Základy Linuxu</h3>
                     <p class="text-center text-[11px] text-slate-400 mt-1">30 úkolů</p>
-                    <p class="text-xs text-slate-300 mt-3 text-center">Procházení příkazové řádky, první soubory a složky, orientace v lodi.</p>
+                    <p class="text-xs text-slate-300 mt-3 text-center">Orientace v lodi, první soubory a složky, hledání v textu a úklid.</p>
                 </div>
                 <div class="bg-slate-900 rounded-2xl border-2 border-slate-700 p-5 card-hover opacity-90">
                     <div class="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl mb-3 mx-auto border-2 border-slate-700">📡</div>
                     <h3 class="text-center font-bold text-emerald-300">2. Soubory a sítě</h3>
                     <p class="text-center text-[11px] text-slate-400 mt-1">30 úkolů</p>
-                    <p class="text-xs text-slate-300 mt-3 text-center">Práva k souborům, hledání textu, propojování příkazů dohromady.</p>
+                    <p class="text-xs text-slate-300 mt-3 text-center">Kopírování a přejmenování souborů, hledání souborů, čtení začátků a konců souborů, spouštění skriptů.</p>
                 </div>
                 <div class="bg-slate-900 rounded-2xl border-2 border-slate-700 p-5 card-hover opacity-90">
                     <div class="w-14 h-14 rounded-full bg-amber-500/20 flex items-center justify-center text-2xl mb-3 mx-auto border-2 border-slate-700">🚀</div>
                     <h3 class="text-center font-bold text-amber-300">3. Mistr systému</h3>
                     <p class="text-center text-[11px] text-slate-400 mt-1">30 úkolů</p>
-                    <p class="text-xs text-slate-300 mt-3 text-center">Procesy, pokročilá správa – staneš se kapitánem stanice TUX-1.</p>
+                    <p class="text-xs text-slate-300 mt-3 text-center">Procesy, paměť, archivy, zkratky a informace o systému – staneš se kapitánem stanice TUX-1.</p>
                 </div>
             </div>
         </div>
@@ -410,7 +385,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
     <section id="instalace" class="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 p-8 rounded-3xl border border-slate-800 space-y-6">
         <div class="max-w-3xl space-y-3">
             <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Kouzlo Terminálu</span>
-            <h2 class="text-3xl font-black text-slate-100">Instalace aplikací během 2 sekund</h2>
+            <h2 class="text-3xl font-black text-slate-100">Instalace aplikací jedním příkazem</h2>
             <p class="text-slate-300 text-sm leading-relaxed">
                 Na Windows musíš hledat webové stránky, stahovat .exe soubory a proklikávat instalátory. V Linuxu stačí otevřít terminál a napsat jediný příkaz:
             </p>
@@ -418,13 +393,13 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="grid md:grid-cols-2 gap-4">
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2">
                 <div class="text-slate-500">// Ubuntu / Debian (Apt)</div>
-                <div class="text-emerald-400"><span class="text-sky-400">sudo apt</span> install vlc discord steam</div>
-                <div class="text-slate-400 text-[11px]">--> Nainstaluje VLC prehrávač, Discord a Steam najednou!</div>
+                <div class="text-emerald-400"><span class="text-sky-400">sudo apt</span> install vlc gimp inkscape</div>
+                <div class="text-slate-400 text-[11px]">--> Nainstaluje přehrávač VLC a editory GIMP a Inkscape najednou!</div>
             </div>
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs space-y-2">
                 <div class="text-slate-500">// Aktualizace celého systému</div>
                 <div class="text-emerald-400"><span class="text-sky-400">sudo apt</span> update && <span class="text-sky-400">sudo apt</span> upgrade</div>
-                <div class="text-slate-400 text-[11px]">--> Zaktualizuje všechny programy v počítači 1 kliknutím!</div>
+                <div class="text-slate-400 text-[11px]">--> Zaktualizuje všechny programy v počítači jedním příkazem!</div>
             </div>
         </div>
     </section>
@@ -502,24 +477,24 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
         <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
             <div class="bg-slate-900 rounded-xl p-3 border-2 border-amber-400 text-center card-hover">
-                <i class="fa-solid fa-terminal text-xl text-amber-300 mb-1"></i>
-                <p class="text-[10px] font-bold text-amber-200">První kroky</p>
+                <i class="fa-solid fa-compass text-xl text-amber-300 mb-1"></i>
+                <p class="text-[10px] font-bold text-amber-200">Průzkumník</p>
             </div>
             <div class="bg-slate-900 rounded-xl p-3 border-2 border-amber-400 text-center card-hover">
-                <i class="fa-solid fa-folder-tree text-xl text-amber-300 mb-1"></i>
-                <p class="text-[10px] font-bold text-amber-200">Mistr složek</p>
+                <i class="fa-solid fa-gamepad text-xl text-amber-300 mb-1"></i>
+                <p class="text-[10px] font-bold text-amber-200">Gamer</p>
             </div>
             <div class="bg-slate-900 rounded-xl p-3 border-2 border-amber-400 text-center card-hover">
-                <i class="fa-solid fa-magnifying-glass text-xl text-amber-300 mb-1"></i>
-                <p class="text-[10px] font-bold text-amber-200">Lovec textu</p>
+                <i class="fa-solid fa-wrench text-xl text-amber-300 mb-1"></i>
+                <p class="text-[10px] font-bold text-amber-200">Technik</p>
             </div>
             <div class="bg-slate-900 rounded-xl p-3 border-2 border-slate-700 text-center opacity-50">
                 <i class="fa-solid fa-lock text-xl text-slate-500 mb-1"></i>
-                <p class="text-[10px] font-bold text-slate-400">Síťový expert</p>
+                <p class="text-[10px] font-bold text-slate-400">Pokročilý</p>
             </div>
             <div class="bg-slate-900 rounded-xl p-3 border-2 border-slate-700 text-center opacity-50">
                 <i class="fa-solid fa-lock text-xl text-slate-500 mb-1"></i>
-                <p class="text-[10px] font-bold text-slate-400">Kapitán procesů</p>
+                <p class="text-[10px] font-bold text-slate-400">Guru</p>
             </div>
             <div class="bg-slate-900 rounded-xl p-3 border-2 border-slate-700 text-center opacity-50">
                 <i class="fa-solid fa-lock text-xl text-slate-500 mb-1"></i>
@@ -669,7 +644,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 
 <script>
 
-// ---- bod 1: živá statistika (nasimulovaná, jen pro náhled) ----
+// ---- bod 1: živá statistika (skutečná čísla ze serveru) ----
 function animateCount(id, target, suffix) {
     const el = document.getElementById(id);
     let cur = 0;
@@ -685,40 +660,9 @@ animateCount('stat-total-visitors', {{ visits_total }});
 animateCount('stat-tasks', {{ total_completed }});
 animateCount('stat-xp', {{ total_xp }});
 
-// ---- bod 2: mini terminál nanečisto ----
-const demoOut = document.getElementById('demo-output');
-const demoIn = document.getElementById('demo-input');
-const DEMO_RESPONSES = {
-    'ls': 'ukoly.txt  hesla_TAJNE.txt  poznamky/  lod_TUX1/',
-    'pwd': '/domov/kadet',
-    'whoami': 'kadet_na_zkousku',
-    'help': 'Zkus: ls, pwd, whoami. Plnou verzi s desítkami příkazů najdeš po vstupu do pískoviště →',
-};
-function demoWrite(text, cls) {
-    const line = document.createElement('div');
-    if (cls) line.className = cls;
-    line.textContent = text;
-    demoOut.appendChild(line);
-    demoOut.scrollTop = demoOut.scrollHeight;
-}
-demoWrite('Tohle je ukázka nanečisto – zkus si napsat příkaz 👇', 'text-slate-500');
-demoIn.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    const cmd = demoIn.value.trim();
-    demoIn.value = '';
-    if (!cmd) return;
-    const echo = document.createElement('div');
-    echo.className = 'break-words';
-    echo.innerHTML = '<span class="text-emerald-400 font-bold">~$</span> ' + cmd.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    demoOut.appendChild(echo);
-    const resp = DEMO_RESPONSES[cmd.toLowerCase()];
-    demoWrite(resp || `Tenhle příkaz zkus rovnou ve skutečném pískovišti →`, resp ? 'text-slate-300' : 'text-amber-400');
-    demoOut.scrollTop = demoOut.scrollHeight;
-});
-
 // ---- bod 5: rotující fakta ----
 const FACTS = [
-    'Slovo „Linux" vzniklo náhodou – Linus Torvalds chtěl svůj projekt pojmenovat „Freax", ale správce serveru mu tam založil složku „linux" a název se ujal.',
+    'Slovo „Linux“ vzniklo náhodou – Linus Torvalds chtěl svůj projekt pojmenovat „Freax“, ale správce serveru mu tam založil složku „linux“ a název se ujal.',
     'Maskota Tuxe navrhl Larry Ewing v roce 1996 v programu GIMP – tedy v programu, který sám běží na Linuxu.',
     'Mezinárodní vesmírná stanice ISS přešla v roce 2013 z Windows na Linux kvůli stabilitě.',
     '100 % z 500 nejvýkonnějších superpočítačů světa běží na Linuxu.',
@@ -745,7 +689,7 @@ setInterval(() => { factIdx = (factIdx + 1) % FACTS.length; showFact(factIdx); }
 
 // ---- bod 6: Tux hláška se mění při načtení ----
 const TUX_GREETINGS = [
-    'Ahoj! Já jsem Tux a provedu tě celým Linuxhrou.cz. Klidně si nejdřív zkus terminál nahoře – nic tím nerozbiješ!',
+    'Ahoj! Já jsem Tux a provedu tě celým Linuxhrou.cz. Klidně se rovnou pusť do terminálu – nic tím nerozbiješ!',
     'Vítej na palubě, kadete! Nejdřív se mrkni na mapu kampaní, ať víš, co tě čeká.',
     'Psst, věděl jsi, že dole najdeš i vtipná fakta o Linuxu? Podívej se na ně!',
 ];
@@ -853,6 +797,8 @@ def home():
     return resp
 
 
+PRIVACY_UPDATED = "2026-10-12"
+
 PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -877,9 +823,12 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="card p-5 space-y-2">
         <h2 class="font-bold text-lg text-sky-300">Jaké údaje ukládáme</h2>
         <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
-            <li>Uživatelské jméno, které si sám/sama zvolíš při přihlášení do pískoviště (klidně smyšlené).</li>
+            <li>Uživatelské jméno, které si sám/sama zvolíš při přihlášení (klidně smyšlené). Jeden účet platí v Pískovišti, Python Labu i SQL Labu.</li>
             <li>Heslo - nikdy ne v čitelné podobě, jen jeho jednosměrně zahashovaný otisk (scrypt + sůl). Ani my ho nedokážeme zpětně přečíst.</li>
-            <li>Tvůj postup v úkolech, odznaky a XP.</li>
+            <li>E-mail, ale jen pokud ho při přihlášení vyplníš (nepovinné). Slouží výhradně k poslání odkazu na obnovu zapomenutého hesla. Děti ať ho vyplňují jen po domluvě s rodiči.</li>
+            <li>Tvůj postup v úkolech, odznaky a XP ve všech třech částech webu.</li>
+            <li>Soubory, které si vytvoříš v domovské složce Pískoviště.</li>
+            <li>Technickou cookie, která tě drží přihlášeného.</li>
             <li>Anonymní cookie s náhodným ID pro počítadlo návštěvnosti (víme jen "kolik různých lidí" přišlo, ne kdo).</li>
             <li>Pokud pošleš zprávu přes formulář na hlavní stránce: text zprávy a jméno/přezdívka, pokud ji vyplníš (nepovinné). Kontakt (e-mail nebo telefon), pokud ho uvedeš - u dotazu ze školy a obecného dotazu je povinný, u ostatních zpráv nepovinný - a používá se jen k odpovědi na tu jednu zprávu. Děti ať kontakt vyplňují jen po domluvě s rodiči. Vidí to jen provozovatel webu, nikde se to veřejně nezobrazuje.</li>
         </ul>
@@ -889,7 +838,7 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
         <h2 class="font-bold text-lg text-emerald-300">Co NEsbíráme a neděláme</h2>
         <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
             <li>Žádné reklamy ani sledovací cookies třetích stran (Google Analytics, Facebook Pixel apod.).</li>
-            <li>Žádný prodej ani sdílení dat s nikým třetím.</li>
+            <li>Žádný prodej dat a žádné sdílení s nikým třetím. Jedinou výjimkou je technické odeslání e-mailu (obnova hesla, zpráva z formuláře) přes poštovní službu Resend.</li>
             <li>Pískoviště (kontejner, ve kterém pracuješ) nemá přístup k internetu - nic z něj nemůže nikam uniknout.</li>
         </ul>
     </div>
@@ -897,8 +846,8 @@ PRIVACY_HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="card p-5 space-y-2">
         <h2 class="font-bold text-lg text-amber-300">Smazání účtu</h2>
         <p class="text-sm text-slate-300">
-            V pískovišti dole na stránce najdeš odkaz "Chci trvale smazat svůj účet a všechna data" -
-            smaže se tím okamžitě a nevratně účet, postup i domovská složka. Můžeš také napsat přes formulář na hlavní stránce (volba „Dotaz / jiné“).
+            V Pískovišti dole na stránce najdeš odkaz "Chci trvale smazat svůj účet a všechna data" -
+            smaže se tím okamžitě a nevratně účet, postup ve všech třech částech webu i domovská složka. Můžeš také napsat přes formulář na hlavní stránce (volba „Dotaz / jiné“).
         </p>
     </div>
 
@@ -957,8 +906,7 @@ def api_feedback():
 
 @app.route("/soukromi")
 def privacy():
-    from datetime import date
-    return render_template_string(PRIVACY_HTML_TEMPLATE, updated=date.today().isoformat())
+    return render_template_string(PRIVACY_HTML_TEMPLATE, updated=PRIVACY_UPDATED)
 
 
 @app.route("/favicon.svg")

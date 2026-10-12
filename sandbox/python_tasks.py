@@ -52,7 +52,7 @@ PYTHON_TASKS = [
         "goal": "Vytvoř proměnnou cislo = 7. Pomocí if/else vypiš 'sude' pokud je sudé, jinak 'liche'.",
         "starter_code": "cislo = 7\n\n",
         "hint": 'cislo = 7\nif cislo % 2 == 0:\n    print("sude")\nelse:\n    print("liche")',
-        "check": 'assert "liche" in _stdout_capture, "Číslo 7 je liché - měl by ses vypsat \'liche\'"',
+        "check": 'assert "liche" in _stdout_capture, "Číslo 7 je liché - mělo by se vypsat \'liche\'"',
     },
     {
         "id": 6, "set": 1,
@@ -257,7 +257,7 @@ PYTHON_TASKS = [
         "id": 24, "set": 4,
         "title": "Smyčka ve smyčce",
         "tip": "Smyčky se dají vnořit jedna do druhé - třeba pro tabulku nebo mřížku.",
-        "story": "Trup stanice kontroluju po sektorech: řádek po řádku a v každém sektor po sektoru. Smyčka ve smyčce.",
+        "story": "Trup stanice kontroluju po sektorech: řádek po řádku a v každém řádku sektor po sektoru. Smyčka ve smyčce.",
         "victory": "Všechny čtyři sektory jsou prohledané.",
         "goal": "Pomocí dvou vnořených for smyček vypiš všechny dvojice (i, j) pro i i j v range(1, 3) ve formátu 'i-j' (celkem 4 řádky: 1-1, 1-2, 2-1, 2-2).",
         "starter_code": "\n",

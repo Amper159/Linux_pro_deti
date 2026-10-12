@@ -92,7 +92,7 @@ DANGEROUS_PATTERNS = [
     (re.compile(r"\brm\b[^|;&]*\s(-[a-zA-Z]*[rRf][a-zA-Z]*\s+)*/(\s|$)"), "Mazání celého kořenového adresáře '/' by smazalo úplně všechno."),
     (re.compile(r"\brm\b[^|;&]*\s/(bin|etc|usr|lib|sbin|var|boot|dev|proc|sys)\b"), "Mazání systémových složek by pískoviště rozbilo."),
     (re.compile(r">\s*/dev/(sd|nvme|hd|mmc)"), "Zápis přímo na disk je moc riskantní."),
-    (re.compile(r">\s*/(etc|bin|usr|lib|sbin|boot|proc|sys)/"), "Zápis do systémových složek by pískoviště rozbil."),
+    (re.compile(r">\s*/(etc|bin|usr|lib|sbin|boot|proc|sys)/"), "Zápis do systémových složek by pískoviště rozbilo."),
     (re.compile(r"\bwhile\s+true\b|\bwhile\s+:\s*;"), "Nekonečná smyčka by ti zablokovala terminál."),
     (re.compile(r"/dev/(zero|urandom|random)\b[^|]*>"), "Zaplňování disku náhodnými daty by pískoviště zahltilo."),
 ]

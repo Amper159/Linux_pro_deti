@@ -423,7 +423,7 @@ for j in ["Ema", "Tomas"]:
 
         <div id="dungeon-intro" class="text-center space-y-3">
             <p class="text-sm text-slate-300 leading-relaxed">
-                Vstupuješ do staré kobky. Čeká tě 6 místností plných příšer, pastí i pokladů,
+                Vstupuješ do staré kobky. Čeká tě 9 místností plných příšer, pastí i pokladů,
                 a nakonec strážce hlubin. Přežiješ a dostaneš se ven?
             </p>
             <button id="dungeon-start" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-5 py-2.5 rounded-xl border-b-4 border-rose-800 active:translate-y-1 transition text-sm">
@@ -922,6 +922,15 @@ async function loadStory() {
     if (data.ok) STORY_DATA = data.story;
 }
 
+const STORY_ENDINGS = {
+    vitezstvi: "Vítězství",
+    vitezstvi_rychle: "Rychlé vítězství",
+    stroj_opatrne: "Opatrné zastavení stroje",
+    vitezstvi_tym: "Vítězství týmu",
+    unik_bez_planu: "Únik bez plánu",
+    prohra: "Prohra",
+};
+
 function renderStoryNode(nodeId) {
     storyCurrentNode = nodeId;
     const node = STORY_DATA[nodeId];
@@ -932,7 +941,7 @@ function renderStoryNode(nodeId) {
     if (node.ending) {
         $("story-code-box").classList.add("hidden");
         $("story-ending-box").classList.remove("hidden");
-        $("story-ending-label").textContent = "🏁 Konec: " + node.ending;
+        $("story-ending-label").textContent = "🏁 Konec: " + (STORY_ENDINGS[node.ending] || node.ending);
         confettiBurst(50);
         return;
     }

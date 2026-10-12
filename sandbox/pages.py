@@ -218,7 +218,7 @@ COMMAND_GROUPS = [
      "items": [
         {"cmd": "tar", "label": "balení a rozbalování archivů",
          "what": "Spojí více souborů do jednoho archivu (přípona .tar). S parametrem z je navíc zkomprimuje (.tar.gz).",
-         "examples": [("tar -czf archiv2.tar.gz slozka", "zabalí složku (c = vytvořit, z = komprimovat, f = název souboru)"),
+         "examples": [("tar -czf archiv.tar.gz slozka", "zabalí složku (c = vytvořit, z = komprimovat, f = název souboru)"),
                       ("tar -xzf archiv.tar.gz", "rozbalí archiv (x = rozbalit)")]},
         {"cmd": "gzip", "label": "komprese souboru",
          "what": "Zkomprimuje jeden soubor. Původní soubor se nahradí komprimovaným.",

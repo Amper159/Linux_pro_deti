@@ -129,7 +129,7 @@ def login_or_register(username: str, password: str, email: str = "") -> SandboxU
             "Jméno smí mít 3–24 znaků a jen písmena, číslice, tečku, pomlčku nebo podtržítko."
         )
     if len(password) < MIN_PASSWORD_LENGTH:
-        raise AuthError(f"Heslo musí mít aspoň {MIN_PASSWORD_LENGTH} znaky.")
+        raise AuthError(f"Heslo musí mít aspoň {MIN_PASSWORD_LENGTH} znaků.")
     if email and not EMAIL_RE.match(email):
         raise AuthError("E-mail nevypadá platně – zkontroluj ho, nebo pole nech prázdné.")
 
@@ -204,7 +204,7 @@ def reset_password(token: str, new_password: str) -> SandboxUser:
     if not token:
         raise AuthError("Odkaz na obnovu hesla je neplatný nebo už byl použit.")
     if len(new_password) < MIN_PASSWORD_LENGTH:
-        raise AuthError(f"Heslo musí mít aspoň {MIN_PASSWORD_LENGTH} znaky.")
+        raise AuthError(f"Heslo musí mít aspoň {MIN_PASSWORD_LENGTH} znaků.")
 
     token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
 

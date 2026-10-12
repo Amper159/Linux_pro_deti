@@ -39,7 +39,7 @@ STORY = {
                  "ke staré elektrárně.",
         "options": [
             (1, "Sledovat kabely až k elektrárně", "elektrarna"),
-            (2, "Stopa naopak vede zpátky k továrně", "tovarna"),
+            (2, "Vydat se naopak zpátky k továrně", "tovarna"),
         ],
     },
     "tovarna_potichu": {
@@ -53,7 +53,7 @@ STORY = {
     "tovarna_primo": {
         "text": "Vtrhneš dovnitř - a spustíš past! Energetická síť tě spoutá k zemi.",
         "options": [
-            (1, "Zkusit se vysílit z pasti vlastní silou", "boj_past"),
+            (1, "Zkusit se z pasti vyprostit vlastní silou", "boj_past"),
             (2, "Zkusit Stína přelstít slovy a získat čas", "trik"),
         ],
     },
@@ -79,7 +79,7 @@ STORY = {
         ],
     },
     "vypnout_stroj": {
-        "text": "Saháš po hlavnímu vypínači stroje...",
+        "text": "Saháš po hlavním vypínači stroje...",
         "options": [
             (1, "Vypnout ho okamžitě", "END_vitezstvi_rychle"),
             (2, "Nejdřív najít bezpečný způsob, jak ho zastavit", "END_stroj_opatrne"),

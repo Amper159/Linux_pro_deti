@@ -1003,7 +1003,7 @@ TASKS = [
         "cmd_name": "head",
         "title": "Nahlédni na začátek",
         "story": "Nemusíš číst celý soubor – stačí první řádky.",
-        "goal": "Vypiš prvních 1 řádky souboru 'data/posadka.txt' (head -n 1) do 'prvni2.txt'.",
+        "goal": "Vypiš první řádek souboru 'data/posadka.txt' (head -n 1) do 'prvni2.txt'.",
         "hint": "cd ~\nhead -n 1 data/posadka.txt > prvni2.txt",
         "commands": [
             "head",
@@ -1078,7 +1078,7 @@ TASKS = [
         "cmd_name": "tail",
         "title": "Nahlédni na konec",
         "story": "A co poslední řádky souboru?",
-        "goal": "Vypiš posledních 1 řádky souboru 'data/posadka.txt' (tail -n 1) do 'posledni2.txt'.",
+        "goal": "Vypiš poslední řádek souboru 'data/posadka.txt' (tail -n 1) do 'posledni2.txt'.",
         "hint": "cd ~\ntail -n 1 data/posadka.txt > posledni2.txt",
         "commands": [
             "tail",

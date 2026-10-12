@@ -14,4 +14,4 @@ Užitečné příkazy na začátek:
   echo "ahoj" > a.txt   zapíše text do souboru
   chmod +x s.sh         povolí spouštění skriptu
 
-Tři úkoly najdeš v panelu vpravo. Hodně štěstí, kadete!
+Úkoly najdeš v panelu vpravo. Hodně štěstí, kadete!

@@ -102,7 +102,7 @@ INSERT INTO zpravy VALUES
     (4, 8,  '20:40', 'Můj pokus v laboratoři potřebuje hodně energie. Moc hodně.'),
     (5, 8,  '23:10', 'Pokus běží. Nikdo se nesmí dozvědět, odkud jsem energii vzal.'),
     (6, 10, '23:17', 'V reaktorové hale je prázdný stojan! Krystal tam není!'),
-    (7, 7,  '21:55', 'Viktor je dnes nějaký nervózní.'),
+    (7, 7,  '21:55', 'Viktor je dnes nějak nervózní.'),
     (8, 3,  '21:05', 'Ošetřovna zavírá, dobrou noc.');
 """
 
