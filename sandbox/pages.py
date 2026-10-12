@@ -75,6 +75,18 @@ ARTICLES = [
         "card_title": "SQL pro začátečníky",
         "card": "Příkazy SELECT, WHERE, ORDER BY, COUNT, GROUP BY a JOIN rozepsané jeden po druhém, s taháčkem.",
     },
+    {
+        "key": "klavesnice",
+        "path": "/klavesove-zkratky-a-znaky/",
+        "template": "articles/klavesnice.html",
+        "title": "Klávesové zkratky a jak napsat speciální znaky | Linuxhrou.cz",
+        "h1": "Klávesové zkratky a speciální znaky: jak se píšou na české klávesnici",
+        "crumb": "Klávesnice a znaky",
+        "description": "Jak napsat zavináč, lomítko, svislou čáru, složené závorky a další znaky na české klávesnici. Obrázek klávesnice, tabulka znaků a nejdůležitější klávesové zkratky.",
+        "icon": "🔣",
+        "card_title": "Klávesové zkratky a speciální znaky",
+        "card": "Obrázek české klávesnice, kde je zavináč, svislá čára nebo složené závorky, a zkratky, které ušetří čas.",
+    },
 ]
 
 # ---------------------------------------------------------------- instalace
@@ -324,6 +336,66 @@ PY_EXAMPLES = {
     "err_zero": {"code": "print(10 / 0)", "error": "ZeroDivisionError: division by zero"},
 }
 
+# ---------------------------------------------------------------- klávesnice
+# České rozložení QWERTZ. Znaky na AltGr (pravý Alt) a na Shift jsou ověřené proti
+# rozložení "cz" v xkb (Linux) a shodují se s Windows. Klávesy: (hlavní znak, znak se Shiftem, znak s AltGr).
+KB_ROWS = [
+    # (šířka klávesy v jednotkách, popisek) nebo (šířka, hlavní, shift, altgr)
+    [(1, ";", "°", ""), (1, "+", "1", ""), (1, "ě", "2", ""), (1, "š", "3", ""), (1, "č", "4", ""),
+     (1, "ř", "5", ""), (1, "ž", "6", ""), (1, "ý", "7", ""), (1, "á", "8", ""), (1, "í", "9", ""),
+     (1, "é", "0", ""), (1, "=", "%", ""), (1, "´", "ˇ", ""), (2, "Backspace")],
+    [(1.5, "Tab"), (1, "Q", "", "\\"), (1, "W", "", "|"), (1, "E", "", "€"), (1, "R", "", ""),
+     (1, "T", "", ""), (1, "Z", "", ""), (1, "U", "", ""), (1, "I", "", ""), (1, "O", "", ""),
+     (1, "P", "", ""), (1, "ú", "/", ""), (1, ")", "(", "")],
+    [(1.75, "Caps Lock"), (1, "A", "", ""), (1, "S", "", ""), (1, "D", "", ""), (1, "F", "", "["),
+     (1, "G", "", "]"), (1, "H", "", ""), (1, "J", "", ""), (1, "K", "", ""), (1, "L", "", ""),
+     (1, "ů", "\"", "$"), (1, "§", "!", ""), (1, "¨", "'", "")],
+    [(2.25, "Shift"), (1, "Y", "", ""), (1, "X", "", "#"), (1, "C", "", "&"), (1, "V", "", "@"),
+     (1, "B", "", "{"), (1, "N", "", "}"), (1, "M", "", ""), (1, ",", "?", "<"), (1, ".", ":", ">"),
+     (1, "-", "_", "*"), (2.75, "Shift")],
+    [(1.25, "Ctrl"), (1.25, "Win"), (1.25, "Alt"), (6.25, "Mezerník"), (1.25, "AltGr", "ALTGR"),
+     (1.25, "Win"), (1.25, "Menu"), (1.25, "Ctrl")],
+]
+
+
+def keyboard_svg():
+    """Obrázek české klávesnice. AltGr znaky jsou žlutě, Shift znaky modře."""
+    from markupsafe import Markup, escape
+    u, gap = 44, 4
+    out = []
+    y = 0
+    for row in KB_ROWS:
+        x = 0
+        for key in row:
+            w = key[0] * u - gap
+            label = key[1]
+            shift = key[2] if len(key) > 2 else ""
+            alt = key[3] if len(key) > 3 else ""
+            special = len(key) <= 2 or shift == "ALTGR"
+            if shift == "ALTGR":
+                cls, shift = "k kalt", ""
+            elif alt:
+                cls = "k kalt"
+            else:
+                cls = "k"
+            out.append(f'<rect class="{cls}" x="{x}" y="{y}" width="{w}" height="{u - gap}" rx="6"/>')
+            if special:
+                small = ' style="font-size:11px"' if len(label) > 4 else ""
+                out.append(f'<text class="kt" x="{x + w / 2}" y="{y + 25}" text-anchor="middle"{small}>{escape(label)}</text>')
+            else:
+                out.append(f'<text class="kt" x="{x + 7}" y="{y + 34}">{escape(label)}</text>')
+                if shift:
+                    out.append(f'<text class="ks" x="{x + 7}" y="{y + 16}">{escape(shift)}</text>')
+                if alt:
+                    out.append(f'<text class="ka" x="{x + w - 7}" y="{y + 34}" text-anchor="end">{escape(alt)}</text>')
+            x += key[0] * u
+        y += u
+    svg = (f'<svg class="kbd" viewBox="0 0 {15 * u - gap} {5 * u - gap}" role="img" '
+           'aria-label="Česká klávesnice. Žlutě jsou znaky na pravém Altu (AltGr), modře znaky se Shiftem.">'
+           + "".join(out) + "</svg>")
+    return Markup(svg)
+
+
 # ---------------------------------------------------------------- SQL
 # Příklady se při zobrazení stránky skutečně spustí nad databází SQL Labu (sql_data.py),
 # takže výsledky pod nimi jsou vždy pravdivé. Co příkaz dělá, vysvětluje text v šabloně.
@@ -424,6 +496,8 @@ def _extra_context(key):
         return {"ex": PY_EXAMPLES}
     if key == "sql":
         return {"ex": sql_example_results(), "cheatsheet": SQL_CHEATSHEET}
+    if key == "klavesnice":
+        return {"kb_svg": keyboard_svg()}
     return {}
 
 

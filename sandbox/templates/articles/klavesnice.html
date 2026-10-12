@@ -1,0 +1,151 @@
+{% extends "articles/base.html" %}
+
+{% block head_extra %}
+<style>
+.kbwrap{background:var(--panel);border:1px solid var(--line);border-radius:1rem;padding:.8rem;margin:1rem 0}
+.kbd{display:block;width:100%;height:auto}
+.kbd .k{fill:#16233d;stroke:#2b3b5c;stroke-width:1.5}
+.kbd .kalt{fill:#2a2008;stroke:#a67c12}
+.kbd .kt{fill:#e2e8f0;font:700 16px Quicksand,system-ui,sans-serif}
+.kbd .ks{fill:#7dd3fc;font:700 12px Quicksand,system-ui,sans-serif}
+.kbd .ka{fill:#fbbf24;font:700 15px Quicksand,system-ui,sans-serif}
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;font-size:.9rem;color:var(--muted);margin:.6rem .2rem 0}
+.legend b.s{color:#7dd3fc}.legend b.a{color:var(--amber)}
+kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:#1e2d4a;color:#f1f5f9;border:1px solid #3a4d73;border-bottom-width:3px;border-radius:.4rem;padding:.05em .45em;white-space:nowrap}
+.ch{font-size:1.25rem;font-weight:700;color:var(--amber);text-align:center}
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="lead">V terminálu i při programování pořád potřebuješ znaky, které na české klávesnici nejsou vidět: zavináč, svislou čáru, lomítka nebo složené závorky. Tady je vidíš na obrázku i v tabulce, a k tomu najdeš zkratky, které ti ušetří spoustu klikání.</p>
+
+<nav class="toc" aria-label="Obsah návodu"><strong>Obsah</strong>
+<ol>
+<li><a href="#obrazek">Česká klávesnice na obrázku</a></li>
+<li><a href="#altgr">Co je AltGr a jak se s ním píše</a></li>
+<li><a href="#znaky">Tabulka speciálních znaků</a></li>
+<li><a href="#hacky">Háčky, čárky a velká písmena</a></li>
+<li><a href="#zkratky">Nejužitečnější klávesové zkratky</a></li>
+<li><a href="#terminal">Zkratky v terminálu</a></li>
+<li><a href="#problemy">Když to nefunguje</a></li>
+</ol></nav>
+
+<h2 id="obrazek">Česká klávesnice na obrázku</h2>
+<p>Na většině kláves jsou jen dva znaky, ale ve skutečnosti jich mají víc. <span style="color:#7dd3fc"><strong>Modrý</strong></span> znak napíšeš s podrženým <kbd>Shift</kbd>, <span style="color:var(--amber)"><strong>žlutý</strong></span> s podrženým pravým <kbd>Alt</kbd>, kterému se říká <kbd>AltGr</kbd>.</p>
+<div class="kbwrap">
+{{ kb_svg }}
+<div class="legend"><span><b class="s">modře</b> = Shift + klávesa</span><span><b class="a">žlutě</b> = AltGr + klávesa</span></div>
+</div>
+<div class="note"><strong>Pozor na čísla</strong>Na české klávesnici v horní řadě napíšeš bez Shiftu písmena s háčky a čárkami (ě, š, č, ...). Číslice se píšou se <kbd>Shift</kbd>: třeba <kbd>Shift</kbd> + <kbd>č</kbd> je 4.</div>
+
+<h2 id="altgr">Co je AltGr a jak se s ním píše</h2>
+<p><kbd>AltGr</kbd> je pravý <kbd>Alt</kbd>, ten vedle mezerníku. Podržíš ho a zmáčkneš druhou klávesu. Příklad: zavináč je <kbd>AltGr</kbd> + <kbd>V</kbd>, tedy podržíš pravý Alt a klepneš na V.</p>
+<p>Na Windows jde místo AltGr použít i dvojici <kbd>Ctrl</kbd> + levý <kbd>Alt</kbd>. Hodí se, když ti pravý Alt chybí nebo nefunguje.</p>
+
+<h2 id="znaky">Tabulka speciálních znaků</h2>
+<p>Znaky, které se v terminálu a programování používají nejčastěji:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Znak</th><th>Jak se jmenuje</th><th>Jak ho napsat</th><th>K čemu se hodí</th></tr></thead>
+<tbody>
+<tr><td class="ch">@</td><td>zavináč</td><td><kbd>AltGr</kbd> + <kbd>V</kbd></td><td>e-maily</td></tr>
+<tr><td class="ch">#</td><td>mřížka</td><td><kbd>AltGr</kbd> + <kbd>X</kbd></td><td>komentáře v Pythonu, hashtagy</td></tr>
+<tr><td class="ch">&amp;</td><td>ampersand</td><td><kbd>AltGr</kbd> + <kbd>C</kbd></td><td>spuštění na pozadí (<code>sleep 20 &amp;</code>)</td></tr>
+<tr><td class="ch">|</td><td>svislá čára (roura)</td><td><kbd>AltGr</kbd> + <kbd>W</kbd></td><td>spojení příkazů (<code>ls | wc -l</code>)</td></tr>
+<tr><td class="ch">\</td><td>zpětné lomítko</td><td><kbd>AltGr</kbd> + <kbd>Q</kbd></td><td>cesty ve Windows</td></tr>
+<tr><td class="ch">/</td><td>lomítko</td><td><kbd>Shift</kbd> + <kbd>ú</kbd></td><td>cesty v Linuxu (<code>/home/kadet</code>)</td></tr>
+<tr><td class="ch">{ }</td><td>složené závorky</td><td><kbd>AltGr</kbd> + <kbd>B</kbd> a <kbd>AltGr</kbd> + <kbd>N</kbd></td><td>slovníky v Pythonu, f-řetězce</td></tr>
+<tr><td class="ch">[ ]</td><td>hranaté závorky</td><td><kbd>AltGr</kbd> + <kbd>F</kbd> a <kbd>AltGr</kbd> + <kbd>G</kbd></td><td>seznamy v Pythonu</td></tr>
+<tr><td class="ch">( )</td><td>kulaté závorky</td><td><code>(</code> je <kbd>Shift</kbd> + <kbd>)</kbd>, <code>)</code> je samotná klávesa <kbd>)</kbd></td><td>funkce, <code>print()</code></td></tr>
+<tr><td class="ch">&lt; &gt;</td><td>menší a větší</td><td><kbd>AltGr</kbd> + <kbd>,</kbd> a <kbd>AltGr</kbd> + <kbd>.</kbd></td><td>přesměrování (<code>&gt;</code>), porovnávání</td></tr>
+<tr><td class="ch">*</td><td>hvězdička</td><td><kbd>AltGr</kbd> + <kbd>-</kbd></td><td>zástupný znak (<code>ls *.txt</code>), násobení</td></tr>
+<tr><td class="ch">$</td><td>dolar</td><td><kbd>AltGr</kbd> + <kbd>ů</kbd></td><td>proměnné v terminálu</td></tr>
+<tr><td class="ch">€</td><td>euro</td><td><kbd>AltGr</kbd> + <kbd>E</kbd></td><td>ceny</td></tr>
+<tr><td class="ch">_</td><td>podtržítko</td><td><kbd>Shift</kbd> + <kbd>-</kbd></td><td>názvy proměnných a souborů (<code>muj_soubor</code>)</td></tr>
+<tr><td class="ch">%</td><td>procento</td><td><kbd>Shift</kbd> + <kbd>=</kbd></td><td>zbytek po dělení v Pythonu, LIKE v SQL</td></tr>
+<tr><td class="ch">"</td><td>uvozovky</td><td><kbd>Shift</kbd> + <kbd>ů</kbd></td><td>texty v Pythonu a terminálu</td></tr>
+<tr><td class="ch">'</td><td>apostrof</td><td><kbd>Shift</kbd> + <kbd>¨</kbd></td><td>texty v SQL (<code>'energetika'</code>)</td></tr>
+<tr><td class="ch">!</td><td>vykřičník</td><td><kbd>Shift</kbd> + <kbd>§</kbd></td><td>nerovná se (<code>!=</code>)</td></tr>
+<tr><td class="ch">?</td><td>otazník</td><td><kbd>Shift</kbd> + <kbd>,</kbd></td><td>běžné psaní</td></tr>
+<tr><td class="ch">:</td><td>dvojtečka</td><td><kbd>Shift</kbd> + <kbd>.</kbd></td><td>za <code>if</code>, <code>for</code>, <code>def</code> v Pythonu</td></tr>
+<tr><td class="ch">=</td><td>rovnítko</td><td><kbd>=</kbd> (vedle <kbd>é</kbd>)</td><td>přiřazení do proměnné</td></tr>
+<tr><td class="ch">+</td><td>plus</td><td><kbd>+</kbd> (vlevo od <kbd>ě</kbd>)</td><td>sčítání</td></tr>
+</tbody></table></div>
+
+<h3 id="tilda">Vlnovka, stříška a obrácený apostrof</h3>
+<p>Tyhle tři znaky se píšou jinak podle systému. Na Windows jsou stříška a obrácený apostrof takzvané <strong>mrtvé klávesy</strong>: po stisku se na obrazovce hned neobjeví a objeví se až po další klávese. Proto po nich zmáčkni ještě <kbd>Mezerník</kbd>.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Znak</th><th>Jak se jmenuje</th><th>Linux</th><th>Windows</th><th>K čemu se hodí</th></tr></thead>
+<tbody>
+<tr><td class="ch">~</td><td>vlnovka (tilda)</td><td><kbd>AltGr</kbd> + <kbd>A</kbd></td><td><kbd>AltGr</kbd> + <kbd>1</kbd></td><td>domovská složka (<code>cd ~</code>)</td></tr>
+<tr><td class="ch">^</td><td>stříška</td><td><kbd>AltGr</kbd> + <kbd>M</kbd></td><td><kbd>AltGr</kbd> + <kbd>3</kbd>, pak <kbd>Mezerník</kbd></td><td>mocnina, regulární výrazy</td></tr>
+<tr><td class="ch">`</td><td>obrácený apostrof</td><td><kbd>AltGr</kbd> + <kbd>H</kbd></td><td><kbd>AltGr</kbd> + <kbd>7</kbd>, pak <kbd>Mezerník</kbd></td><td>kód v Markdownu</td></tr>
+</tbody></table></div>
+<p class="src">Postup pro Windows si můžeš ověřit na dotykové klávesnici (zkratka <kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>O</kbd>): po podržení <kbd>AltGr</kbd> se na ní ukážou znaky, které klávesy skrývají.</p>
+
+<h2 id="hacky">Háčky, čárky a velká písmena</h2>
+<ul>
+<li><strong>Většina písmen s diakritikou má vlastní klávesu</strong> v horní řadě: ě, š, č, ř, ž, ý, á, í, é a také ú, ů.</li>
+<li><strong>ď, ť, ň, ó</strong> vlastní klávesu nemají. Píšou se ve dvou krocích: nejdřív háček <kbd>Shift</kbd> + <kbd>´</kbd> (klávesa vedle <kbd>=</kbd>) a pak písmeno. Například <kbd>Shift</kbd> + <kbd>´</kbd>, potom <kbd>n</kbd> je ň. Pro ó zmáčkni samotnou <kbd>´</kbd> (čárka) a potom <kbd>o</kbd>.</li>
+<li><strong>Velká písmena s diakritikou</strong> (Č, Ř, Ž): zapni <kbd>Caps Lock</kbd>, napiš písmeno a vypni ho. Se <kbd>Shift</kbd> by se totiž napsala číslice.</li>
+</ul>
+
+<h2 id="zkratky">Nejužitečnější klávesové zkratky</h2>
+<p>Na Macu se místo <kbd>Ctrl</kbd> používá většinou <kbd>Cmd</kbd>. Ostatní zkratky platí na Windows i Linuxu.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Zkratka</th><th>Mac</th><th>Co udělá</th></tr></thead>
+<tbody>
+<tr><td><kbd>Ctrl</kbd> + <kbd>C</kbd></td><td><kbd>Cmd</kbd> + <kbd>C</kbd></td><td>zkopíruje označené</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>X</kbd></td><td><kbd>Cmd</kbd> + <kbd>X</kbd></td><td>vyjme označené (zkopíruje a smaže)</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>V</kbd></td><td><kbd>Cmd</kbd> + <kbd>V</kbd></td><td>vloží zkopírované</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td><td><kbd>Cmd</kbd> + <kbd>Z</kbd></td><td>vrátí poslední změnu zpět</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>Y</kbd></td><td><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></td><td>vrátí zpět vrácené (znovu)</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>A</kbd></td><td><kbd>Cmd</kbd> + <kbd>A</kbd></td><td>označí všechno</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td><kbd>Cmd</kbd> + <kbd>S</kbd></td><td>uloží soubor</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>F</kbd></td><td><kbd>Cmd</kbd> + <kbd>F</kbd></td><td>hledání na stránce nebo v dokumentu</td></tr>
+<tr><td><kbd>Alt</kbd> + <kbd>Tab</kbd></td><td><kbd>Cmd</kbd> + <kbd>Tab</kbd></td><td>přepne mezi otevřenými okny</td></tr>
+<tr><td><kbd>Alt</kbd> + <kbd>F4</kbd></td><td><kbd>Cmd</kbd> + <kbd>Q</kbd></td><td>zavře aktuální program</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>T</kbd></td><td><kbd>Cmd</kbd> + <kbd>T</kbd></td><td>nový panel v prohlížeči</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>W</kbd></td><td><kbd>Cmd</kbd> + <kbd>W</kbd></td><td>zavře panel</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd></td><td><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd></td><td>znovu otevře omylem zavřený panel</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>L</kbd></td><td><kbd>Cmd</kbd> + <kbd>L</kbd></td><td>označí adresní řádek prohlížeče</td></tr>
+<tr><td><kbd>F5</kbd></td><td><kbd>Cmd</kbd> + <kbd>R</kbd></td><td>znovu načte stránku</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd> / <kbd>0</kbd></td><td><kbd>Cmd</kbd> + <kbd>+</kbd> / <kbd>-</kbd> / <kbd>0</kbd></td><td>zvětší, zmenší a vrátí velikost stránky</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>←</kbd> / <kbd>→</kbd></td><td><kbd>Alt</kbd> + <kbd>←</kbd> / <kbd>→</kbd></td><td>skočí kurzorem o celé slovo</td></tr>
+<tr><td><kbd>Shift</kbd> + šipky</td><td><kbd>Shift</kbd> + šipky</td><td>označuje text po písmenech</td></tr>
+<tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td><kbd>Cmd</kbd> + <kbd>←</kbd> / <kbd>→</kbd></td><td>skočí na začátek a konec řádku</td></tr>
+<tr><td><kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>4</kbd></td><td>výstřižek obrazovky (Windows, Mac). Na Linuxu klávesa <kbd>Print Screen</kbd></td></tr>
+</tbody></table></div>
+
+<h2 id="terminal">Zkratky v terminálu</h2>
+<p>Terminál má vlastní zkratky. Pozor: <kbd>Ctrl</kbd> + <kbd>C</kbd> tu nekopíruje, ale přeruší běžící příkaz. Kopírování a vkládání v terminálu na Linuxu je proto <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> a <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Zkratka</th><th>Co udělá</th></tr></thead>
+<tbody>
+<tr><td><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd></td><td>otevře terminál (na většině distribucí Linuxu)</td></tr>
+<tr><td><kbd>Tab</kbd></td><td>doplní název souboru nebo složky</td></tr>
+<tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>listuje dříve zadanými příkazy</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>C</kbd></td><td>přeruší příkaz, který běží nebo se zasekl</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>L</kbd></td><td>vyčistí obrazovku (stejně jako <code>clear</code>)</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>A</kbd> / <kbd>Ctrl</kbd> + <kbd>E</kbd></td><td>skočí na začátek a na konec napsaného řádku</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>U</kbd></td><td>smaže napsaný řádek před kurzorem</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>W</kbd></td><td>smaže poslední slovo před kurzorem</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>R</kbd></td><td>hledání v historii příkazů</td></tr>
+<tr><td><kbd>Ctrl</kbd> + <kbd>D</kbd></td><td>ukončí terminál (stejně jako <code>exit</code>)</td></tr>
+</tbody></table></div>
+<p>Příkazy si můžeš procvičit v <a href="/piskoviste/">Pískovišti</a>, kde je skutečný terminál v prohlížeči.</p>
+
+<h2 id="problemy">Když to nefunguje</h2>
+<ul>
+<li><strong>Místo @ se objeví jiný znak.</strong> Máš nejspíš zapnutou anglickou klávesnici. Na Windows ji přepneš klávesami <kbd>Win</kbd> + <kbd>Mezerník</kbd>, v pravém dolním rohu je vidět, jaký jazyk je zrovna zapnutý (CES je česká).</li>
+<li><strong>Čísla se píšou místo písmen s háčky.</strong> Je zapnutý <kbd>Caps Lock</kbd>. Vypni ho.</li>
+<li><strong>Písmena Z a Y jsou prohozená.</strong> Máš zapnutou anglickou klávesnici (QWERTY). Česká je QWERTZ.</li>
+<li><strong>Notebook nemá pravý Alt.</strong> Na Windows zkus <kbd>Ctrl</kbd> + <kbd>Alt</kbd> (levý).</li>
+</ul>
+
+<div class="cta">
+<h2>Procvič si psaní příkazů</h2>
+<p>V Pískovišti napíšeš příkazy se znaky <kbd>&gt;</kbd> a <kbd>~</kbd> na vlastní klávesnici a hned uvidíš, jestli to funguje.</p>
+<a class="btn btn-green" href="/piskoviste/">Otevřít Pískoviště</a>
+<a class="btn btn-amber" href="/linux-prikazy/">Taháček příkazů</a>
+</div>
+{% endblock %}
