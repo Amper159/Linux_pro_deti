@@ -43,6 +43,10 @@
         #sql-editor { font-size: 16px; }
         @media (min-width: 1024px) { #sql-editor { font-size: 14px; } }
         @keyframes pop { 0% { transform: scale(.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        #confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+        .confetti-piece { position: absolute; top: -16px; opacity: .95; animation: confetti-fall linear forwards; }
+        @keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: .3; } }
+        @media (prefers-reduced-motion: reduce) { #confetti-layer { display: none; } }
         .pop { animation: pop .25s ease-out; }
         .result-table th { background: #134e4a; color: #99f6e4; position: sticky; top: 0; }
         .result-table th, .result-table td { padding: 4px 10px; border-bottom: 1px solid #1e293b; text-align: left; white-space: nowrap; }
@@ -110,6 +114,8 @@
         </button>
     </div>
 </header>
+
+<div id="confetti-layer"></div>
 
 <!-- ============ OBSAH ============ -->
 <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-w-0">
@@ -530,6 +536,28 @@ $("hint-button").addEventListener("click", async () => {
     if (data.ok) $("sql-editor").value = data.hint;
 });
 
+// ---- konfety ----
+function confettiBurst(count = 60) {
+    const layer = $("confetti-layer");
+    if (!layer) return;
+    const colors = ["#2dd4bf", "#facc15", "#4ade80", "#fb7185", "#a78bfa", "#38bdf8"];
+    for (let i = 0; i < count; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        const w = 6 + Math.random() * 6;
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.width = w + "px";
+        piece.style.height = (w * 1.6) + "px";
+        piece.style.borderRadius = Math.random() < 0.3 ? "50%" : "2px";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (2 + Math.random() * 1.8) + "s";
+        piece.style.animationDelay = (Math.random() * 0.4) + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        layer.appendChild(piece);
+        setTimeout(() => piece.remove(), 4500);
+    }
+}
+
 function taskSolved(data) {
     const task = current;
     applyProgress(data.progress, data.leaderboard);
@@ -539,6 +567,12 @@ function taskSolved(data) {
     const allDone = TASKS.every((t) => COMPLETED.includes(t.id));
     const gain = data.newly_completed ? " (+50 XP)" : "";
     showFeedback("ok", `✅ Správně${gain}! Pyt: ${task.victory}`);
+    // konfety: malé za každý dotaz, větší za kapitolu, největší za celý případ
+    if (data.newly_completed) {
+        if (allDone) { confettiBurst(220); setTimeout(() => confettiBurst(160), 700); }
+        else if (chapterDone) confettiBurst(130);
+        else confettiBurst(30);
+    }
     renderTaskList();
 
     const goNext = () => {
