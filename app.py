@@ -123,6 +123,10 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                     <span class="text-sm sm:text-2xl font-black tracking-wider text-amber-400 whitespace-nowrap">Linux<span class="text-sky-400">hrou.cz</span></span>
                 </a>
                 <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+                    <a href="/sql/" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border-b-4 border-teal-700 active:translate-y-0.5 transition flex items-center space-x-1 sm:space-x-2 whitespace-nowrap text-xs sm:text-base shrink-0">
+                        <span>🕵️</span>
+                        <span class="hidden sm:inline">SQL</span>
+                    </a>
                     <a href="/python/" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-extrabold px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border-b-4 border-blue-700 active:translate-y-0.5 transition flex items-center space-x-1 sm:space-x-2 whitespace-nowrap text-xs sm:text-base shrink-0">
                         <span>🐍</span>
                         <span class="hidden sm:inline">PYTHON</span>
@@ -142,6 +146,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition whitespace-nowrap">Kde všude běží?</a>
                 <a href="#navody" class="text-slate-300 hover:text-emerald-400 transition whitespace-nowrap">Návody</a>
                 <a href="#python-hry" class="text-blue-400 hover:text-blue-300 transition whitespace-nowrap">🎮 Hry v Pythonu</a>
+                <a href="#sql-pripad" class="text-teal-400 hover:text-teal-300 transition whitespace-nowrap">🕵️ SQL detektivka</a>
                 <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition whitespace-nowrap">Odznaky</a>
                 <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition whitespace-nowrap">Pro rodiče</a>
                 <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition whitespace-nowrap">Slovník příkazů</a>
@@ -152,6 +157,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <a href="#kde-bezi" class="text-slate-300 hover:text-sky-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Kde všude běží?</a>
                 <a href="#navody" class="text-slate-300 hover:text-emerald-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Návody</a>
                 <a href="#python-hry" class="text-blue-400 hover:text-blue-300 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">🎮 Hry v Pythonu</a>
+                <a href="#sql-pripad" class="text-teal-400 hover:text-teal-300 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">🕵️ SQL detektivka</a>
                 <a href="#odznaky" class="text-slate-300 hover:text-amber-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Odznaky</a>
                 <a href="#pro-rodice" class="text-slate-300 hover:text-rose-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Pro rodiče</a>
                 <a href="#prikazy" class="text-slate-300 hover:text-purple-400 transition px-2 py-2.5 rounded-lg hover:bg-slate-800/60">Slovník příkazů</a>
@@ -287,6 +293,22 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
                 <p class="text-xs text-slate-400 mt-1">Klasická slovní hra se slovíčky z Pythonu a postavami z ostatních her.</p>
             </a>
         </div>
+    </section>
+
+    <section id="sql-pripad" class="bg-gradient-to-r from-teal-950/40 via-slate-900 to-sky-950/40 rounded-3xl border-2 border-teal-500/30 p-6 md:p-8 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-teal-500/10 rounded-lg text-teal-400 text-xl">🕵️</div>
+                <h2 class="text-2xl font-bold text-slate-100">SQL Lab: vyřeš případ zmizelého krystalu</h2>
+            </div>
+            <a href="/sql/" class="text-xs font-bold text-teal-400 hover:underline">Otevřít SQL Lab (23 úloh) →</a>
+        </div>
+        <p class="text-slate-400 text-sm max-w-2xl">
+            Na vesmírné stanici TUX-1 zmizel hlavní krystal. Jediná stopa je v archivu s daty a ty z něj
+            pomocí dotazů <b class="text-slate-200">SELECT</b> vytáhneš, kdo ho vzal. Každý správný dotaz posune příběh o krok dál.
+            Naučíš se filtrovat, řadit, počítat, seskupovat i spojovat tabulky. Bez instalace, zdarma v prohlížeči.
+        </p>
+        <a href="/sql/" class="inline-block bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold px-5 py-3 rounded-xl border-b-4 border-teal-700 active:translate-y-0.5 transition text-sm">🕵️ Zahájit vyšetřování</a>
     </section>
 
     <!-- bod 6: Tux mluví i na homepage -->

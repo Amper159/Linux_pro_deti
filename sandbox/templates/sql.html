@@ -354,7 +354,7 @@ function showFeedback(kind, text) {
 function hideFeedback() { $("feedback").className = "hidden"; }
 function hideResult() { $("result-card").classList.add("hidden"); }
 
-function selectTask(task) {
+function selectTask(task, skipIntro) {
     current = task;
     const ch = chapterFor(task);
     $("task-chapter").textContent = ch ? `Kapitola ${CHAPTERS.indexOf(ch) + 1}: ${ch.title}` : "";
@@ -366,7 +366,12 @@ function selectTask(task) {
     $("hint-button").classList.remove("hidden");
     hideFeedback(); hideResult();
     renderTaskList();
-    // úvod kapitoly při prvním vstupu do jejího prvního úkolu
+    if (!skipIntro) maybeChapterIntro(task);
+}
+
+// úvod kapitoly při prvním vstupu do jejího prvního úkolu
+function maybeChapterIntro(task) {
+    const ch = chapterFor(task);
     if (ch && TASKS.find((t) => t.set === ch.set).id === task.id && !seen("intro" + ch.set) && !COMPLETED.includes(task.id)) {
         markSeen("intro" + ch.set);
         narrate(`Kapitola ${CHAPTERS.indexOf(ch) + 1}: ${ch.title}`, ch.intro, "Jdeme na to");
@@ -578,10 +583,13 @@ async function loadState() {
     renderSchema();
     applyProgress(data.progress, data.leaderboard);
     const next = nextTask();
-    if (next) selectTask(next); else selectTask(TASKS[TASKS.length - 1]);
+    const target = next || TASKS[TASKS.length - 1];
     if (!seen("prolog") && data.progress.completed === 0) {
         markSeen("prolog");
-        narrate("Případ zmizelého krystalu", PROLOGUE, "Otevřít archiv");
+        selectTask(target, true);
+        narrate("Případ zmizelého krystalu", PROLOGUE, "Otevřít archiv", () => maybeChapterIntro(target));
+    } else {
+        selectTask(target);
     }
     return true;
 }
