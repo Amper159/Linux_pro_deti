@@ -56,10 +56,10 @@ def _translate_error(exc: Exception, query: str) -> str:
     low = text.lower()
     if "no such table" in low:
         name = text.split(":")[-1].strip()
-        return f"Tabulka „{name}“ v archivu neexistuje. Podívej se na seznam tabulek vpravo."
+        return f"Tabulka „{name}“ v archivu neexistuje. Zkontroluj název tabulky."
     if "no such column" in low:
         name = text.split(":")[-1].strip()
-        return f"Sloupec „{name}“ jsem nenašel. Zkontroluj název sloupce v seznamu tabulek vpravo."
+        return f"Sloupec „{name}“ jsem nenašel. Zkontroluj název sloupce a u textu nezapomeň na apostrofy."
     if "ambiguous column" in low:
         name = text.split(":")[-1].strip()
         return f"Sloupec „{name}“ je ve více tabulkách. Napiš před něj název tabulky, třeba posadka.id."

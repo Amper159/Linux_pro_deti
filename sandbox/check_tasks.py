@@ -224,6 +224,18 @@ def over_sql_lab() -> int:
     for sada in {t["set"] for t in SQL_TASKS} - sady:
         chyba(f"sada {sada} nemá kapitolu")
 
+    # 3) příklady v návodu /sql-zaklady/: platné dotazy vrací řádky, jen err_tabulka a err_apostrof mají selhat
+    from sandbox.pages import sql_example_results
+    ocekavana_chyba = {"err_tabulka", "err_apostrof"}
+    for klic, p in sql_example_results().items():
+        if klic in ocekavana_chyba:
+            if not p["error"]:
+                chyba(f"návod SQL: příklad '{klic}' měl selhat, ale prošel")
+        elif p["error"]:
+            chyba(f"návod SQL: příklad '{klic}' selhal ({p['error']})")
+        elif not p["rows"]:
+            chyba(f"návod SQL: příklad '{klic}' nevrací žádné řádky")
+
     print(f"SQL Lab: zkontrolováno úkolů {len(SQL_TASKS)}, kapitol {len(CHAPTERS)}, chyb {chyb}")
     return chyb
 

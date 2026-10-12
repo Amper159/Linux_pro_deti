@@ -63,6 +63,18 @@ ARTICLES = [
         "card_title": "Python pro začátečníky",
         "card": "Proměnné, podmínky, smyčky a funkce s příklady a vysvětlením častých chyb.",
     },
+    {
+        "key": "sql",
+        "path": "/sql-zaklady/",
+        "template": "articles/sql_zaklady.html",
+        "title": "SQL pro začátečníky – příkaz SELECT krok za krokem | Linuxhrou.cz",
+        "h1": "SQL pro začátečníky: základní příkazy s příklady, které si můžeš hned vyzkoušet",
+        "crumb": "Základy SQL",
+        "description": "SQL srozumitelně: SELECT, WHERE, ORDER BY, LIKE, COUNT, GROUP BY a JOIN na vymyšlené databázi. Každý příkaz je vysvětlený a doplněný skutečným výsledkem.",
+        "icon": "🕵️",
+        "card_title": "SQL pro začátečníky",
+        "card": "Příkazy SELECT, WHERE, ORDER BY, COUNT, GROUP BY a JOIN rozepsané jeden po druhém, s taháčkem.",
+    },
 ]
 
 # ---------------------------------------------------------------- instalace
@@ -312,6 +324,74 @@ PY_EXAMPLES = {
     "err_zero": {"code": "print(10 / 0)", "error": "ZeroDivisionError: division by zero"},
 }
 
+# ---------------------------------------------------------------- SQL
+# Příklady se při zobrazení stránky skutečně spustí nad databází SQL Labu (sql_data.py),
+# takže výsledky pod nimi jsou vždy pravdivé. Co příkaz dělá, vysvětluje text v šabloně.
+SQL_EXAMPLES = {
+    "select_all": "SELECT *\nFROM posadka",
+    "select_cols": "SELECT jmeno, role\nFROM posadka",
+    "limit": "SELECT jmeno\nFROM posadka\nLIMIT 3",
+    "where_text": "SELECT jmeno, role\nFROM posadka\nWHERE oddeleni = 'energetika'",
+    "where_cislo": "SELECT jmeno, vek\nFROM posadka\nWHERE vek > 40",
+    "and": "SELECT jmeno\nFROM posadka\nWHERE oddeleni = 'energetika'\n  AND role = 'technik'",
+    "or": "SELECT jmeno, oddeleni\nFROM posadka\nWHERE oddeleni = 'laborator'\n  OR oddeleni = 'zdravi'",
+    "in": "SELECT jmeno, oddeleni\nFROM posadka\nWHERE oddeleni IN ('laborator', 'zdravi')",
+    "like": "SELECT jmeno\nFROM posadka\nWHERE jmeno LIKE 'B%'",
+    "between": "SELECT jmeno, vek\nFROM posadka\nWHERE vek BETWEEN 30 AND 40",
+    "order": "SELECT jmeno, vek\nFROM posadka\nORDER BY vek",
+    "order_desc": "SELECT jmeno, vek\nFROM posadka\nORDER BY vek DESC\nLIMIT 3",
+    "distinct": "SELECT DISTINCT oddeleni\nFROM posadka",
+    "count": "SELECT COUNT(*)\nFROM posadka",
+    "count_where": "SELECT COUNT(*)\nFROM posadka\nWHERE oddeleni = 'energetika'",
+    "avg": "SELECT AVG(vek), MIN(vek), MAX(vek)\nFROM posadka",
+    "sum": "SELECT SUM(mnozstvi)\nFROM zasoby\nWHERE kategorie = 'energie'",
+    "group": "SELECT oddeleni, COUNT(*)\nFROM posadka\nGROUP BY oddeleni",
+    "having": "SELECT oddeleni, COUNT(*)\nFROM posadka\nGROUP BY oddeleni\nHAVING COUNT(*) > 2",
+    "join": "SELECT posadka.jmeno, vstupy.cas\nFROM vstupy\nJOIN posadka ON vstupy.osoba_id = posadka.id\nWHERE vstupy.mistnost_id = 2",
+    "vse": "SELECT oddeleni, COUNT(*)\nFROM posadka\nWHERE vek > 30\nGROUP BY oddeleni\nHAVING COUNT(*) > 1\nORDER BY COUNT(*) DESC\nLIMIT 2",
+    "err_apostrof": "SELECT jmeno\nFROM posadka\nWHERE oddeleni = energetika",
+    "err_tabulka": "SELECT jmeno\nFROM posadky",
+    "err_carka": "SELECT jmeno role\nFROM posadka",
+}
+
+# (příkaz, co dělá, příklad) pro taháček na konci návodu
+SQL_CHEATSHEET = [
+    ("SELECT", "vybere, které sloupce chceš vidět (hvězdička * znamená všechny)", "SELECT jmeno, vek"),
+    ("FROM", "řekne, z které tabulky se čte", "FROM posadka"),
+    ("WHERE", "nechá jen řádky, které splní podmínku", "WHERE vek > 30"),
+    ("AND / OR / NOT", "spojuje podmínky: obě platí / aspoň jedna platí / neplatí", "WHERE vek > 30 AND role = 'technik'"),
+    ("IN", "hodnota je jedna z vyjmenovaných", "WHERE oddeleni IN ('zdravi', 'laborator')"),
+    ("LIKE", "hledá text podle vzoru, % je libovolný text", "WHERE jmeno LIKE 'B%'"),
+    ("BETWEEN", "hodnota leží v rozsahu včetně krajů", "WHERE vek BETWEEN 30 AND 40"),
+    ("ORDER BY", "seřadí výsledek, DESC znamená od největšího", "ORDER BY vek DESC"),
+    ("LIMIT", "nechá jen prvních pár řádků", "LIMIT 3"),
+    ("DISTINCT", "každou hodnotu vypíše jen jednou", "SELECT DISTINCT oddeleni"),
+    ("COUNT", "spočítá řádky", "SELECT COUNT(*)"),
+    ("SUM / AVG", "součet / průměr čísel ve sloupci", "SELECT AVG(vek)"),
+    ("MIN / MAX", "nejmenší / největší hodnota ve sloupci", "SELECT MAX(vek)"),
+    ("GROUP BY", "slepí řádky se stejnou hodnotou do skupin", "GROUP BY oddeleni"),
+    ("HAVING", "vybere z hotových skupin, třeba podle COUNT", "HAVING COUNT(*) > 2"),
+    ("JOIN ... ON", "spojí dvě tabulky podle společné hodnoty", "JOIN posadka ON vstupy.osoba_id = posadka.id"),
+]
+
+
+def sql_example_results():
+    """Spustí všechny SQL_EXAMPLES a vrátí {klíč: {code, columns, rows, more, error}}."""
+    from .sql_engine import QueryError, run_query
+    shown = 6
+    out = {}
+    for key, code in SQL_EXAMPLES.items():
+        item = {"code": code, "columns": [], "rows": [], "more": 0, "error": ""}
+        try:
+            res = run_query(code)
+            item["columns"] = res["columns"]
+            item["rows"] = res["rows"][:shown]
+            item["more"] = max(0, len(res["rows"]) - shown)
+        except QueryError as exc:
+            item["error"] = str(exc)
+        out[key] = item
+    return out
+
 
 def _jsonld(a):
     url = SITE + a["path"]
@@ -342,6 +422,8 @@ def _extra_context(key):
         return {"groups": COMMAND_GROUPS}
     if key == "python":
         return {"ex": PY_EXAMPLES}
+    if key == "sql":
+        return {"ex": sql_example_results(), "cheatsheet": SQL_CHEATSHEET}
     return {}
 
 

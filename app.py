@@ -439,7 +439,7 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
         <p class="text-slate-400 text-sm max-w-2xl">
             Podrobné návody, které vysvětlují věci od začátku: jak vybrat a nainstalovat Linux, jaké příkazy budeš
-            potřebovat a jak začít s Pythonem.
+            potřebovat, jak začít s Pythonem a jak se ptát databáze jazykem SQL.
         </p>
         <div class="grid sm:grid-cols-2 gap-4">
             {% for a in articles %}

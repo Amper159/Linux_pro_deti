@@ -1,0 +1,165 @@
+{% extends "articles/base.html" %}
+
+{% macro dotaz(key) %}{% set e = ex[key] %}
+<pre><code>{{ e.code }}</code></pre>
+{% if e.error %}<p class="label">Chybová hláška</p><pre class="err"><code>{{ e.error }}</code></pre>
+{% else %}<p class="label">Výsledek</p>
+<div class="tablewrap"><table>
+<thead><tr>{% for c in e.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+<tbody>{% for r in e.rows %}<tr>{% for v in r %}<td>{{ v }}</td>{% endfor %}</tr>
+{% endfor %}</tbody></table></div>
+{% if e.more %}<p><small>Zobrazeno prvních {{ e.rows|length }} řádků, výsledek má o {{ e.more }} dalších.</small></p>{% endif %}
+{% endif %}{% endmacro %}
+
+{% block content %}
+<p class="lead">SQL je jazyk, kterým se ptáš databáze. Chceš vědět, kolik lidí je v týmu, kdo je nejstarší nebo kdo vešel do místnosti po desáté večer? Napíšeš dotaz a databáze odpoví tabulkou. Tenhle návod rozepisuje základní příkazy jeden po druhém: co dělají, jak se píšou a jaký dávají výsledek. Všechny výsledky níže jsou skutečné, příklady se při zobrazení stránky opravdu spouštějí. Vyzkoušet si je můžeš v <a href="/sql/">SQL Labu</a>, kde je k tomu detektivní příběh.</p>
+
+<nav class="toc" aria-label="Obsah návodu"><strong>Obsah</strong>
+<ol>
+<li><a href="#co-je-sql">Co je SQL a databáze</a></li>
+<li><a href="#ukazkova-databaze">Naše ukázková databáze</a></li>
+<li><a href="#select">SELECT a FROM: co chci vidět a odkud</a></li>
+<li><a href="#psani">Jak psát dotazy přehledně</a></li>
+<li><a href="#limit">LIMIT: jen prvních pár řádků</a></li>
+<li><a href="#where">WHERE: filtrování řádků</a></li>
+<li><a href="#logika">AND, OR a IN: víc podmínek</a></li>
+<li><a href="#like">LIKE a BETWEEN: vzory a rozsahy</a></li>
+<li><a href="#order">ORDER BY: řazení</a></li>
+<li><a href="#distinct">DISTINCT: bez opakování</a></li>
+<li><a href="#funkce">COUNT, SUM, AVG, MIN, MAX: počítání</a></li>
+<li><a href="#group">GROUP BY a HAVING: skupiny</a></li>
+<li><a href="#join">JOIN: spojení tabulek</a></li>
+<li><a href="#poradi">Pořadí částí dotazu</a></li>
+<li><a href="#chyby">Časté chyby začátečníků</a></li>
+<li><a href="#tahak">Taháček příkazů</a></li>
+<li><a href="#dal">Co dál</a></li>
+</ol></nav>
+
+<h2 id="co-je-sql">Co je SQL a databáze</h2>
+<p><strong>Databáze</strong> je uspořádaná sbírka dat. Skládá se z <strong>tabulek</strong>, podobných těm v Excelu. Každý <strong>sloupec</strong> říká, co o věcech víme (jméno, věk, role), a každý <strong>řádek</strong> je jedna věc, třeba jeden člověk. Za téměř každou aplikací stojí databáze: hra si v ní pamatuje hráče, obchod zboží a škola známky.</p>
+<p><strong>SQL</strong> (čteno „eskvéel“, zkratka Structured Query Language) je jazyk, kterým se databáze ptáme. Dotaz, který jen čte data, začíná slovem <code>SELECT</code>. SQL umí data i měnit a mazat, ale v tomhle návodu se budeme jen ptát, takže se nic nemůže rozbít.</p>
+
+<h2 id="ukazkova-databaze">Naše ukázková databáze</h2>
+<p>Příklady používají vymyšlenou databázi vesmírné stanice TUX-1. Je stejná jako v SQL Labu, takže si cokoliv odtud můžeš rovnou vyzkoušet. Má pět tabulek:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Tabulka</th><th>Co obsahuje</th><th>Sloupce</th></tr></thead>
+<tbody>
+<tr><td><code>posadka</code></td><td>lidé na stanici</td><td><code>id</code>, <code>jmeno</code>, <code>role</code>, <code>oddeleni</code>, <code>vek</code>, <code>zkusenosti</code></td></tr>
+<tr><td><code>mistnosti</code></td><td>místnosti stanice</td><td><code>id</code>, <code>nazev</code>, <code>patro</code>, <code>zamceno</code></td></tr>
+<tr><td><code>vstupy</code></td><td>záznamy z dveří</td><td><code>id</code>, <code>osoba_id</code>, <code>mistnost_id</code>, <code>cas</code></td></tr>
+<tr><td><code>zasoby</code></td><td>věci ve skladech</td><td><code>id</code>, <code>nazev</code>, <code>kategorie</code>, <code>mnozstvi</code>, <code>mistnost_id</code></td></tr>
+<tr><td><code>zpravy</code></td><td>zprávy posádky</td><td><code>id</code>, <code>osoba_id</code>, <code>cas</code>, <code>text</code></td></tr>
+</tbody></table></div>
+<p>Názvy tabulek a sloupců jsou schválně bez diakritiky, aby se daly snadno psát.</p>
+
+<h2 id="select">SELECT a FROM: co chci vidět a odkud</h2>
+<p>Základní dotaz má dvě části. <code>SELECT</code> říká, <strong>které sloupce</strong> chceš vidět, a <code>FROM</code> říká, <strong>z které tabulky</strong>. Hvězdička <code>*</code> znamená „všechny sloupce“.</p>
+{{ dotaz('select_all') }}
+<p>Když chceš jen některé sloupce, vyjmenuj je a odděl <strong>čárkou</strong>. Vypíšou se přesně v pořadí, v jakém je napíšeš.</p>
+{{ dotaz('select_cols') }}
+
+<h2 id="psani">Jak psát dotazy přehledně</h2>
+<p>SQL je jedno, jestli dotaz napíšeš na jeden řádek, nebo na pět. Pro lidi je ale mnohem přehlednější psát <strong>každou část na nový řádek</strong>: <code>SELECT</code>, <code>FROM</code>, <code>WHERE</code> a další začínají vlastním řádkem. Na první pohled vidíš, co dotaz dělá, a snáz najdeš chybu. Tak je psaný každý příklad v tomhle návodu a tak ti dotazy nabízí SQL Lab.</p>
+<div class="note"><strong>Velká a malá písmena</strong>Klíčová slova (<code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>) se zvykově píšou velkými písmeny, aby je oko odlišilo od názvů sloupců. Databázi to nevadí, funguje i <code>select</code>. Pozor na texty v apostrofech: <code>'energetika'</code> a <code>'Energetika'</code> nemusí být totéž.</div>
+
+<h2 id="limit">LIMIT: jen prvních pár řádků</h2>
+<p>Velká tabulka může mít tisíce řádků. <code>LIMIT</code> na konci dotazu nechá jen prvních pár.</p>
+{{ dotaz('limit') }}
+
+<h2 id="where">WHERE: filtrování řádků</h2>
+<p><code>WHERE</code> vybere jen řádky, které splní podmínku. Je to nejdůležitější část dotazu, protože právě ona odpovídá na otázky typu „kdo“, „kde“ nebo „kolik“. Porovnávat jde pomocí <code>=</code> (rovná se), <code>!=</code> (nerovná se), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code> a <code>&gt;=</code>. Pozor, na rozdíl od Pythonu se tu rovnost píše jedním rovnítkem.</p>
+<p><strong>Text</strong> se píše do apostrofů, <strong>čísla</strong> bez nich.</p>
+{{ dotaz('where_text') }}
+{{ dotaz('where_cislo') }}
+
+<h2 id="logika">AND, OR a IN: víc podmínek</h2>
+<p><code>AND</code> spojí dvě podmínky tak, že musí platit <strong>obě</strong>. Tady hledáme techniky, kteří zároveň pracují v energetice:</p>
+{{ dotaz('and') }}
+<p><code>OR</code> stačí, když platí <strong>aspoň jedna</strong>:</p>
+{{ dotaz('or') }}
+<p>Když chceš vybrat z několika hodnot, <code>IN</code> je kratší než řetězec <code>OR</code>. Výsledek je stejný:</p>
+{{ dotaz('in') }}
+<p>Podmínku lze také obrátit slovem <code>NOT</code>, třeba <code>WHERE NOT oddeleni = 'zdravi'</code>.</p>
+
+<h2 id="like">LIKE a BETWEEN: vzory a rozsahy</h2>
+<p><code>LIKE</code> hledá text podle vzoru. Znak <code>%</code> zastupuje libovolný text (i žádný). <code>'B%'</code> znamená „začíná na B“, <code>'%er'</code> „končí na er“ a <code>'%reaktor%'</code> „obsahuje slovo reaktor kdekoliv“.</p>
+{{ dotaz('like') }}
+<p><code>BETWEEN</code> vybere hodnoty v rozsahu, <strong>včetně krajních hodnot</strong>. Slovo <code>AND</code> je tady součástí BETWEEN, nespojuje dvě podmínky.</p>
+{{ dotaz('between') }}
+
+<h2 id="order">ORDER BY: řazení</h2>
+<p>Bez řazení se řádky vypíšou v pořadí, v jakém jsou uložené. <code>ORDER BY</code> je seřadí podle zvoleného sloupce, standardně od nejmenšího. Slovo <code>DESC</code> za sloupcem otočí řazení od největšího.</p>
+{{ dotaz('order') }}
+<p>Spojení <code>ORDER BY ... DESC</code> a <code>LIMIT</code> vytvoří žebříček. Tady tři nejstarší lidé na stanici:</p>
+{{ dotaz('order_desc') }}
+
+<h2 id="distinct">DISTINCT: bez opakování</h2>
+<p>Když se hodnota ve sloupci opakuje (v odděleních pracuje víc lidí), <code>DISTINCT</code> za slovem <code>SELECT</code> vypíše každou jen jednou.</p>
+{{ dotaz('distinct') }}
+
+<h2 id="funkce">COUNT, SUM, AVG, MIN, MAX: počítání</h2>
+<p>Místo seznamu řádků můžeš chtít jedno číslo. K tomu slouží <strong>agregační funkce</strong>:</p>
+<ul>
+<li><code>COUNT(*)</code> spočítá řádky,</li>
+<li><code>SUM(sloupec)</code> sečte čísla,</li>
+<li><code>AVG(sloupec)</code> spočítá průměr,</li>
+<li><code>MIN(sloupec)</code> a <code>MAX(sloupec)</code> najdou nejmenší a největší hodnotu.</li>
+</ul>
+{{ dotaz('count') }}
+<p>S <code>WHERE</code> se počítají jen vybrané řádky:</p>
+{{ dotaz('count_where') }}
+{{ dotaz('avg') }}
+<p>Sloupec ve funkci patří do závorky. Součet všech zásob v kategorii energie:</p>
+{{ dotaz('sum') }}
+
+<h2 id="group">GROUP BY a HAVING: skupiny</h2>
+<p><code>GROUP BY</code> slepí řádky se stejnou hodnotou do skupin a funkce jako <code>COUNT</code> se pak spočítají pro každou skupinu zvlášť. Tady kolik lidí pracuje v každém oddělení:</p>
+{{ dotaz('group') }}
+<p><code>HAVING</code> vybírá z už hotových skupin, typicky podle výsledku <code>COUNT</code>. Rozdíl oproti <code>WHERE</code>: WHERE filtruje řádky <strong>před</strong> seskupením, HAVING filtruje skupiny <strong>po</strong> seskupení.</p>
+{{ dotaz('having') }}
+
+<h2 id="join">JOIN: spojení tabulek</h2>
+<p>V databázi se data dělí do více tabulek, aby se nic neopakovalo. Tabulka <code>vstupy</code> neobsahuje jméno člověka, jen číslo <code>osoba_id</code>, které odpovídá sloupci <code>id</code> v tabulce <code>posadka</code>. <code>JOIN</code> obě tabulky spojí a za <code>ON</code> říkáš, které sloupce se musí shodovat.</p>
+<p>Když jsou v dotazu dvě tabulky, píše se před název sloupce název tabulky a tečka: <code>posadka.jmeno</code>. Databáze tak pozná, o který sloupec jde, i když se jmenuje stejně.</p>
+{{ dotaz('join') }}
+
+<h2 id="poradi">Pořadí částí dotazu</h2>
+<p>Jednotlivé části se píšou vždy ve stejném pořadí. Nemusíš použít všechny, ale ty, které použiješ, musí jít za sebou takhle:</p>
+<ol>
+<li><code>SELECT</code>: které sloupce,</li>
+<li><code>FROM</code> (a <code>JOIN</code>): z kterých tabulek,</li>
+<li><code>WHERE</code>: které řádky,</li>
+<li><code>GROUP BY</code>: jak je seskupit,</li>
+<li><code>HAVING</code>: které skupiny,</li>
+<li><code>ORDER BY</code>: jak seřadit,</li>
+<li><code>LIMIT</code>: kolik řádků nechat.</li>
+</ol>
+<p>Tady jsou všechny části v jednom dotazu. Číst ho jde po řádcích shora dolů: z posádky starší než 30 let spočítej lidi v odděleních, nech jen oddělení s víc než jedním člověkem, seřaď je od největšího a vypiš první dvě.</p>
+{{ dotaz('vse') }}
+
+<h2 id="chyby">Časté chyby začátečníků</h2>
+<p>Chyby k SQL patří a databáze většinou napíše, co je špatně.</p>
+
+<h3 id="chyba-apostrofy">Chybí apostrofy kolem textu</h3>
+<p>Bez apostrofů si databáze myslí, že <code>energetika</code> je název sloupce.</p>
+{{ dotaz('err_apostrof') }}
+
+<h3 id="chyba-tabulka">Překlep v názvu tabulky nebo sloupce</h3>
+<p>Názvy se musí shodovat přesně. Seznam tabulek a sloupců máš výše v části o ukázkové databázi.</p>
+{{ dotaz('err_tabulka') }}
+
+<h3 id="chyba-carka">Chybí čárka mezi sloupci</h3>
+<p>Tahle chyba je záludná, protože databáze nenapíše nic. Slovo za názvem sloupce bere jako jeho <strong>přezdívku</strong>, takže se vypíše jen jeden sloupec (<code>jmeno</code>, který se teď jmenuje <code>role</code>) a ten druhý chybí. Když ve výsledku vidíš míň sloupců, než jsi chtěl, zkontroluj čárky.</p>
+{{ dotaz('err_carka') }}
+
+<h2 id="tahak">Taháček příkazů</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Příkaz</th><th>Co dělá</th><th>Příklad</th></tr></thead>
+<tbody>
+{% for c in cheatsheet %}<tr><td><code>{{ c[0] }}</code></td><td>{{ c[1] }}</td><td><code>{{ c[2] }}</code></td></tr>
+{% endfor %}</tbody></table></div>
+
+<h2 id="dal">Co dál</h2>
+<p>SQL se nejlíp učí psaním dotazů. V <a href="/sql/">SQL Labu</a> na tebe čeká <strong>23 úloh</strong> s automatickou kontrolou, které na sebe navazují jako detektivka: na vesmírné stanici zmizel hlavní krystal a ty z archivu zjišťuješ, kdo ho vzal. Každý správný dotaz posune příběh o krok dál a po cestě si vyzkoušíš všechno z tohoto návodu.</p>
+<p>Pokud tě zajímá i programování, podívej se na <a href="/python-zaklady/">základy Pythonu</a>, a pokud terminál, na <a href="/linux-prikazy/">tahák příkazů Linuxu</a>.</p>
+{% endblock %}

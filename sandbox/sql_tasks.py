@@ -13,6 +13,7 @@ Pole úkolu:
   ordered  - True, když záleží na pořadí řádků
   must     - [(regex, rada)] - klíčová slova, která dotaz musí obsahovat
 """
+import re
 
 SQL_TASKS = [
     # ------------------------------------------------------------ kapitola 1
@@ -314,3 +315,20 @@ def get_task(task_id):
         if t["id"] == task_id:
             return t
     return None
+
+
+_BETWEEN_AND = re.compile(r"(\bBETWEEN\s+(?:'[^']*'|\S+))\s+AND\b", re.IGNORECASE)
+_NEW_LINE = re.compile(r"\s+(FROM|WHERE|GROUP\s+BY|HAVING|ORDER\s+BY|LIMIT|JOIN)\b", re.IGNORECASE)
+_NEW_LINE_INDENT = re.compile(r"\s+(AND|OR)\b", re.IGNORECASE)
+
+
+def format_sql(query: str) -> str:
+    """Každou část dotazu (FROM, WHERE, ORDER BY...) dá na nový řádek, AND a OR odsadí.
+    Slouží jen pro zobrazení dětem, aby se učily psát dotazy přehledně. AND uvnitř BETWEEN zůstává na řádku."""
+    q = _BETWEEN_AND.sub(lambda m: m.group(1) + " \x00", query.strip("\n"))
+    q = _NEW_LINE.sub(lambda m: "\n" + m.group(1), q)
+    q = _NEW_LINE_INDENT.sub(lambda m: "\n  " + m.group(1), q)
+    q = q.replace("\x00", "AND")
+    q = re.sub(r"[ \t]+\n", "\n", q)
+    # řádek končící klíčovým slovem je prázdné místo k doplnění, nech za ním mezeru
+    return re.sub(r"(?m)\b(SELECT|WHERE|ON|AND|OR|BY)$", r"\1 ", q)

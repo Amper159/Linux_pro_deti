@@ -8,7 +8,7 @@ from . import auth, ratelimit
 from . import sql_gamification as gamification
 from .sql_data import TABLES_INFO
 from .sql_engine import QueryError, check_result, run_query
-from .sql_tasks import CHAPTERS, EPILOGUE, PROLOGUE, SQL_TASKS, get_task
+from .sql_tasks import CHAPTERS, EPILOGUE, PROLOGUE, SQL_TASKS, format_sql, get_task
 from .routes import SESSION_USER, SESSION_UID, SESSION_SV, _client_ip
 
 bp = Blueprint(
@@ -37,7 +37,10 @@ _PUBLIC_FIELDS = ("id", "set", "title", "tip", "story", "victory", "goal", "star
 
 
 def _public_tasks():
-    return [{k: t[k] for k in _PUBLIC_FIELDS} for t in SQL_TASKS]
+    tasks = [{k: t[k] for k in _PUBLIC_FIELDS} for t in SQL_TASKS]
+    for t in tasks:
+        t["starter"] = format_sql(t["starter"])
+    return tasks
 
 
 @bp.get("/")
@@ -72,7 +75,7 @@ def api_hint(task_id):
     task = get_task(task_id)
     if task is None:
         return jsonify({"ok": False, "error": "Úkol neexistuje."}), 404
-    return jsonify({"ok": True, "hint": task["hint"]})
+    return jsonify({"ok": True, "hint": format_sql(task["hint"])})
 
 
 @bp.post("/api/run")

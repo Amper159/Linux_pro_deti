@@ -144,14 +144,14 @@
 
         <div class="bg-slate-900 rounded-2xl lego-card overflow-hidden flex flex-col">
             <div class="bg-slate-800 px-4 py-2 border-b-2 border-slate-700 flex items-center justify-between gap-2">
-                <span class="text-xs font-bold text-teal-300">Dotaz</span>
+                <span class="text-xs font-bold text-teal-300">Dotaz <span class="font-medium text-slate-400">· každou část piš na nový řádek, je to přehlednější</span></span>
                 <button id="guide-button" class="bg-slate-700 hover:bg-slate-600 text-yellow-300 font-bold px-2.5 py-1.5 rounded-lg text-[11px] border-b-2 border-slate-900 active:translate-y-0.5 transition whitespace-nowrap">
                     📖 Jak psát SQL
                 </button>
             </div>
-            <textarea id="sql-editor" rows="4" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off"
+            <textarea id="sql-editor" rows="5" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off"
                 class="w-full bg-slate-950 text-slate-100 font-mono p-3 focus:outline-none resize-y leading-relaxed"
-                placeholder="SELECT * FROM posadka"></textarea>
+                placeholder="SELECT *&#10;FROM posadka"></textarea>
             <div class="flex items-center flex-wrap gap-2 px-3 py-2 bg-slate-800 border-t-2 border-slate-700">
                 <button id="run-button" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl border-b-4 border-emerald-700 active:translate-y-1 transition text-sm">
                     ▶ Spustit dotaz
@@ -385,7 +385,7 @@ function freeMode() {
     $("task-story").textContent = "Tady si můžeš zkoušet cokoliv. Nic se nehodnotí a nic se tu nedá rozbít.";
     $("task-goal").textContent = "Vymysli si vlastní dotaz nad tabulkami vpravo a spusť ho.";
     $("task-tip").textContent = "Tip: koukni do příručky „Jak psát SQL“ nebo kliknutím na název tabulky ho vlož do dotazu.";
-    $("sql-editor").value = "SELECT * FROM posadka";
+    $("sql-editor").value = "SELECT *\nFROM posadka";
     $("hint-button").classList.add("hidden");
     hideFeedback(); hideResult();
     renderTaskList();
@@ -519,7 +519,7 @@ $("sql-editor").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runQuery(); }
 });
 $("reset-button").addEventListener("click", () => {
-    $("sql-editor").value = current ? current.starter : "SELECT * FROM posadka";
+    $("sql-editor").value = current ? current.starter : "SELECT *\nFROM posadka";
     hideFeedback();
 });
 $("hint-button").addEventListener("click", async () => {
