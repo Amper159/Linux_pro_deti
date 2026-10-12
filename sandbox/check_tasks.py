@@ -170,6 +170,64 @@ def over_python_lab() -> int:
     return chyb
 
 
+def over_sql_lab() -> int:
+    """SQL Lab: referenční dotazy vrací neprázdný výsledek, projdou vlastní kontrolou a příběh je kompletní."""
+    from sandbox.sql_engine import QueryError, check_result, run_query
+    from sandbox.sql_tasks import SQL_TASKS, CHAPTERS, PROLOGUE, EPILOGUE
+
+    chyb = 0
+
+    def chyba(zprava: str) -> None:
+        nonlocal chyb
+        print(f"x SQL LAB: {zprava}")
+        chyb += 1
+
+    # 1) funkčně - hint je platný dotaz, vrací řádky a projde vlastní kontrolou
+    for t in sorted(SQL_TASKS, key=lambda x: x["id"]):
+        try:
+            vysledek = run_query(t["hint"])
+        except QueryError as e:
+            chyba(f"#{t['id']} hint selže ({e})")
+            continue
+        if not vysledek["rows"]:
+            chyba(f"#{t['id']} hint nevrací žádné řádky")
+        rada = check_result(t, t["hint"], vysledek)
+        if rada:
+            chyba(f"#{t['id']} hint neprojde vlastní kontrolou ({rada})")
+        if not t.get("starter", "").strip():
+            chyba(f"#{t['id']} chybí 'starter'")
+        if t["starter"].strip().lower() == t["hint"].strip().lower() and t["id"] > 1:
+            chyba(f"#{t['id']} starter je shodný s řešením")
+
+    # 2) příběh
+    sady = {c["set"] for c in CHAPTERS}
+    ids = [t["id"] for t in SQL_TASKS]
+    if ids != list(range(1, len(ids) + 1)):
+        chyba("čísla úkolů nejdou za sebou od 1")
+    for t in SQL_TASKS:
+        for pole, limit in (("story", 170), ("victory", 110), ("tip", 200)):
+            hodnota = t.get(pole, "")
+            if not hodnota.strip():
+                chyba(f"#{t['id']} chybí pole '{pole}'")
+            elif len(hodnota) > limit:
+                chyba(f"#{t['id']} pole '{pole}' má {len(hodnota)} znaků (limit {limit})")
+        if t["set"] not in sady:
+            chyba(f"#{t['id']} patří do sady {t['set']}, ke které není kapitola")
+        if not t.get("goal", "").strip():
+            chyba(f"#{t['id']} chybí zadání")
+    for c in CHAPTERS:
+        for pole in ("title", "intro", "outro"):
+            if not c.get(pole, "").strip():
+                chyba(f"kapitola sady {c['set']} nemá '{pole}'")
+    if not PROLOGUE.strip() or not EPILOGUE.strip():
+        chyba("chybí prolog nebo epilog")
+    for sada in {t["set"] for t in SQL_TASKS} - sady:
+        chyba(f"sada {sada} nemá kapitolu")
+
+    print(f"SQL Lab: zkontrolováno úkolů {len(SQL_TASKS)}, kapitol {len(CHAPTERS)}, chyb {chyb}")
+    return chyb
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="tasks_check_") as tmp:
         # JEDNA trvalá domovská složka pro všech 90 úkolů po sobě - stejně jako
@@ -203,6 +261,7 @@ def main() -> int:
         print()
         print(f"Zkontrolováno úkolů: {len(TASKS)}, přeskočeno (síť): {preskoceno}, chyb: {celkem_chyb}")
         celkem_chyb += over_python_lab()
+        celkem_chyb += over_sql_lab()
         if celkem_chyb:
             print("Někde se nápověda/kontrola rozchází se zadáním, co vidí dítě. Oprav a spusť znovu.")
             return 1

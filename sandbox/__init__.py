@@ -2,5 +2,6 @@
 
 from .routes import bp as sandbox_bp
 from .python_lab import bp as python_lab_bp
+from .sql_lab import bp as sql_lab_bp
 
-__all__ = ["sandbox_bp", "python_lab_bp"]
+__all__ = ["sandbox_bp", "python_lab_bp", "sql_lab_bp"]

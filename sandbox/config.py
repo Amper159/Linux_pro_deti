@@ -11,6 +11,7 @@ DATA_DIR = Path(os.environ.get("SANDBOX_DATA", PROJECT_DIR / "sandbox_data"))
 HOMES_DIR = DATA_DIR / "homes"
 PROGRESS_DIR = DATA_DIR / "progress"
 PYTHON_PROGRESS_DIR = DATA_DIR / "python_progress"
+SQL_PROGRESS_DIR = DATA_DIR / "sql_progress"
 USERS_FILE = DATA_DIR / "users.json"
 VISITS_FILE = DATA_DIR / "visits.json"
 FEEDBACK_FILE = DATA_DIR / "feedback.json"
@@ -60,5 +61,5 @@ FEEDBACK_NOTIFY_EMAIL = os.environ.get("FEEDBACK_NOTIFY_EMAIL", "lampart.m1305@g
 
 
 def ensure_dirs() -> None:
-    for d in (DATA_DIR, HOMES_DIR, PROGRESS_DIR, PYTHON_PROGRESS_DIR):
+    for d in (DATA_DIR, HOMES_DIR, PROGRESS_DIR, PYTHON_PROGRESS_DIR, SQL_PROGRESS_DIR):
         d.mkdir(parents=True, exist_ok=True)

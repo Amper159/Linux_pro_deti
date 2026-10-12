@@ -28,6 +28,7 @@ from .config import (
     PASSWORD_RESET_TTL_SECONDS,
     PROGRESS_DIR,
     PYTHON_PROGRESS_DIR,
+    SQL_PROGRESS_DIR,
     SKEL_DIR,
     USERS_FILE,
     ensure_dirs,
@@ -343,6 +344,7 @@ def delete_account(user: SandboxUser) -> None:
     progress_path(user).unlink(missing_ok=True)
     stats_path(user).unlink(missing_ok=True)
     PYTHON_PROGRESS_DIR.joinpath(f"{user.uid}.json").unlink(missing_ok=True)
+    SQL_PROGRESS_DIR.joinpath(f"{user.uid}.json").unlink(missing_ok=True)
 
 
 def all_users() -> List[SandboxUser]:

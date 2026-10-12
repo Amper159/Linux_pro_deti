@@ -7,7 +7,7 @@ import os
 
 from sandbox import engine as sandbox_engine
 from sandbox import sandbox_bp
-from sandbox import python_lab_bp
+from sandbox import python_lab_bp, sql_lab_bp
 from sandbox import pages as sandbox_pages
 from sandbox import visits as sandbox_visits
 from sandbox import gamification as sandbox_gamification
@@ -48,6 +48,7 @@ app.config.update(
 # Nová stránka: /piskoviste – opravdový Linux v kontejneru.
 app.register_blueprint(sandbox_bp)
 app.register_blueprint(python_lab_bp)
+app.register_blueprint(sql_lab_bp)
 app.register_blueprint(sandbox_pages.bp)
 sandbox_engine.start_reaper()
 
@@ -961,6 +962,7 @@ def robots_txt():
         "Disallow: /piskoviste/reset-heslo\n"
         "Disallow: /python/api/\n"
         "Disallow: /python/hra/\n"
+        "Disallow: /sql/api/\n"
         "Sitemap: https://linuxhrou.cz/sitemap.xml\n"
     )
     return Response(body, mimetype="text/plain")
@@ -969,7 +971,7 @@ def robots_txt():
 @app.route("/sitemap.xml")
 def sitemap_xml():
     from flask import Response
-    urls = ["/", "/python/", "/piskoviste/"] + [a["path"] for a in sandbox_pages.ARTICLES] + ["/soukromi"]
+    urls = ["/", "/python/", "/sql/", "/piskoviste/"] + [a["path"] for a in sandbox_pages.ARTICLES] + ["/soukromi"]
     body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for u in urls:
         body += f"  <url><loc>https://linuxhrou.cz{u}</loc></url>\n"

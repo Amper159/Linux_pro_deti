@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL pro děti online – detektivní případ s databází | Linuxhrou.cz</title>
+    <meta name="description" content="Nauč se základy SQL hravě: 23 úloh s kontrolou a detektivní příběh na vesmírné stanici. Dotazy SELECT, WHERE, ORDER BY, COUNT, GROUP BY a JOIN na vymyšlené databázi, zdarma v prohlížeči.">
+    <link rel="canonical" href="https://linuxhrou.cz/sql/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SQL pro děti online – detektivní případ s databází | Linuxhrou.cz">
+    <meta property="og:description" content="23 úloh s kontrolou a detektivní příběh. Najdi zloděje krystalu pomocí dotazů SELECT.">
+    <meta property="og:url" content="https://linuxhrou.cz/sql/">
+    <meta property="og:image" content="https://linuxhrou.cz/og-image.png">
+    <meta property="og:locale" content="cs_CZ">
+    <meta name="twitter:card" content="summary_large_image">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Quicksand:wght@500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #0d1b2a;
+            background-image:
+                radial-gradient(#1b263b 2px, transparent 2px),
+                radial-gradient(#1b263b 2px, #0d1b2a 2px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: #f8fafc;
+        }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .lego-card { border: 3px solid #2dd4bf; box-shadow: 0 5px 0 #0f766e; }
+        .lego-card-yellow { border: 3px solid #facc15; box-shadow: 0 5px 0 #ca8a04; }
+        .lego-card-blue { border: 3px solid #60a5fa; box-shadow: 0 5px 0 #2563eb; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 6px; border: 2px solid #0f172a; }
+        .task-item.done { border-color: #4ade80 !important; }
+        .task-item.active { background: #134e4a !important; }
+        .task-item.locked { opacity: .45; cursor: not-allowed; }
+        #sql-editor { font-size: 16px; }
+        @media (min-width: 1024px) { #sql-editor { font-size: 14px; } }
+        @keyframes pop { 0% { transform: scale(.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .pop { animation: pop .25s ease-out; }
+        .result-table th { background: #134e4a; color: #99f6e4; position: sticky; top: 0; }
+        .result-table th, .result-table td { padding: 4px 10px; border-bottom: 1px solid #1e293b; text-align: left; white-space: nowrap; }
+        .schema-col { cursor: pointer; }
+        .schema-col:hover { color: #fde047; }
+    </style>
+</head>
+<body class="w-full min-h-screen p-3 flex flex-col text-slate-100 overflow-x-hidden">
+
+<!-- ============ PŘIHLÁŠENÍ (sdílené s ostatními částmi webu) ============ -->
+<div id="login-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md lego-card text-center space-y-4 max-h-[95vh] overflow-y-auto">
+        <div class="w-16 h-16 bg-gradient-to-b from-teal-400 to-sky-500 rounded-full mx-auto flex items-center justify-center border-4 border-slate-700 text-3xl">🕵️</div>
+        <div>
+            <h2 class="text-2xl font-bold text-teal-300 uppercase">SQL Lab</h2>
+            <p class="text-xs text-slate-300 font-medium mt-1">
+                Stejné přihlášení jako v Pískovišti a Python Labu – pokud tam už máš účet, použij ho i tady.
+            </p>
+        </div>
+        <input type="text" id="login-user" autocomplete="username"
+               class="w-full bg-slate-900 border-2 border-teal-400 rounded-xl p-3 text-center font-bold placeholder-slate-500 focus:outline-none focus:border-yellow-400"
+               placeholder="Jméno (např. honza)">
+        <input type="password" id="login-pass" autocomplete="current-password"
+               class="w-full bg-slate-900 border-2 border-teal-400 rounded-xl p-3 text-center font-bold placeholder-slate-500 focus:outline-none focus:border-yellow-400"
+               placeholder="Heslo (aspoň 6 znaků)">
+        <input type="email" id="login-email" autocomplete="email"
+               class="w-full bg-slate-900 border-2 border-teal-400 rounded-xl p-3 text-center font-bold placeholder-slate-500 focus:outline-none focus:border-yellow-400"
+               placeholder="E-mail (nepovinné, pro obnovu hesla)">
+        <p id="login-error" class="text-rose-400 text-xs font-bold min-h-[16px]"></p>
+        <button id="login-button"
+                class="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-3 rounded-xl border-b-4 border-yellow-600 active:translate-y-1 transition uppercase tracking-wider">
+            🕵️ Vstoupit do SQL Labu
+        </button>
+        <p class="text-[11px] text-slate-400">Nový? Účet se založí sám. Heslo si zapamatuj – bez něj se ke svému postupu nedostaneš.</p>
+        <a href="/piskoviste/" class="block text-xs text-teal-400 hover:text-teal-300 font-bold">Zapomněl(a) jsi heslo? Obnov ho v Pískovišti</a>
+        <a href="/" class="block text-xs text-teal-400 hover:text-teal-300 font-bold">← Zpět na portál</a>
+    </div>
+</div>
+
+<!-- ============ HLAVIČKA ============ -->
+<header class="bg-gradient-to-r from-teal-500 via-teal-400 to-yellow-400 rounded-2xl p-2.5 px-4 sm:px-5 flex flex-wrap justify-between items-center gap-2 lego-card text-slate-900 mb-3 shrink-0">
+    <div class="flex items-center space-x-3 min-w-0">
+        <div class="bg-slate-900 text-yellow-300 w-9 h-9 rounded-xl flex items-center justify-center border-2 border-yellow-300 shrink-0 text-lg">🕵️</div>
+        <div class="min-w-0">
+            <h1 class="text-base sm:text-lg font-bold uppercase leading-none truncate">SQL Lab</h1>
+            <span class="text-[11px] font-bold text-slate-800">Případ zmizelého krystalu</span>
+        </div>
+    </div>
+    <div class="flex items-center flex-wrap gap-1.5 sm:gap-2">
+        <div class="bg-amber-400/20 px-2.5 sm:px-3 py-1.5 rounded-xl border border-amber-400/40 flex items-center space-x-1.5">
+            <i class="fa-solid fa-star text-amber-800 text-sm"></i>
+            <span class="font-bold text-xs text-amber-950" id="xp-badge">0 XP</span>
+        </div>
+        <a href="/" class="bg-slate-900 hover:bg-slate-800 text-yellow-300 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition shrink-0">
+            <i class="fa-solid fa-house"></i><span class="hidden sm:inline"> Portál</span>
+        </a>
+        <a href="/piskoviste/" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-emerald-700 active:translate-y-1 transition shrink-0">
+            <i class="fa-solid fa-terminal"></i><span class="hidden sm:inline"> Pískoviště</span>
+        </a>
+        <a href="/python/" class="bg-blue-500 hover:bg-blue-400 text-slate-950 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-blue-700 active:translate-y-1 transition shrink-0">
+            🐍<span class="hidden sm:inline"> Python Lab</span>
+        </a>
+        <button id="logout-button" class="bg-slate-800 hover:bg-slate-700 text-slate-100 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs border-b-4 border-slate-950 active:translate-y-1 transition shrink-0">
+            <i class="fa-solid fa-right-from-bracket"></i><span class="hidden sm:inline"> Odhlásit</span>
+        </button>
+    </div>
+</header>
+
+<!-- ============ OBSAH ============ -->
+<main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-w-0">
+
+    <!-- SEZNAM ÚKOLŮ -->
+    <aside class="order-3 lg:order-none lg:col-span-3 bg-slate-900/80 rounded-2xl lego-card-yellow p-4 space-y-2 max-h-[50vh] lg:max-h-[calc(100vh-110px)] overflow-y-auto custom-scrollbar min-w-0">
+        <h2 class="text-sm font-bold text-yellow-300 uppercase"><i class="fa-solid fa-list-ol"></i> Případ</h2>
+        <button id="free-mode-button" class="w-full text-left bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-200">
+            ✏️ Volné zkoušení <span class="font-medium text-slate-400">· piš si vlastní dotazy</span>
+        </button>
+        <div id="task-list" class="space-y-1.5"></div>
+    </aside>
+
+    <!-- PŘÍBĚH + EDITOR + VÝSLEDEK -->
+    <section class="order-1 lg:order-none lg:col-span-6 flex flex-col gap-3 min-w-0">
+        <div id="story-card" class="bg-slate-900 rounded-2xl lego-card p-4 space-y-3">
+            <p class="text-[11px] font-bold uppercase tracking-wide text-teal-300" id="task-chapter">Vítej v SQL Labu</p>
+            <h2 class="text-lg font-bold" id="task-title">Přihlas se a otevři archiv</h2>
+            <div class="flex items-start gap-3">
+                <div class="text-3xl shrink-0">🤖</div>
+                <div class="bg-slate-800 rounded-xl px-3 py-2 border-2 border-slate-700 text-[13.5px] leading-relaxed min-w-0">
+                    <span class="font-bold text-teal-300">Pyt:</span>
+                    <span id="task-story">Jsem palubní počítač stanice TUX-1. Pomoz mi najít krystal.</span>
+                </div>
+            </div>
+            <div class="bg-slate-950 rounded-xl p-3 border border-slate-700">
+                <p class="text-[10px] font-bold uppercase text-yellow-300 mb-1">Tvůj úkol</p>
+                <p class="text-sm leading-snug font-medium" id="task-goal"></p>
+                <p class="text-xs text-slate-400 mt-2" id="task-tip"></p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl lego-card overflow-hidden flex flex-col">
+            <div class="bg-slate-800 px-4 py-2 border-b-2 border-slate-700 flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-teal-300">Dotaz</span>
+                <button id="guide-button" class="bg-slate-700 hover:bg-slate-600 text-yellow-300 font-bold px-2.5 py-1.5 rounded-lg text-[11px] border-b-2 border-slate-900 active:translate-y-0.5 transition whitespace-nowrap">
+                    📖 Jak psát SQL
+                </button>
+            </div>
+            <textarea id="sql-editor" rows="4" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off"
+                class="w-full bg-slate-950 text-slate-100 font-mono p-3 focus:outline-none resize-y leading-relaxed"
+                placeholder="SELECT * FROM posadka"></textarea>
+            <div class="flex items-center flex-wrap gap-2 px-3 py-2 bg-slate-800 border-t-2 border-slate-700">
+                <button id="run-button" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl border-b-4 border-emerald-700 active:translate-y-1 transition text-sm">
+                    ▶ Spustit dotaz
+                </button>
+                <button id="reset-button" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-3 py-2 rounded-xl border-b-4 border-slate-900 active:translate-y-1 transition text-sm">
+                    ↺ Znovu
+                </button>
+                <button id="hint-button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl border-b-4 border-amber-700 active:translate-y-1 transition text-sm">
+                    💡 Ukaž řešení
+                </button>
+                <span class="text-[10px] text-slate-500 hidden sm:inline">Ctrl+Enter spustí dotaz</span>
+            </div>
+        </div>
+
+        <div id="feedback" class="hidden rounded-2xl p-3 text-sm font-bold border-2"></div>
+
+        <div id="result-card" class="hidden bg-slate-900 rounded-2xl border-2 border-slate-700 overflow-hidden min-w-0">
+            <p class="px-3 py-1.5 text-[11px] font-bold text-slate-300 bg-slate-800" id="result-info"></p>
+            <div class="overflow-auto max-h-72 custom-scrollbar">
+                <table class="result-table w-full font-mono text-[12px]" id="result-table"></table>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCHÉMA + ŽEBŘÍČEK -->
+    <aside class="order-2 lg:order-none lg:col-span-3 space-y-3 min-w-0 lg:max-h-[calc(100vh-110px)] lg:overflow-y-auto custom-scrollbar">
+        <div class="bg-slate-900/80 rounded-2xl lego-card-blue p-4 space-y-2">
+            <h2 class="text-sm font-bold text-blue-300 uppercase"><i class="fa-solid fa-database"></i> Archiv stanice</h2>
+            <p class="text-[11px] text-slate-400">Klikni na název a vloží se do dotazu.</p>
+            <div id="schema" class="space-y-3 font-mono text-[12px]"></div>
+        </div>
+        <div class="bg-slate-900/80 rounded-2xl lego-card-yellow p-4 space-y-2">
+            <h2 class="text-sm font-bold text-yellow-300 uppercase"><i class="fa-solid fa-medal"></i> Odznaky</h2>
+            <div id="badges" class="grid grid-cols-2 gap-1.5"></div>
+        </div>
+        <div class="bg-slate-900/80 rounded-2xl lego-card-yellow p-4 space-y-2">
+            <h2 class="text-sm font-bold text-yellow-300 uppercase"><i class="fa-solid fa-trophy"></i> Žebříček</h2>
+            <ol id="leaderboard" class="space-y-1 text-xs"></ol>
+        </div>
+    </aside>
+</main>
+
+<!-- PŘÍBĚHOVÝ DIALOG -->
+<div id="narrative-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="narrative-title">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md lego-card space-y-4 text-center max-h-[90vh] overflow-y-auto custom-scrollbar pop">
+        <div class="text-4xl">🕵️</div>
+        <h2 id="narrative-title" class="text-base font-bold text-yellow-300 uppercase tracking-wide"></h2>
+        <p id="narrative-text" class="text-[14px] text-slate-100 leading-relaxed font-medium whitespace-pre-line"></p>
+        <button id="narrative-close" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl border-b-4 border-yellow-600 active:translate-y-1 transition text-sm"></button>
+    </div>
+</div>
+
+<!-- PŘÍRUČKA SQL -->
+<div id="guide-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-lg lego-card-blue space-y-3 max-h-[85vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-blue-300 uppercase">📖 Jak psát SQL</h2>
+            <button id="guide-close" class="text-slate-400 hover:text-slate-100 text-2xl leading-none" aria-label="Zavřít">&times;</button>
+        </div>
+        <p class="text-[13px] text-slate-200 leading-relaxed">
+            SQL je jazyk, kterým se ptáme databáze. Databáze jsou tabulky: sloupce říkají, co o věci víme, a každý řádek je jedna věc (třeba člověk).
+        </p>
+        <div class="space-y-2 text-[13px]">
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">SELECT … FROM …</p>
+                <p class="text-slate-300">Co chceš vidět a odkud. Hvězdička = všechny sloupce.</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">SELECT jmeno, role FROM posadka</pre>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">WHERE</p>
+                <p class="text-slate-300">Vybere jen řádky, které splní podmínku. Text patří do apostrofů, čísla ne. Podmínky spojíš AND (obě) nebo OR (aspoň jedna).</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">SELECT * FROM posadka
+WHERE oddeleni = 'energetika' AND vek &gt; 30</pre>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">ORDER BY, LIMIT</p>
+                <p class="text-slate-300">Seřadí výsledek (DESC = od největšího) a omezí počet řádků.</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">SELECT jmeno, vek FROM posadka
+ORDER BY vek DESC LIMIT 3</pre>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">LIKE, BETWEEN</p>
+                <p class="text-slate-300">LIKE hledá text podle vzoru (% je libovolný text), BETWEEN vybere hodnoty v rozsahu.</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">WHERE jmeno LIKE 'B%'
+WHERE vek BETWEEN 20 AND 40</pre>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">COUNT, SUM, AVG, MIN, MAX, DISTINCT</p>
+                <p class="text-slate-300">Počítání místo vypisování. DISTINCT vypíše každou hodnotu jen jednou.</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">SELECT COUNT(*) FROM posadka
+SELECT AVG(vek) FROM posadka
+SELECT DISTINCT oddeleni FROM posadka</pre>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">GROUP BY, HAVING</p>
+                <p class="text-slate-300">GROUP BY udělá skupiny, HAVING vybere z hotových skupin.</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">SELECT oddeleni, COUNT(*) FROM posadka
+GROUP BY oddeleni HAVING COUNT(*) &gt; 2</pre>
+            </div>
+            <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+                <p class="font-bold text-yellow-300">JOIN</p>
+                <p class="text-slate-300">Spojí dvě tabulky podle společné hodnoty. Před název sloupce napiš tabulku a tečku.</p>
+                <pre class="font-mono text-[12px] text-sky-300 mt-1 overflow-x-auto">SELECT posadka.jmeno, vstupy.cas
+FROM vstupy
+JOIN posadka ON vstupy.osoba_id = posadka.id</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+// ---- přihlášení (stejné API jako v Pískovišti) ----
+async function login() {
+    const button = $("login-button");
+    button.disabled = true;
+    $("login-error").textContent = "";
+    try {
+        const res = await fetch("/piskoviste/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: $("login-user").value,
+                password: $("login-pass").value,
+                email: $("login-email").value,
+            }),
+        });
+        const data = await res.json();
+        if (!data.ok) { $("login-error").textContent = data.error || "Přihlášení selhalo."; return; }
+        $("login-modal").classList.add("hidden");
+        await loadState();
+    } catch (e) {
+        $("login-error").textContent = "Něco se pokazilo, zkus to znovu.";
+    } finally {
+        button.disabled = false;
+    }
+}
+$("login-button").addEventListener("click", login);
+["login-user", "login-pass"].forEach((id) =>
+    $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") login(); })
+);
+$("logout-button").addEventListener("click", async () => {
+    await fetch("/piskoviste/api/logout", { method: "POST" });
+    location.reload();
+});
+
+// ---- stav ----
+let TASKS = [], CHAPTERS = [], TABLES = [];
+let PROLOGUE = "", EPILOGUE = "";
+let COMPLETED = [];
+let current = null;   // aktuální úkol, null = volné zkoušení
+let busy = false;
+
+function seen(key) { try { return localStorage.getItem("sqllab_" + key) === "1"; } catch (e) { return false; } }
+function markSeen(key) { try { localStorage.setItem("sqllab_" + key, "1"); } catch (e) {} }
+
+function chapterFor(task) { return CHAPTERS.find((c) => c.set === task.set) || null; }
+function isUnlocked(task) { return task.id === 1 || COMPLETED.includes(task.id - 1) || COMPLETED.includes(task.id); }
+function nextTask() { return TASKS.find((t) => !COMPLETED.includes(t.id)) || null; }
+
+function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+}
+
+function renderTaskList() {
+    const box = $("task-list");
+    box.textContent = "";
+    CHAPTERS.forEach((ch, ci) => {
+        const tasks = TASKS.filter((t) => t.set === ch.set);
+        const done = tasks.filter((t) => COMPLETED.includes(t.id)).length;
+        box.appendChild(el("p", "text-[11px] font-bold uppercase tracking-wide text-teal-300 pt-2",
+            `${ci + 1}. ${ch.title} (${done}/${tasks.length})`));
+        tasks.forEach((t) => {
+            const unlocked = isUnlocked(t);
+            const b = el("button", "task-item w-full text-left bg-slate-800 border-2 border-slate-700 rounded-xl px-3 py-2 text-xs font-bold flex items-center gap-2");
+            if (COMPLETED.includes(t.id)) b.classList.add("done");
+            if (!unlocked) b.classList.add("locked");
+            if (current && current.id === t.id) b.classList.add("active");
+            b.appendChild(el("span", "w-5 shrink-0 text-center", COMPLETED.includes(t.id) ? "✅" : (unlocked ? "▶" : "🔒")));
+            b.appendChild(el("span", "min-w-0 truncate", `${t.id}. ${unlocked ? t.title : "Zamčeno"}`));
+            if (unlocked) b.addEventListener("click", () => selectTask(t));
+            box.appendChild(b);
+        });
+    });
+}
+
+function showFeedback(kind, text) {
+    const f = $("feedback");
+    f.className = "rounded-2xl p-3 text-sm font-bold border-2 pop " + ({
+        ok: "bg-emerald-900/50 border-emerald-500 text-emerald-100",
+        bad: "bg-amber-900/40 border-amber-500 text-amber-100",
+        err: "bg-rose-900/40 border-rose-500 text-rose-100",
+    })[kind];
+    f.textContent = text;
+}
+function hideFeedback() { $("feedback").className = "hidden"; }
+function hideResult() { $("result-card").classList.add("hidden"); }
+
+function selectTask(task) {
+    current = task;
+    const ch = chapterFor(task);
+    $("task-chapter").textContent = ch ? `Kapitola ${CHAPTERS.indexOf(ch) + 1}: ${ch.title}` : "";
+    $("task-title").textContent = `${task.id}. ${task.title}`;
+    $("task-story").textContent = task.story;
+    $("task-goal").textContent = task.goal;
+    $("task-tip").textContent = "Tip: " + task.tip;
+    $("sql-editor").value = task.starter;
+    $("hint-button").classList.remove("hidden");
+    hideFeedback(); hideResult();
+    renderTaskList();
+    // úvod kapitoly při prvním vstupu do jejího prvního úkolu
+    if (ch && TASKS.find((t) => t.set === ch.set).id === task.id && !seen("intro" + ch.set) && !COMPLETED.includes(task.id)) {
+        markSeen("intro" + ch.set);
+        narrate(`Kapitola ${CHAPTERS.indexOf(ch) + 1}: ${ch.title}`, ch.intro, "Jdeme na to");
+    }
+}
+
+function freeMode() {
+    current = null;
+    $("task-chapter").textContent = "Volné zkoušení";
+    $("task-title").textContent = "Prozkoumej archiv po svém";
+    $("task-story").textContent = "Tady si můžeš zkoušet cokoliv. Nic se nehodnotí a nic se tu nedá rozbít.";
+    $("task-goal").textContent = "Vymysli si vlastní dotaz nad tabulkami vpravo a spusť ho.";
+    $("task-tip").textContent = "Tip: koukni do příručky „Jak psát SQL“ nebo kliknutím na název tabulky ho vlož do dotazu.";
+    $("sql-editor").value = "SELECT * FROM posadka";
+    $("hint-button").classList.add("hidden");
+    hideFeedback(); hideResult();
+    renderTaskList();
+}
+$("free-mode-button").addEventListener("click", freeMode);
+
+// ---- příběhový dialog ----
+let narrativeDone = null;
+function narrate(title, text, buttonLabel, then) {
+    $("narrative-title").textContent = title;
+    $("narrative-text").textContent = text;
+    $("narrative-close").textContent = buttonLabel;
+    narrativeDone = then || null;
+    $("narrative-modal").classList.remove("hidden");
+    $("narrative-modal").classList.add("flex");
+}
+$("narrative-close").addEventListener("click", () => {
+    $("narrative-modal").classList.add("hidden");
+    $("narrative-modal").classList.remove("flex");
+    const cb = narrativeDone; narrativeDone = null;
+    if (cb) cb();
+});
+
+// ---- panel s databází ----
+function insertIntoEditor(text) {
+    const ed = $("sql-editor");
+    const start = ed.selectionStart ?? ed.value.length;
+    const end = ed.selectionEnd ?? ed.value.length;
+    const before = ed.value.slice(0, start);
+    const pad = before && !/\s$/.test(before) ? " " : "";
+    ed.value = before + pad + text + ed.value.slice(end);
+    const pos = (before + pad + text).length;
+    ed.focus();
+    ed.setSelectionRange(pos, pos);
+}
+function renderSchema() {
+    const box = $("schema");
+    box.textContent = "";
+    TABLES.forEach((t) => {
+        const wrap = el("div");
+        const head = el("button", "schema-col font-bold text-sky-300 text-left", t.name);
+        head.addEventListener("click", () => insertIntoEditor(t.name));
+        wrap.appendChild(head);
+        wrap.appendChild(el("span", "text-slate-500 text-[11px]", "  " + t.desc));
+        const cols = el("div", "pl-3 text-slate-300 flex flex-wrap gap-x-2");
+        t.columns.forEach((c) => {
+            const s = el("button", "schema-col", c);
+            s.addEventListener("click", () => insertIntoEditor(c));
+            cols.appendChild(s);
+        });
+        wrap.appendChild(cols);
+        box.appendChild(wrap);
+    });
+}
+
+function renderBadges(badges) {
+    const box = $("badges");
+    box.textContent = "";
+    badges.forEach((b) => {
+        const d = el("div", "rounded-lg px-2 py-1.5 text-[11px] font-bold flex items-center gap-1.5 border " +
+            (b.unlocked ? "bg-amber-400/20 border-amber-400/50 text-amber-200" : "bg-slate-800 border-slate-700 text-slate-500"));
+        const i = el("i", "fa-solid " + b.icon);
+        d.appendChild(i);
+        d.appendChild(el("span", "truncate", b.label));
+        d.title = b.unlocked ? b.label : `${b.label} (od ${b.value} úkolů)`;
+        box.appendChild(d);
+    });
+}
+function renderLeaderboard(list) {
+    const box = $("leaderboard");
+    box.textContent = "";
+    if (!list.length) { box.appendChild(el("li", "text-slate-500", "Zatím nikdo. Buď první!")); return; }
+    list.forEach((e) => {
+        const li = el("li", "flex justify-between gap-2 rounded-lg px-2 py-1 " + (e.me ? "bg-teal-900/50 text-teal-100 font-bold" : "text-slate-300"));
+        li.appendChild(el("span", "truncate", `${e.rank}. ${e.username}`));
+        li.appendChild(el("span", "shrink-0", `${e.xp} XP`));
+        box.appendChild(li);
+    });
+}
+function applyProgress(p, lb) {
+    COMPLETED = p.completed_ids;
+    $("xp-badge").textContent = `${p.xp} XP`;
+    renderBadges(p.badges);
+    if (lb) renderLeaderboard(lb);
+}
+
+// ---- výsledek dotazu ----
+function renderResult(columns, rows, truncated) {
+    const t = $("result-table");
+    t.textContent = "";
+    const head = el("tr");
+    columns.forEach((c) => head.appendChild(el("th", "", c)));
+    const thead = el("thead"); thead.appendChild(head); t.appendChild(thead);
+    const tbody = el("tbody");
+    rows.forEach((r) => {
+        const tr = el("tr");
+        r.forEach((v) => tr.appendChild(el("td", "", v === null ? "NULL" : String(v))));
+        tbody.appendChild(tr);
+    });
+    t.appendChild(tbody);
+    $("result-info").textContent = `Výsledek: ${rows.length} ${rows.length === 1 ? "řádek" : (rows.length >= 2 && rows.length <= 4 ? "řádky" : "řádků")}` +
+        (truncated ? " (zobrazuji jen prvních 100)" : "");
+    $("result-card").classList.remove("hidden");
+}
+
+async function runQuery() {
+    if (busy) return;
+    const query = $("sql-editor").value;
+    busy = true; $("run-button").disabled = true;
+    try {
+        const res = await fetch("/sql/api/run", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, task_id: current ? current.id : null }),
+        });
+        if (res.status === 401) { location.reload(); return; }
+        const data = await res.json();
+        if (!data.ok) { hideResult(); showFeedback("err", data.error || "Něco se pokazilo."); return; }
+        renderResult(data.columns, data.rows, data.truncated);
+        if (data.correct === null) { hideFeedback(); return; }
+        if (!data.correct) { showFeedback("bad", data.advice || "Skoro. Zkus to ještě jednou."); return; }
+        taskSolved(data);
+    } catch (e) {
+        showFeedback("err", "Spojení se serverem se nepovedlo, zkus to znovu.");
+    } finally {
+        busy = false; $("run-button").disabled = false;
+    }
+}
+$("run-button").addEventListener("click", runQuery);
+$("sql-editor").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runQuery(); }
+});
+$("reset-button").addEventListener("click", () => {
+    $("sql-editor").value = current ? current.starter : "SELECT * FROM posadka";
+    hideFeedback();
+});
+$("hint-button").addEventListener("click", async () => {
+    if (!current) return;
+    if (!confirm("Opravdu chceš vidět řešení? Zkus ještě chvíli sám, hlavně když ti chybí jen kousek.")) return;
+    const res = await fetch(`/sql/api/hint/${current.id}`);
+    const data = await res.json();
+    if (data.ok) $("sql-editor").value = data.hint;
+});
+
+function taskSolved(data) {
+    const task = current;
+    applyProgress(data.progress, data.leaderboard);
+    const ch = chapterFor(task);
+    const chTasks = TASKS.filter((t) => t.set === ch.set);
+    const chapterDone = chTasks.every((t) => COMPLETED.includes(t.id));
+    const allDone = TASKS.every((t) => COMPLETED.includes(t.id));
+    const gain = data.newly_completed ? " (+50 XP)" : "";
+    showFeedback("ok", `✅ Správně${gain}! Pyt: ${task.victory}`);
+    renderTaskList();
+
+    const goNext = () => {
+        const next = TASKS.find((t) => t.id === task.id + 1);
+        if (next) selectTask(next);
+    };
+    const bar = $("feedback");
+    if (task.id < TASKS.length) {
+        const nb = el("button", "mt-2 block bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl border-b-4 border-emerald-700 active:translate-y-1 transition text-sm", "Další krok případu ▶");
+        nb.addEventListener("click", () => {
+            if (chapterDone && data.newly_completed) {
+                narrate(`Konec kapitoly: ${ch.title}`, ch.outro, "Pokračovat", goNext);
+            } else {
+                goNext();
+            }
+        });
+        bar.appendChild(nb);
+    }
+    if (allDone && data.newly_completed) {
+        narrate("Případ uzavřen", ch.outro + "\n\n" + EPILOGUE, "Skvělé!");
+    }
+}
+
+// ---- příručka ----
+function toggleGuide(open) {
+    $("guide-modal").classList.toggle("hidden", !open);
+    $("guide-modal").classList.toggle("flex", open);
+}
+$("guide-button").addEventListener("click", () => toggleGuide(true));
+$("guide-close").addEventListener("click", () => toggleGuide(false));
+$("guide-modal").addEventListener("click", (e) => { if (e.target === $("guide-modal")) toggleGuide(false); });
+
+// ---- načtení ----
+async function loadState() {
+    const res = await fetch("/sql/api/state");
+    if (res.status === 401) { $("login-modal").classList.remove("hidden"); return false; }
+    const data = await res.json();
+    if (!data.ok) return false;
+    TASKS = data.tasks; CHAPTERS = data.chapters; TABLES = data.tables;
+    PROLOGUE = data.prologue; EPILOGUE = data.epilogue;
+    $("login-modal").classList.add("hidden");
+    renderSchema();
+    applyProgress(data.progress, data.leaderboard);
+    const next = nextTask();
+    if (next) selectTask(next); else selectTask(TASKS[TASKS.length - 1]);
+    if (!seen("prolog") && data.progress.completed === 0) {
+        markSeen("prolog");
+        narrate("Případ zmizelého krystalu", PROLOGUE, "Otevřít archiv");
+    }
+    return true;
+}
+loadState();
+</script>
+</body>
+</html>
