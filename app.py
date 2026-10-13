@@ -57,21 +57,23 @@ PORTAL_HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Linuxhrou.cz – Nauč se Linux a Python hrou | Zdarma pro děti</title>
+    <title>Linuxhrou.cz – Linux, Python a SQL hrou pro děti | Zdarma online</title>
     <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="keywords" content="Linux pro děti, učení Linuxu, Linux terminál online, Python pro děti, Python pro začátečníky, SQL pro děti, SQL pro začátečníky, základy SQL, SELECT, programování pro děti, výuka informatiky">
     {{ verify_tags|safe }}
     <script type="application/ld+json">{{ jsonld|safe }}</script>
-    <meta name="description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček. Zdarma pro děti, rodiče i školy.">
+    <meta name="description" content="Nauč se Linux, základy Pythonu i SQL příkazů hravou formou – terminál v bezpečném pískovišti, Python Lab a SQL detektivka, přes 140 úkolů, odznaky a žebříček. Zdarma pro děti, rodiče i školy.">
     <link rel="canonical" href="https://linuxhrou.cz/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Linuxhrou.cz – Nauč se Linux a Python hrou | Zdarma pro děti">
-    <meta property="og:description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">
+    <meta property="og:title" content="Linuxhrou.cz – Linux, Python a SQL hrou pro děti | Zdarma online">
+    <meta property="og:description" content="Nauč se Linux, Python a základní SQL příkazy hravou formou – terminál v bezpečném pískovišti, přes 140 úkolů, odznaky a žebříček. Zdarma.">
     <meta property="og:url" content="https://linuxhrou.cz/">
     <meta property="og:image" content="https://linuxhrou.cz/og-image.png">
     <meta property="og:locale" content="cs_CZ">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Linuxhrou.cz – Nauč se Linux a Python hrou | Zdarma pro děti">
-    <meta name="twitter:description" content="Nauč se Linux i základy Pythonu hravou formou – skutečný terminál v bezpečném pískovišti, 90 úkolů, odznaky a žebříček.">    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <meta name="twitter:title" content="Linuxhrou.cz – Linux, Python a SQL hrou pro děti | Zdarma online">
+    <meta name="twitter:description" content="Nauč se Linux, Python a základní SQL příkazy hravou formou – terminál v bezpečném pískovišti, přes 140 úkolů, odznaky a žebříček. Zdarma.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -721,6 +723,21 @@ document.getElementById('tux-homepage-msg').textContent = TUX_GREETINGS[Math.flo
 </html>
 """
 
+def _course(slug: str, name: str, description: str) -> dict:
+    return {
+        "@type": "Course",
+        "name": name,
+        "description": description,
+        "url": f"https://linuxhrou.cz{slug}",
+        "inLanguage": "cs",
+        "educationalLevel": "Beginner",
+        "isAccessibleForFree": True,
+        "provider": {"@id": "https://linuxhrou.cz/#organization"},
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "CZK", "category": "Free"},
+        "hasCourseInstance": {"@type": "CourseInstance", "courseMode": "online"},
+    }
+
+
 JSONLD_HOME = json.dumps({
     "@context": "https://schema.org",
     "@graph": [
@@ -730,8 +747,8 @@ JSONLD_HOME = json.dumps({
             "url": "https://linuxhrou.cz/",
             "name": "Linuxhrou.cz",
             "inLanguage": "cs",
-            "description": "Vzdělávací portál, kde se děti i dospělí hravě učí Linux a základy Pythonu: "
-                           "skutečný terminál v bezpečném pískovišti, 90 úkolů, hry a odznaky.",
+            "description": "Vzdělávací portál, kde se děti i dospělí hravě učí Linux, základy Pythonu "
+                           "a základní příkazy SQL: terminál v bezpečném pískovišti, přes 140 úkolů, hry a odznaky.",
         },
         {
             "@type": "EducationalOrganization",
@@ -739,6 +756,12 @@ JSONLD_HOME = json.dumps({
             "name": "Linuxhrou.cz",
             "url": "https://linuxhrou.cz/",
         },
+        _course("/piskoviste/", "Linux pro děti – Pískoviště",
+                "Opravdový Linux terminál v bezpečném pískovišti, 90 úkolů s kontrolou."),
+        _course("/python/", "Python pro začátečníky – Python Lab",
+                "35 úloh s kontrolou, příběh Iskra a hry. Kód běží v prohlížeči."),
+        _course("/sql/", "SQL pro děti – detektivní případ",
+                "Základní příkazy SQL (SELECT, WHERE, ORDER BY, COUNT, GROUP BY, JOIN) v detektivním příběhu."),
     ],
 }, ensure_ascii=False)
 
