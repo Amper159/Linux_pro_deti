@@ -21,10 +21,10 @@ button{font:inherit;border:0;border-radius:12px;background:#2b2760;color:#eee;pa
 button:active{transform:scale(.96)}
 #board{position:relative;flex:1;margin-bottom:12px;touch-action:manipulation}
 .card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:16%;
- background:linear-gradient(145deg,#4a45a0,#2f2b75);border:2px solid #6a64c8;
+ background:#3d3890;border:2px solid #8a84e8;
  transition:transform .2s,opacity .35s,box-shadow .2s,border-color .2s,filter .25s;cursor:pointer}
-.card.blocked{filter:brightness(.5) saturate(.7)}
 .card.sel{border-color:#ffd166;box-shadow:0 0 0 3px #ffd16688,0 6px 14px #000a!important;transform:scale(1.1)!important}
+.card svg{width:1em;height:1em;display:block}
 .card.gone{opacity:0;transform:scale(1.5)!important;pointer-events:none}
 .card.bad{animation:shake .35s}
 .card.hint{animation:glow .5s 3;border-color:#7dffb0}
@@ -55,7 +55,18 @@ button:active{transform:scale(.96)}
 </div>
 <div id="overlay"></div>
 <script>
-const SYM=['🎸','🎹','🎺','🎻','🥁','🎤','🎧','🎷','🪕','🪗','🎼','🎵','🎶','🔔','📯','📻','🎙️','🎛️','🎚️','💿','📀','🎭','🎬','🪩','🎪','🎠','🎟️','🎫','🎡','🪘'];
+const MUSIC=['🎸','🎹','🎺','🎻','🥁','🎤','🎧','🎷','🪕','🪗','🎼','🎵','🎶','🔔','📯','📻','🎙️','🎛️','🎚️','💿','📀','🎭','🎬','🪩','🎪','🎠','🎟️','🎫','🎡','🪘'];
+const PUNK=['🤘','💀','🧷','⛓️','⚡','🔥','🏴','🦇','🕷️','🧨','💣','👢','🛹','💥','🩸','📼','🔊','🕶️','🦴','🖤','svg:anarchy','svg:mohawk','svg:spike','svg:boombox'];
+const SYM=[...PUNK,...MUSIC];
+// podobné motivy, od vyšších levelů se z nich skládají páry, které se snadno zaměnit
+const SIMILAR=[['🎸','🪕'],['💀','🦴'],['🧷','⛓️'],['🔥','💥'],['🥁','🪘'],['🎤','🎙️'],['⚡','💥'],['📻','svg:boombox'],['💿','📀'],['🎺','📯'],['🏴','🖤'],['🦇','🕷️']];
+const SVGS={
+ anarchy:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M7 19L12 5l5 14M8.6 14.5h6.8"/><path d="M3 10l3 4M21 10l-3 4" stroke-width="0"/></svg>',
+ mohawk:'<svg viewBox="0 0 24 24"><path d="M9 4l1 4M12 2l.5 5M15 4l-1 4" stroke="#ff4fa3" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="14" r="6.5" fill="#ffd9b0"/><path d="M9.5 13h1.5M13 13h1.5" stroke="#222" stroke-width="1.6" stroke-linecap="round"/><path d="M10 17q2 1.6 4 0" stroke="#222" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
+ spike:'<svg viewBox="0 0 24 24"><rect x="2" y="9" width="20" height="6" rx="2" fill="#222" stroke="#aaa" stroke-width="1"/><path d="M5 9l1.5-5L8 9M10.5 9L12 4l1.5 5M16 9l1.5-5L19 9" fill="#e5e5e5"/><path d="M5 15l1.5 5L8 15M10.5 15L12 20l1.5-5M16 15l1.5 5L19 15" fill="#e5e5e5"/></svg>',
+ boombox:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2" fill="#222" stroke="#ccc" stroke-width="1.2"/><circle cx="7.5" cy="13" r="3.4" fill="#555" stroke="#ccc"/><circle cx="16.5" cy="13" r="3.4" fill="#555" stroke="#ccc"/><rect x="9.5" y="8" width="5" height="2.4" fill="#ff4fa3"/><path d="M5 6l3-3h8l3 3" fill="none" stroke="#ccc" stroke-width="1.2"/></svg>'
+};
+const iconHTML=s=>s.startsWith('svg:')?SVGS[s.slice(4)]:s;
 const SCALE=[0,2,4,7,9]; // pentatonika
 const noteHz=i=>261.63*Math.pow(2,(SCALE[i%5]+12*(Math.floor(i/5)%3))/12);
 const K=.92; // velikost karty v jednotkách kroku mřížky
@@ -82,16 +93,31 @@ function tone(f,dur=.5,type='sine',vol=.18){
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1400)}
 
-// Rozložení: vrstvy karet přes sebe (jako mahjong). Úroveň 1 je malá, další větší a vyšší.
+// Rozložení: vrstvy karet přes sebe (jako mahjong). Každá vrstva je maska, "off" posune vrstvu o půl karty.
+const full=(c,r)=>Array(r).fill('x'.repeat(c));
+const LEVELS=[
+ {name:'Rozjezd',layers:[{off:0,m:full(4,5)},{off:.5,m:full(3,4)}]},
+ {name:'Dvě patra',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)}]},
+ {name:'Pódium',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)},{off:0,m:['.....','..xx.','.xxx.','.xxx.','.xx..','.....']}]},
+ {name:'Srdce',layers:[{off:0,m:['xx..xx','xxxxxx','xxxxxx','.xxxx.','..xx..']},{off:.5,m:['xxxxx','xxxxx','.xxx.','..x..']},{off:0,m:['......','.xxxx.','.xxxx.','......','......']}]},
+ {name:'Věž',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)},{off:0,m:['.....','.xxx.','.xxx.','.xxx.','.xxx.','.....']},{off:.5,m:['....','.xx.','.xx.','.xx.','....']}]}
+];
 function positions(lv){
-  const cols=lv===1?4:5,rows=lv===1?5:6,P=[];
-  const add=(l,x,y)=>P.push({l,x,y});
-  for(let c=0;c<cols;c++)for(let r=0;r<rows;r++)add(0,c,r);
-  for(let c=0;c<cols-1;c++)for(let r=0;r<rows-1;r++)add(1,c+.5,r+.5);
-  if(lv>=3)for(let c=1;c<=cols-2;c++)for(let r=1;r<=rows-2;r++){
-    if((c===1&&r===1)||(c===cols-2&&r===rows-2))continue;add(2,c,r);
+  const D=LEVELS[(lv-1)%LEVELS.length],P=[];
+  D.layers.forEach((La,l)=>La.m.forEach((row,r)=>[...row].forEach((ch,c)=>{if(ch==='x')P.push({l,x:c+La.off,y:r+La.off})})));
+  return {cols:D.layers[0].m[0].length,rows:D.layers[0].m.length,P,name:D.name};
+}
+// výběr motivů: punkových je většina, od levelu 4 přibývají podobné dvojice
+function pickMotifs(n,lv){
+  const chosen=[];
+  const addOne=s=>{if(!chosen.includes(s)&&chosen.length<n)chosen.push(s)};
+  if(lv>=4){
+    const want=Math.round(n*Math.min(.7,(lv-3)*.25));
+    for(const g of shuffle(SIMILAR.slice())){if(chosen.length+2>want)break;g.forEach(addOne)}
   }
-  return {cols,rows,P};
+  const rest=[...shuffle(PUNK.slice()).filter(s=>!chosen.includes(s)).slice(0,Math.ceil(n*.6)),...shuffle(MUSIC.slice())];
+  for(const s of rest)addOne(s);
+  return shuffle(chosen);
 }
 const covers=(b,a)=>b.l>a.l&&Math.abs(b.x-a.x)<K&&Math.abs(b.y-a.y)<K;
 // Každý pár vznikne ze dvou právě odkrytých karet, takže je level vždy řešitelný.
@@ -106,9 +132,9 @@ function build(lv){
       order.push([x,y]);rem.splice(rem.indexOf(x),1);rem.splice(rem.indexOf(y),1);
     }
     if(!rem.length){
-      const syms=shuffle(SYM.slice());
+      const syms=pickMotifs(order.length,lv);
       order.forEach(([x,y],i)=>{x.sym=y.sym=syms[i]});
-      return {cols:L.cols,rows:L.rows,P:order.flat()};
+      return {cols:L.cols,rows:L.rows,name:L.name,P:order.flat()};
     }
   }
 }
@@ -119,23 +145,22 @@ function layout(){
   cards.forEach((c,i)=>{
     Object.assign(c.el.style,{width:s+'px',height:s+'px',left:ox+c.x*step+'px',top:oy+c.y*step+'px',
       fontSize:s*.55+'px',transform:`translate(${-c.l*2}px,${-c.l*3}px) rotate(${c.rot}deg)`,
-      zIndex:c.l*100+i%100,boxShadow:`0 ${2+c.l*2}px ${6+c.l*4}px #000${c.l?'a':'7'}`});
+      zIndex:c.l*100+i%100,boxShadow:`0 3px 0 #1d1a4d,0 ${4+c.l*3}px ${8+c.l*4}px #000b`});
   });
 }
 const isFree=a=>!a.gone&&!cards.some(b=>!b.gone&&b!==a&&covers(b,a));
-function refresh(){cards.forEach(c=>c.el.classList.toggle('blocked',!c.gone&&!isFree(c)))}
 function start(){
   $('overlay').classList.remove('show');
   board.querySelectorAll('.card,.float').forEach(n=>n.remove());
   streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;
   dims=build(level);
   cards=dims.P.map(p=>{
-    const el=document.createElement('div');el.className='card';el.textContent=p.sym;
+    const el=document.createElement('div');el.className='card';el.innerHTML=iconHTML(p.sym);
     const c={...p,el,gone:false,rot:(Math.random()-.5)*4};
     el.addEventListener('pointerdown',e=>{e.preventDefault();tap(c)});
     board.appendChild(el);return c;
   });
-  layout();refresh();hud();
+  layout();hud();toast('Level '+level+': '+dims.name);
 }
 function hud(){
   $('score').textContent=score;$('mult').textContent='x'+Math.min(streak+1,5);
@@ -170,7 +195,7 @@ function tap(c){
     streak++;bestStreak=Math.max(bestStreak,streak);okPairs++;score+=gain;
     a.gone=c.gone=true;a.el.classList.add('gone');c.el.classList.add('gone');
     const n=SYM.indexOf(c.sym);tone(noteHz(n),.6);tone(noteHz(n)*2,.4,'sine',.07);
-    pop(c,'+'+gain);refresh();hud();
+    pop(c,'+'+gain);hud();
     if(cards.every(x=>x.gone))setTimeout(end,700);
   }else{
     streak=0;mistakes++;
@@ -185,10 +210,10 @@ function end(){
   const acc=Math.round(100*okPairs/(okPairs+mistakes));
   let best=0;try{best=+localStorage.zp_best||0;if(score>best){best=score;localStorage.zp_best=best}}catch(e){best=Math.max(best,score)}
   [0,2,4,7,9].forEach((s,i)=>setTimeout(()=>tone(261.63*Math.pow(2,s/12),.5),i*120));
-  $('overlay').innerHTML=`<h1>Level ${level} hotový</h1><div class="big">${score}</div>
+  $('overlay').innerHTML=`<h1>Level ${level}: ${dims.name}</h1><p>hotovo</p><div class="big">${score}</div>
    <p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>
    ${bonus?'<p>Bonus za level bez chyby: +500</p>':''}<p>Rekord: ${best}</p>
-   <button id="next">Level ${level+1}</button>`;
+   <button id="next">Level ${level+1}: ${positions(level+1).name}</button>`;
   $('overlay').classList.add('show');$('next').onclick=()=>{level++;start()};
 }
 addEventListener('resize',()=>cards&&layout());
