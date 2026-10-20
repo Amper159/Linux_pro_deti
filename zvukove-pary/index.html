@@ -334,6 +334,9 @@ function layout(){
 }
 const live=()=>cards.filter(c=>!c.gone&&!c.parked);
 const cardState=a=>stateIn(a,live());
+// Kámen je volný, když ho nedrží nikdo kromě jeho dvojčete (zakrytý dvojčetem ale nesmí být).
+const freeIgn=(x,y)=>x.parked||(cardState(x)!=='covered'&&stateIn(x,live().filter(z=>z!==y))==='free');
+const canPair=(a,b)=>a!==b&&!a.gone&&!b.gone&&a.sym===b.sym&&freeIgn(a,b)&&freeIgn(b,a);
 const slotCount=lv=>Math.max(1,3-Math.floor((lv-1)/3));
 function newRound(idx,diff,rng,nSlots){
   $('overlay').classList.remove('show');
@@ -384,9 +387,9 @@ function pop(c,txt,neg){
 }
 $('hint').onclick=()=>{
   if(lock||!playing)return;
-  const by={};
-  for(const c of cards)if(!c.gone&&(c.parked||cardState(c)==='free')){(by[c.sym]=by[c.sym]||[]).push(c)}
-  const pair=Object.values(by).find(a=>a.length>=2);
+  let pair=null;
+  const act=cards.filter(c=>!c.gone);
+  for(let i=0;i<act.length&&!pair;i++)for(let j=i+1;j<act.length;j++)if(canPair(act[i],act[j])){pair=[act[i],act[j]];break}
   if(!pair)return;
   score=Math.max(0,score-50);hud();toast('Tahák stojí 50 bodů. '+pick(SAY.hint));
   pair.slice(0,2).forEach(c=>{c.el.classList.add('hint');setTimeout(()=>c.el.classList.remove('hint'),1600)});
@@ -394,7 +397,12 @@ $('hint').onclick=()=>{
 function tap(c){
   if(lock||c.gone||!playing)return;
   if(c===sel){sel=null;c.el.classList.remove('sel');return}
-  const st=c.parked?'free':cardState(c);
+  let st=c.parked?'free':cardState(c);
+  if(st==='locked'){
+    // sevřený kámen: když ho svírá jen jeho dvojče, jdou spárovat spolu
+    const tw=sel?(canPair(sel,c)?sel:null):cards.find(x=>canPair(x,c));
+    if(tw){sel=tw;st='free'}
+  }
   if(st!=='free'){
     c.el.classList.add('bad');setTimeout(()=>c.el.classList.remove('bad'),350);
     tone(180,.15,'triangle',.05);
@@ -497,7 +505,7 @@ function showMenu(canResume){
    ${maxLv>1?'<div class="stepper"><button class="alt" id="lvm" aria-label="Nižší level">‹</button><b id="lvt"></b><button class="alt" id="lvp" aria-label="Vyšší level">›</button></div>':''}
    <button id="daily" class="alt">Denní výzva<small>Dnes: ${dayName}${dBest?' · nejlepší '+dBest:''}</small></button>
    <button class="link" id="how">Jak se hraje</button>
-   <div class="howto" id="howbox" hidden><p>Spáruj dva stejné kameny. Vybrat jde jen kámen, na kterém nic neleží a který je aspoň z jedné strany volný.</p><p>Kámen mezi dvěma sousedy musíš nejdřív uvolnit. Volné kameny můžeš odložit do okýnek dole, než se uvolní jejich dvojče. Okýnek s levely ubývá. Omylem vybraný kámen skočí do okýnka sám.</p><p>Série správných párů zvyšuje body až pětkrát. Chyba stojí 20 bodů, tahák 50. Po každém levelu to pořádně zařve.</p></div>
+   <div class="howto" id="howbox" hidden><p>Spáruj dva stejné kameny. Vybrat jde jen kámen, na kterém nic neleží a který je aspoň z jedné strany volný.</p><p>Kámen mezi dvěma sousedy musíš nejdřív uvolnit (dva stejné vedle sebe, které drží jen jeden druhého, jdou spárovat). Volné kameny můžeš odložit do okýnek dole, než se uvolní jejich dvojče. Okýnek s levely ubývá. Omylem vybraný kámen skočí do okýnka sám.</p><p>Série správných párů zvyšuje body až pětkrát. Chyba stojí 20 bodů, tahák 50. Po každém levelu to pořádně zařve.</p></div>
    <p class="note">Nepiš celé jméno, stačí přezdívka. Žebříček je jen v tomto telefonu.</p>`;
   $('overlay').classList.add('show');
   const inp=$('nick');inp.value=ls.get('zp_name','');
