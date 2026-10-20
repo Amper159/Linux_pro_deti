@@ -11,25 +11,31 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html,body{margin:0;height:100%;background:#14122b;color:#eee;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
 #app{height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
-header{display:flex;align-items:center;justify-content:space-between;padding:10px 4px;gap:8px}
+header{display:flex;align-items:center;justify-content:space-between;padding:8px 2px;gap:6px}
 .stat{display:flex;flex-direction:column;line-height:1.1}
-.stat small{font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em}
-.stat b{font-size:24px;font-variant-numeric:tabular-nums}
+.stat small{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.stat b{font-size:22px;font-variant-numeric:tabular-nums}
 #mult{color:#ffd166}
-button{font:inherit;border:0;border-radius:14px;background:#2b2760;color:#eee;padding:10px 14px}
+header .btns{display:flex;gap:6px}
+button{font:inherit;border:0;border-radius:12px;background:#2b2760;color:#eee;padding:9px 11px;font-size:14px}
 button:active{transform:scale(.96)}
 #board{position:relative;flex:1;margin-bottom:12px;touch-action:manipulation}
-.card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:18%;
- background:linear-gradient(145deg,#3a3580,#262260);box-shadow:0 4px 10px #0007;border:2px solid #4a45a0;
- transition:transform .2s,opacity .35s,box-shadow .2s,border-color .2s;cursor:pointer}
-.card.sel{border-color:#ffd166;box-shadow:0 0 0 3px #ffd16688,0 6px 14px #000a;z-index:50!important;transform:scale(1.12) rotate(0deg)!important}
-.card.gone{opacity:0;transform:scale(1.5) rotate(0)!important;pointer-events:none}
+.card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:16%;
+ background:linear-gradient(145deg,#4a45a0,#2f2b75);border:2px solid #6a64c8;
+ transition:transform .2s,opacity .35s,box-shadow .2s,border-color .2s,filter .25s;cursor:pointer}
+.card.blocked{filter:brightness(.5) saturate(.7)}
+.card.sel{border-color:#ffd166;box-shadow:0 0 0 3px #ffd16688,0 6px 14px #000a!important;transform:scale(1.1)!important}
+.card.gone{opacity:0;transform:scale(1.5)!important;pointer-events:none}
 .card.bad{animation:shake .35s}
-@keyframes shake{25%{translate:-6px 0}75%{translate:6px 0}}
-.float{position:absolute;pointer-events:none;font-weight:700;color:#ffd166;font-size:22px;animation:up .8s forwards;z-index:99}
+.card.hint{animation:glow .5s 3;border-color:#7dffb0}
+@keyframes shake{25%{translate:-5px 0}75%{translate:5px 0}}
+@keyframes glow{50%{box-shadow:0 0 0 5px #7dffb0aa}}
+.float{position:absolute;pointer-events:none;font-weight:700;color:#ffd166;font-size:22px;animation:up .8s forwards;z-index:9999}
 .float.neg{color:#ff7b7b}
 @keyframes up{to{transform:translateY(-50px);opacity:0}}
-#overlay{position:fixed;inset:0;background:#14122bee;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px;z-index:200}
+#toast{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:#000a;padding:6px 12px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;white-space:nowrap}
+#toast.show{opacity:1}
+#overlay{position:fixed;inset:0;background:#14122bee;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px;z-index:20000}
 #overlay.show{display:flex}
 #overlay h1{margin:0;font-size:30px}
 #overlay .big{font-size:64px;font-weight:800;color:#ffd166}
@@ -42,22 +48,24 @@ button:active{transform:scale(.96)}
  <header>
   <div class="stat"><small>Body</small><b id="score">0</b></div>
   <div class="stat"><small>Série</small><b id="mult">x1</b></div>
-  <div class="stat"><small>Zbývá</small><b id="left">15</b></div>
-  <button id="snd" aria-label="Zvuk">Zvuk</button>
+  <div class="stat"><small id="lvl">Level 1 · zbývá</small><b id="left">16</b></div>
+  <div class="btns"><button id="hint" aria-label="Rada">Rada</button><button id="snd" aria-label="Zvuk">Zvuk</button></div>
  </header>
- <div id="board"></div>
+ <div id="board"><div id="toast"></div></div>
 </div>
 <div id="overlay"></div>
 <script>
-const SYM=['🎸','🎹','🎺','🎻','🥁','🎤','🎧','🎷','🪕','🪗','🎼','🎵','🎶','🔔','📯'];
+const SYM=['🎸','🎹','🎺','🎻','🥁','🎤','🎧','🎷','🪕','🪗','🎼','🎵','🎶','🔔','📯','📻','🎙️','🎛️','🎚️','💿','📀','🎭','🎬','🪩','🎪','🎠','🎟️','🎫','🎡','🪘'];
 const SCALE=[0,2,4,7,9]; // pentatonika
-const noteHz=i=>261.63*Math.pow(2,(SCALE[i%5]+12*Math.floor(i/5))/12);
+const noteHz=i=>261.63*Math.pow(2,(SCALE[i%5]+12*(Math.floor(i/5)%3))/12);
+const K=.92; // velikost karty v jednotkách kroku mřížky
 const $=id=>document.getElementById(id);
 const board=$('board');
-let cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,muted=false,ac;
+let cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,level=1,muted=false,ac,dims,toastT;
 try{muted=localStorage.zp_muted==='1'}catch(e){}
 $('snd').textContent=muted?'Ticho':'Zvuk';
 $('snd').onclick=()=>{muted=!muted;$('snd').textContent=muted?'Ticho':'Zvuk';try{localStorage.zp_muted=muted?'1':'0'}catch(e){}};
+$('hint').onclick=hint;
 
 function tone(f,dur=.5,type='sine',vol=.18){
   if(muted)return;
@@ -72,35 +80,66 @@ function tone(f,dur=.5,type='sine',vol=.18){
   }catch(e){}
 }
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1400)}
 
+// Rozložení: vrstvy karet přes sebe (jako mahjong). Úroveň 1 je malá, další větší a vyšší.
+function positions(lv){
+  const cols=lv===1?4:5,rows=lv===1?5:6,P=[];
+  const add=(l,x,y)=>P.push({l,x,y});
+  for(let c=0;c<cols;c++)for(let r=0;r<rows;r++)add(0,c,r);
+  for(let c=0;c<cols-1;c++)for(let r=0;r<rows-1;r++)add(1,c+.5,r+.5);
+  if(lv>=3)for(let c=1;c<=cols-2;c++)for(let r=1;r<=rows-2;r++){
+    if((c===1&&r===1)||(c===cols-2&&r===rows-2))continue;add(2,c,r);
+  }
+  return {cols,rows,P};
+}
+const covers=(b,a)=>b.l>a.l&&Math.abs(b.x-a.x)<K&&Math.abs(b.y-a.y)<K;
+// Každý pár vznikne ze dvou právě odkrytých karet, takže je level vždy řešitelný.
+function build(lv){
+  const L=positions(lv);
+  for(let t=0;t<500;t++){
+    const rem=L.P.map(p=>({...p})),order=[];
+    while(rem.length){
+      const free=rem.filter(a=>!rem.some(b=>b!==a&&covers(b,a)));
+      if(free.length<2)break;
+      const [x,y]=shuffle(free.slice());
+      order.push([x,y]);rem.splice(rem.indexOf(x),1);rem.splice(rem.indexOf(y),1);
+    }
+    if(!rem.length){
+      const syms=shuffle(SYM.slice());
+      order.forEach(([x,y],i)=>{x.sym=y.sym=syms[i]});
+      return {cols:L.cols,rows:L.rows,P:order.flat()};
+    }
+  }
+}
 function layout(){
-  const W=board.clientWidth,H=board.clientHeight,cols=5,rows=6;
-  const cw=W/cols,ch=H/rows,s=Math.min(cw,ch)*1.05;
-  cards.forEach(c=>{
-    const x=Math.min(Math.max(c.cx*cw+cw/2+c.jx*s-s/2,0),W-s);
-    const y=Math.min(Math.max(c.cy*ch+ch/2+c.jy*s-s/2,0),H-s);
-    Object.assign(c.el.style,{width:s+'px',height:s+'px',left:x+'px',top:y+'px',fontSize:s*.55+'px',
-      transform:`rotate(${c.rot}deg)`,zIndex:c.z});
+  const W=board.clientWidth,H=board.clientHeight,{cols,rows}=dims;
+  const step=Math.min(84,W/(cols-1+K),H/(rows-1+K)),s=K*step;
+  const ox=(W-((cols-1)*step+s))/2,oy=(H-((rows-1)*step+s))/2;
+  cards.forEach((c,i)=>{
+    Object.assign(c.el.style,{width:s+'px',height:s+'px',left:ox+c.x*step+'px',top:oy+c.y*step+'px',
+      fontSize:s*.55+'px',transform:`translate(${-c.l*2}px,${-c.l*3}px) rotate(${c.rot}deg)`,
+      zIndex:c.l*100+i%100,boxShadow:`0 ${2+c.l*2}px ${6+c.l*4}px #000${c.l?'a':'7'}`});
   });
 }
+const isFree=a=>!a.gone&&!cards.some(b=>!b.gone&&b!==a&&covers(b,a));
+function refresh(){cards.forEach(c=>c.el.classList.toggle('blocked',!c.gone&&!isFree(c)))}
 function start(){
   $('overlay').classList.remove('show');
-  board.innerHTML='';
-  score=0;streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;
-  const slots=[];for(let r=0;r<6;r++)for(let c=0;c<5;c++)slots.push([c,r]);
-  shuffle(slots);
-  const syms=shuffle([...SYM,...SYM]);
-  cards=syms.map((sym,i)=>{
-    const el=document.createElement('div');el.className='card';el.textContent=sym;
-    const c={sym,el,gone:false,cx:slots[i][0],cy:slots[i][1],jx:(Math.random()-.5)*.28,jy:(Math.random()-.5)*.28,
-      rot:(Math.random()-.5)*18,z:i};
+  board.querySelectorAll('.card,.float').forEach(n=>n.remove());
+  streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;
+  dims=build(level);
+  cards=dims.P.map(p=>{
+    const el=document.createElement('div');el.className='card';el.textContent=p.sym;
+    const c={...p,el,gone:false,rot:(Math.random()-.5)*4};
     el.addEventListener('pointerdown',e=>{e.preventDefault();tap(c)});
     board.appendChild(el);return c;
   });
-  layout();hud();
+  layout();refresh();hud();
 }
 function hud(){
   $('score').textContent=score;$('mult').textContent='x'+Math.min(streak+1,5);
+  $('lvl').textContent='Level '+level+' · zbývá';
   $('left').textContent=cards.filter(c=>!c.gone).length/2;
 }
 function pop(c,txt,neg){
@@ -108,8 +147,22 @@ function pop(c,txt,neg){
   f.style.left=c.el.offsetLeft+c.el.offsetWidth/3+'px';f.style.top=c.el.offsetTop+'px';
   board.appendChild(f);setTimeout(()=>f.remove(),800);
 }
+function hint(){
+  if(lock)return;
+  const by={};
+  for(const c of cards)if(isFree(c)){(by[c.sym]=by[c.sym]||[]).push(c)}
+  const pair=Object.values(by).find(a=>a.length>=2);
+  if(!pair)return;
+  score=Math.max(0,score-50);hud();toast('Rada stojí 50 bodů');
+  pair.slice(0,2).forEach(c=>{c.el.classList.add('hint');setTimeout(()=>c.el.classList.remove('hint'),1600)});
+}
 function tap(c){
-  if(lock||c.gone||c===sel)return;
+  if(lock||c.gone)return;
+  if(c===sel){sel=null;c.el.classList.remove('sel');return}
+  if(!isFree(c)){
+    c.el.classList.add('bad');setTimeout(()=>c.el.classList.remove('bad'),350);
+    tone(180,.15,'triangle',.05);toast('Tahle karta je zakrytá. Odeber nejdřív karty nad ní.');return;
+  }
   if(!sel){sel=c;c.el.classList.add('sel');tone(noteHz(SYM.indexOf(c.sym)),.15,'triangle',.08);return}
   const a=sel;sel=null;a.el.classList.remove('sel');
   if(a.sym===c.sym){
@@ -117,7 +170,7 @@ function tap(c){
     streak++;bestStreak=Math.max(bestStreak,streak);okPairs++;score+=gain;
     a.gone=c.gone=true;a.el.classList.add('gone');c.el.classList.add('gone');
     const n=SYM.indexOf(c.sym);tone(noteHz(n),.6);tone(noteHz(n)*2,.4,'sine',.07);
-    pop(c,'+'+gain);hud();
+    pop(c,'+'+gain);refresh();hud();
     if(cards.every(x=>x.gone))setTimeout(end,700);
   }else{
     streak=0;mistakes++;
@@ -132,14 +185,14 @@ function end(){
   const acc=Math.round(100*okPairs/(okPairs+mistakes));
   let best=0;try{best=+localStorage.zp_best||0;if(score>best){best=score;localStorage.zp_best=best}}catch(e){best=Math.max(best,score)}
   [0,2,4,7,9].forEach((s,i)=>setTimeout(()=>tone(261.63*Math.pow(2,s/12),.5),i*120));
-  $('overlay').innerHTML=`<h1>Hotovo</h1><div class="big">${score}</div>
+  $('overlay').innerHTML=`<h1>Level ${level} hotový</h1><div class="big">${score}</div>
    <p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>
-   ${bonus?'<p>Bonus za kolo bez chyby: +500</p>':''}<p>Rekord: ${best}</p>
-   <button id="again">Hrát znovu</button>`;
-  $('overlay').classList.add('show');$('again').onclick=start;
+   ${bonus?'<p>Bonus za level bez chyby: +500</p>':''}<p>Rekord: ${best}</p>
+   <button id="next">Level ${level+1}</button>`;
+  $('overlay').classList.add('show');$('next').onclick=()=>{level++;start()};
 }
 addEventListener('resize',()=>cards&&layout());
-start();
+score=0;start();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
