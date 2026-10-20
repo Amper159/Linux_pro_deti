@@ -16,15 +16,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:8px
 .stat small{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
 .stat b{font-size:22px;font-variant-numeric:tabular-nums}
 #mult{color:#ffd166}
-header .btns{display:flex;gap:6px}
-button{font:inherit;border:0;border-radius:12px;background:#2b2760;color:#eee;padding:9px 11px;font-size:14px}
+footer{display:flex;gap:8px;padding:0 0 10px}
+footer button{flex:1}
+button{font:inherit;border:0;border-radius:12px;background:#2b2760;color:#eee;padding:11px 12px;font-size:15px}
 button:active{transform:scale(.96)}
-#board{position:relative;flex:1;margin-bottom:12px;touch-action:manipulation}
+#board{position:relative;flex:1;margin-bottom:10px;touch-action:manipulation}
 .card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:16%;
  background:#3d3890;border:2px solid #8a84e8;
- transition:transform .2s,opacity .35s,box-shadow .2s,border-color .2s,filter .25s;cursor:pointer}
-.card.sel{border-color:#ffd166;box-shadow:0 0 0 3px #ffd16688,0 6px 14px #000a!important;transform:scale(1.1)!important}
+ transition:transform .2s,opacity .35s,box-shadow .2s,border-color .2s;cursor:pointer}
 .card svg{width:1em;height:1em;display:block}
+.card.sel{border-color:#ffd166;box-shadow:0 0 0 3px #ffd16688,0 6px 14px #000a!important;transform:scale(1.1)!important}
 .card.gone{opacity:0;transform:scale(1.5)!important;pointer-events:none}
 .card.bad{animation:shake .35s}
 .card.hint{animation:glow .5s 3;border-color:#7dffb0}
@@ -33,14 +34,16 @@ button:active{transform:scale(.96)}
 .float{position:absolute;pointer-events:none;font-weight:700;color:#ffd166;font-size:22px;animation:up .8s forwards;z-index:9999}
 .float.neg{color:#ff7b7b}
 @keyframes up{to{transform:translateY(-50px);opacity:0}}
-#toast{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:#000a;padding:6px 12px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;white-space:nowrap}
+#toast{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:#000c;padding:6px 12px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;text-align:center;max-width:94%}
 #toast.show{opacity:1}
-#overlay{position:fixed;inset:0;background:#14122bee;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px;z-index:20000}
+#overlay{position:fixed;inset:0;background:#14122bf2;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:24px;z-index:20000}
 #overlay.show{display:flex}
 #overlay h1{margin:0;font-size:30px}
-#overlay .big{font-size:64px;font-weight:800;color:#ffd166}
+#overlay .big{font-size:60px;font-weight:800;color:#ffd166}
 #overlay p{margin:2px 0;opacity:.85}
-#overlay button{background:#ffd166;color:#14122b;font-weight:700;font-size:18px;padding:14px 30px}
+#overlay .rules{font-size:13px;opacity:.65;max-width:300px;line-height:1.4}
+#overlay button{background:#ffd166;color:#14122b;font-weight:700;font-size:18px;padding:14px 30px;min-width:220px}
+#overlay button.alt{background:#2b2760;color:#eee;font-weight:500;font-size:16px}
 </style>
 </head>
 <body>
@@ -49,35 +52,79 @@ button:active{transform:scale(.96)}
   <div class="stat"><small>Body</small><b id="score">0</b></div>
   <div class="stat"><small>Série</small><b id="mult">x1</b></div>
   <div class="stat"><small id="lvl">Level 1 · zbývá</small><b id="left">16</b></div>
-  <div class="btns"><button id="hint" aria-label="Rada">Rada</button><button id="snd" aria-label="Zvuk">Zvuk</button></div>
  </header>
  <div id="board"><div id="toast"></div></div>
+ <footer>
+  <button id="hint">Rada</button><button id="snd">Zvuk</button><button id="menu">Menu</button>
+ </footer>
 </div>
 <div id="overlay"></div>
 <script>
-const MUSIC=['🎸','🎹','🎺','🎻','🥁','🎤','🎧','🎷','🪕','🪗','🎼','🎵','🎶','🔔','📯','📻','🎙️','🎛️','🎚️','💿','📀','🎭','🎬','🪩','🎪','🎠','🎟️','🎫','🎡','🪘'];
-const PUNK=['🤘','💀','🧷','⛓️','⚡','🔥','🏴','🦇','🕷️','🧨','💣','👢','🛹','💥','🩸','📼','🔊','🕶️','🦴','🖤','svg:anarchy','svg:mohawk','svg:spike','svg:boombox'];
-const SYM=[...PUNK,...MUSIC];
-// podobné motivy, od vyšších levelů se z nich skládají páry, které se snadno zaměnit
-const SIMILAR=[['🎸','🪕'],['💀','🦴'],['🧷','⛓️'],['🔥','💥'],['🥁','🪘'],['🎤','🎙️'],['⚡','💥'],['📻','svg:boombox'],['💿','📀'],['🎺','📯'],['🏴','🖤'],['🦇','🕷️']];
-const SVGS={
- anarchy:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M7 19L12 5l5 14M8.6 14.5h6.8"/><path d="M3 10l3 4M21 10l-3 4" stroke-width="0"/></svg>',
- mohawk:'<svg viewBox="0 0 24 24"><path d="M9 4l1 4M12 2l.5 5M15 4l-1 4" stroke="#ff4fa3" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="14" r="6.5" fill="#ffd9b0"/><path d="M9.5 13h1.5M13 13h1.5" stroke="#222" stroke-width="1.6" stroke-linecap="round"/><path d="M10 17q2 1.6 4 0" stroke="#222" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
- spike:'<svg viewBox="0 0 24 24"><rect x="2" y="9" width="20" height="6" rx="2" fill="#222" stroke="#aaa" stroke-width="1"/><path d="M5 9l1.5-5L8 9M10.5 9L12 4l1.5 5M16 9l1.5-5L19 9" fill="#e5e5e5"/><path d="M5 15l1.5 5L8 15M10.5 15L12 20l1.5-5M16 15l1.5 5L19 15" fill="#e5e5e5"/></svg>',
- boombox:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2" fill="#222" stroke="#ccc" stroke-width="1.2"/><circle cx="7.5" cy="13" r="3.4" fill="#555" stroke="#ccc"/><circle cx="16.5" cy="13" r="3.4" fill="#555" stroke="#ccc"/><rect x="9.5" y="8" width="5" height="2.4" fill="#ff4fa3"/><path d="M5 6l3-3h8l3 3" fill="none" stroke="#ccc" stroke-width="1.2"/></svg>'
+// ---------- ikony (vlastní SVG, žádná cizí loga ani postavy) ----------
+const S=i=>`<svg viewBox="0 0 24 24">${i}</svg>`;
+const ICONS={
+ kytara:S('<path d="M13 11l7-7" stroke="#d9a35b" stroke-width="2" stroke-linecap="round"/><path d="M19 2.5l2.5 2.5" stroke="#f2f2f2" stroke-width="2.6" stroke-linecap="round"/><circle cx="7.5" cy="16.5" r="4.8" fill="#ff7a3c"/><circle cx="11.5" cy="12.5" r="3.4" fill="#ff7a3c"/><circle cx="8.2" cy="15.8" r="1.4" fill="#1b1b2f"/>'),
+ klavir:S('<rect x="2" y="5" width="20" height="14" rx="2" fill="#f2f2f2"/><path d="M8.7 13.5V19M15.3 13.5V19" stroke="#9aa0b5" stroke-width=".8"/><rect x="6.5" y="5" width="4.4" height="8.5" rx=".8" fill="#1b1b2f"/><rect x="13" y="5" width="4.4" height="8.5" rx=".8" fill="#1b1b2f"/>'),
+ trumpeta:S('<path d="M2 11h11" stroke="#ffd166" stroke-width="2.6" stroke-linecap="round"/><path d="M13 7l8-3.5v15L13 15z" fill="#ffd166"/><path d="M5 7.5V11M8 7.5V11M11 8v3" stroke="#e0a526" stroke-width="1.6" stroke-linecap="round"/>'),
+ housle:S('<circle cx="12" cy="16" r="5" fill="#c9772b"/><circle cx="12" cy="10.3" r="3.6" fill="#c9772b"/><path d="M12 7V1.5" stroke="#8a5a2b" stroke-width="2" stroke-linecap="round"/><path d="M10 15v3M14 15v3" stroke="#3b210c" stroke-width="1" stroke-linecap="round"/><path d="M3 21L21 8" stroke="#f2f2f2" stroke-width="1.2" stroke-linecap="round"/>'),
+ buben:S('<path d="M3 9v8c0 1.8 4 3 9 3s9-1.2 9-3V9z" fill="#e8505b"/><ellipse cx="12" cy="9" rx="9" ry="3.2" fill="#f2f2f2"/><path d="M7 2.5l7 5.5M17 2.5l-7 5.5" stroke="#ffd166" stroke-width="1.8" stroke-linecap="round"/><path d="M6 11l3 8M12 12v8M18 11l-3 8" stroke="#b83442" stroke-width="1"/>'),
+ mikrofon:S('<rect x="8" y="2" width="8" height="10" rx="4" fill="#9aa0b5"/><path d="M8 7h8M8 9.5h8" stroke="#5c6178" stroke-width="1"/><path d="M5 10a7 7 0 0014 0" fill="none" stroke="#f2f2f2" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17v4M8.5 21h7" stroke="#f2f2f2" stroke-width="1.8" stroke-linecap="round"/>'),
+ sluchatka:S('<path d="M4 15v-3a8 8 0 0116 0v3" fill="none" stroke="#4fd1ff" stroke-width="2" stroke-linecap="round"/><rect x="2.5" y="13.5" width="5" height="8" rx="2" fill="#ff4fa3"/><rect x="16.5" y="13.5" width="5" height="8" rx="2" fill="#ff4fa3"/>'),
+ saxofon:S('<path d="M8 2.5h5l1.5 2v11a3.5 3.5 0 003.5 3.5" fill="none" stroke="#ffd166" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 17.5l5-1-.5 5.5z" fill="#ffd166"/><circle cx="11.5" cy="8" r="1.1" fill="#1b1b2f"/><circle cx="11.5" cy="12" r="1.1" fill="#1b1b2f"/>'),
+ nota:S('<ellipse cx="8" cy="18" rx="4" ry="3" fill="#7dffb0"/><path d="M11.6 18V4l7 3v4" stroke="#7dffb0" stroke-width="2" fill="none" stroke-linejoin="round"/>'),
+ dvojnota:S('<ellipse cx="6.5" cy="18.5" rx="3.5" ry="2.7" fill="#4fd1ff"/><ellipse cx="17" cy="16.5" rx="3.5" ry="2.7" fill="#4fd1ff"/><path d="M10 18.5V5l10.5-2v13.5M10 8.5l10.5-2" stroke="#4fd1ff" stroke-width="2" fill="none" stroke-linejoin="round"/>'),
+ zvonek:S('<path d="M12 3c-4 0-6 3-6 7v4l-2 3h16l-2-3v-4c0-4-2-7-6-7z" fill="#ffd166"/><circle cx="12" cy="20" r="2" fill="#e0a526"/>'),
+ gramodeska:S('<circle cx="12" cy="12" r="10" fill="#1b1b2f" stroke="#9aa0b5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#4a4d70" stroke-width=".8"/><circle cx="12" cy="12" r="3.6" fill="#ff4fa3"/><circle cx="12" cy="12" r="1" fill="#1b1b2f"/>'),
+ kazeta:S('<rect x="2" y="5" width="20" height="14" rx="2" fill="#f2f2f2"/><rect x="5" y="7" width="14" height="6" rx="1" fill="#ff4fa3"/><circle cx="9" cy="10" r="1.8" fill="#1b1b2f"/><circle cx="15" cy="10" r="1.8" fill="#1b1b2f"/><path d="M8 19l1.5-3.5h5L16 19" fill="#1b1b2f"/>'),
+ boombox:S('<rect x="2" y="6" width="20" height="13" rx="2" fill="#2b2f4a" stroke="#ccc" stroke-width="1.2"/><circle cx="7.5" cy="13" r="3.4" fill="#555" stroke="#ccc"/><circle cx="16.5" cy="13" r="3.4" fill="#555" stroke="#ccc"/><rect x="9.5" y="8" width="5" height="2.4" fill="#ff4fa3"/><path d="M5 6l3-3h8l3 3" fill="none" stroke="#ccc" stroke-width="1.2"/>'),
+ reproduktor:S('<rect x="4" y="2" width="16" height="20" rx="2.5" fill="#2b2f4a" stroke="#9aa0b5"/><circle cx="12" cy="7.5" r="2.2" fill="#9aa0b5"/><circle cx="12" cy="15.5" r="4.4" fill="#4fd1ff"/><circle cx="12" cy="15.5" r="1.8" fill="#1b1b2f"/>'),
+ zesilovac:S('<rect x="2" y="5" width="20" height="14" rx="2" fill="#1b1b2f" stroke="#ffd166" stroke-width="1.2"/><circle cx="6.5" cy="12.5" r="2" fill="#ff4fa3"/><circle cx="12" cy="12.5" r="2" fill="#ff4fa3"/><circle cx="17.5" cy="12.5" r="2" fill="#ff4fa3"/><path d="M4 8.5h16" stroke="#ffd166" stroke-width="1"/>'),
+ diskokoule:S('<circle cx="12" cy="13" r="8.5" fill="#cfd6ee"/><path d="M3.5 13h17M5 9h14M5 17h14M12 4.5v17M8 5.5c-3 4-3 11 0 15M16 5.5c3 4 3 11 0 15" stroke="#7d86a8" stroke-width=".8" fill="none"/><path d="M12 1.5V4.5" stroke="#cfd6ee" stroke-width="1.5"/><path d="M8 9l2 .5-1 1.5z" fill="#fff"/>'),
+ banjo:S('<circle cx="8" cy="16" r="5.5" fill="#f2f2f2" stroke="#c9772b" stroke-width="2"/><path d="M12 12l8.5-8.5" stroke="#c9772b" stroke-width="2.4" stroke-linecap="round"/><path d="M19 2l3 3" stroke="#f2f2f2" stroke-width="2.4" stroke-linecap="round"/><circle cx="8" cy="16" r="1.2" fill="#c9772b"/>'),
+ harmonika:S('<rect x="2" y="5" width="4.5" height="14" rx="1.5" fill="#e8505b"/><rect x="17.5" y="5" width="4.5" height="14" rx="1.5" fill="#e8505b"/><path d="M6.5 6h11v12h-11z" fill="#f2f2f2"/><path d="M9 6v12M11.5 6v12M14 6v12" stroke="#9aa0b5" stroke-width="1"/>'),
+ listek:S('<path d="M2 7a2 2 0 012-2h16a2 2 0 012 2v2.5a2.5 2.5 0 000 5V17a2 2 0 01-2 2H4a2 2 0 01-2-2v-2.5a2.5 2.5 0 000-5z" fill="#ffd166"/><path d="M15 6v12" stroke="#b78a1f" stroke-width="1.2" stroke-dasharray="1.6 1.6"/><path d="M7 12h5" stroke="#b78a1f" stroke-width="1.8" stroke-linecap="round"/>'),
+ metronom:S('<path d="M8 3h8l4 18H4z" fill="#c9772b"/><path d="M12 18L16.5 6" stroke="#f2f2f2" stroke-width="1.8" stroke-linecap="round"/><circle cx="15" cy="9.5" r="1.6" fill="#ffd166"/><rect x="7" y="19" width="10" height="2" rx="1" fill="#5a3515"/>'),
+ tamburina:S('<circle cx="12" cy="12" r="8.5" fill="#f2e3c9" stroke="#c9772b" stroke-width="2.6"/><circle cx="12" cy="3" r="1.6" fill="#ffd166"/><circle cx="21" cy="12" r="1.6" fill="#ffd166"/><circle cx="12" cy="21" r="1.6" fill="#ffd166"/><circle cx="3" cy="12" r="1.6" fill="#ffd166"/>'),
+ fletna:S('<path d="M3 20L19 4" stroke="#9aa0b5" stroke-width="3.6" stroke-linecap="round"/><circle cx="8" cy="15" r="1" fill="#1b1b2f"/><circle cx="11" cy="12" r="1" fill="#1b1b2f"/><circle cx="14" cy="9" r="1" fill="#1b1b2f"/>'),
+ lebka:S('<path d="M12 2.5c-5 0-8 3.2-8 7.5 0 2.7 1.2 4.4 3 5.4V19h10v-3.6c1.8-1 3-2.7 3-5.4 0-4.3-3-7.5-8-7.5z" fill="#f2f2f2"/><ellipse cx="8.8" cy="10.5" rx="2.2" ry="2.5" fill="#1b1b2f"/><ellipse cx="15.2" cy="10.5" rx="2.2" ry="2.5" fill="#1b1b2f"/><path d="M12 13.5l-1 2h2z" fill="#1b1b2f"/><path d="M9.5 16.5V19M12 16.5V19M14.5 16.5V19" stroke="#1b1b2f" stroke-width="1"/>'),
+ spendlik:S('<circle cx="6" cy="6" r="3" fill="none" stroke="#cfd6ee" stroke-width="2"/><path d="M8.2 8.2L20 20M11 5.5L21.5 16M20 20l1.8-4" stroke="#cfd6ee" stroke-width="2" stroke-linecap="round"/>'),
+ retez:S('<rect x="2" y="8" width="12" height="8" rx="4" fill="none" stroke="#cfd6ee" stroke-width="2.4"/><rect x="10" y="8" width="12" height="8" rx="4" fill="none" stroke="#8d93b0" stroke-width="2.4"/>'),
+ blesk:S('<path d="M14 2L5 13.5h6L9.5 22 19 9.5h-6.2z" fill="#ffd166" stroke="#e0a526" stroke-linejoin="round"/>'),
+ plamen:S('<path d="M12 2c1 4 6 6 6 12a6 6 0 01-12 0c0-3 2-4 3-7 1 1.5 1.5 2.5 1.5 3.5C11 8 11 5 12 2z" fill="#ff7a3c"/><path d="M12 22a3.5 3.5 0 003.5-3.5c0-2.5-2-3-3.5-5.5-1.5 2.5-3.5 3-3.5 5.5A3.5 3.5 0 0012 22z" fill="#ffd166"/>'),
+ vlajka:S('<path d="M5 2v20" stroke="#cfd6ee" stroke-width="2" stroke-linecap="round"/><path d="M5 3h15l-3 4.5 3 4.5H5z" fill="#1b1b2f" stroke="#f2f2f2" stroke-width="1.2" stroke-linejoin="round"/><path d="M8.5 10.5L11 5.5l2.5 5" stroke="#ff4fa3" stroke-width="1.4" fill="none"/>'),
+ netopyr:S('<path d="M12 8L10.5 4v4.5C8.5 6.5 5 6 2 7c1.5 1.5 2 3 1.5 5 1.5-1 3-1 4.5 0 1-1.2 2.7-1.2 4-.2 1.3-1 3-1 4 .2 1.5-1 3-1 4.5 0-.5-2 0-3.5 1.5-5-3-1-6.500-.5-8.500 1.500V4z" fill="#8a5ad6"/><circle cx="10.5" cy="9.5" r=".7" fill="#ffd166"/><circle cx="13.500" cy="9.500" r=".7" fill="#ffd166"/>'),
+ pavouk:S('<g stroke="#e8e8f5" stroke-width="1.4" fill="none" stroke-linecap="round"><path d="M9 11L3 6M9 12l-6 1M9 13l-5 6M9.5 14l-2 6M15 11l6-5M15 12l6 1M15 13l5 6M14.5 14l2 6"/></g><ellipse cx="12" cy="14" rx="3.5" ry="4.5" fill="#1b1b2f" stroke="#cfd6ee"/><circle cx="12" cy="9" r="2.2" fill="#1b1b2f" stroke="#cfd6ee"/><circle cx="11" cy="8.6" r=".6" fill="#ff5b5b"/><circle cx="13" cy="8.6" r=".6" fill="#ff5b5b"/>'),
+ dynamit:S('<rect x="5" y="9" width="14" height="12" rx="2" fill="#e8505b"/><path d="M5 13h14M5 17h14" stroke="#b83442" stroke-width="1"/><path d="M12 9V6q0-3 4-3" stroke="#cfd6ee" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="17" cy="3.2" r="1.6" fill="#ffd166"/>'),
+ bomba:S('<circle cx="11" cy="14" r="8" fill="#2b2f4a" stroke="#4a4d70"/><path d="M7 11a5 5 0 013-3" stroke="#9aa0b5" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M16 7l2-3" stroke="#cfd6ee" stroke-width="2" stroke-linecap="round"/><path d="M19 1.5l.6 1.6 1.6.6-1.6.6L19 6l-.6-1.7-1.6-.6 1.6-.6z" fill="#ffd166"/>'),
+ bota:S('<path d="M6 3h7v8l7 3.5c1 .5 1.5 1.500 1.500 3V20H4V3z" fill="#2b2f4a" stroke="#9aa0b5" stroke-width="1.2" stroke-linejoin="round"/><path d="M4 18h17.5v2.5H4z" fill="#f2f2f2"/><path d="M7 7h4M7 10h4M7 13h4" stroke="#ff4fa3" stroke-width="1.6" stroke-linecap="round"/>'),
+ skate:S('<rect x="2" y="9" width="20" height="5" rx="2.5" fill="#ffd166"/><circle cx="7" cy="18.5" r="2.3" fill="#f2f2f2"/><circle cx="17" cy="18.5" r="2.3" fill="#f2f2f2"/><path d="M6 11.5h12" stroke="#e0a526" stroke-width="1" stroke-dasharray="2 2"/>'),
+ vybuch:S('<path d="M12 1l2.6 6.4L21 4.5l-2.9 6.2L23 13l-6.3 1.3L18 21l-6-3.6L6 21l1.3-6.7L1 13l4.9-2.3L3 4.5l6.4 2.9z" fill="#ffd166" stroke="#ff7a3c" stroke-width="1.4" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#ff7a3c"/>'),
+ kapka:S('<path d="M12 2.5c3 4.5 7 7.5 7 12a7 7 0 01-14 0c0-4.5 4-7.5 7-12z" fill="#e0243e"/><path d="M8.500 15a3.500 3.500 0 003 3.500" stroke="#ff8a96" stroke-width="1.6" fill="none" stroke-linecap="round"/>'),
+ bryle:S('<rect x="3" y="8" width="8" height="7" rx="3" fill="#1b1b2f" stroke="#f2f2f2" stroke-width="1.4"/><rect x="13" y="8" width="8" height="7" rx="3" fill="#1b1b2f" stroke="#f2f2f2" stroke-width="1.4"/><path d="M11 10.5h2M3 9L1.500 6.500M21 9l1.500-2.500" stroke="#f2f2f2" stroke-width="1.6" stroke-linecap="round"/>'),
+ kost:S('<path d="M6 7l12 10" stroke="#f2f2f2" stroke-width="3.2" stroke-linecap="round"/><circle cx="4.500" cy="7" r="2.400" fill="#f2f2f2"/><circle cx="7.500" cy="4.500" r="2.200" fill="#f2f2f2"/><circle cx="19.500" cy="17" r="2.400" fill="#f2f2f2"/><circle cx="16.500" cy="19.500" r="2.200" fill="#f2f2f2"/>'),
+ cernesrdce:S('<path d="M12 21s-9-5.500-9-12a5 5 0 019-2.600A5 5 0 0121 9c0 6.500-9 12-9 12z" fill="#2b2f4a" stroke="#ff4fa3" stroke-width="1.4"/><path d="M12 6.400l-1.500 3 2 2-1.500 3.400" stroke="#ff4fa3" stroke-width="1.200" fill="none" stroke-linecap="round"/>'),
+ anarchy:S('<g fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.500"/><path d="M7 19L12 5l5 14M8.600 14.500h6.800"/></g>'),
+ mohawk:S('<path d="M9 4l1 4M12 2l.5 5M15 4l-1 4" stroke="#ff4fa3" stroke-width="2.600" stroke-linecap="round"/><circle cx="12" cy="14" r="6.500" fill="#ffd9b0"/><path d="M9.500 13h1.500M13 13h1.500" stroke="#222" stroke-width="1.600" stroke-linecap="round"/><path d="M10 17q2 1.600 4 0" stroke="#222" stroke-width="1.400" fill="none" stroke-linecap="round"/>'),
+ spike:S('<rect x="2" y="9" width="20" height="6" rx="2" fill="#222" stroke="#aaa"/><path d="M5 9l1.500-5L8 9M10.500 9L12 4l1.500 5M16 9l1.500-5L19 9" fill="#e5e5e5"/><path d="M5 15l1.500 5L8 15M10.500 15L12 20l1.500-5M16 15l1.500 5L19 15" fill="#e5e5e5"/>'),
+ sprej:S('<rect x="7" y="9" width="10" height="13" rx="2" fill="#4fd1ff"/><rect x="9" y="5" width="6" height="4" fill="#cfd6ee"/><rect x="10.500" y="2.500" width="3" height="2.500" fill="#ff4fa3"/><path d="M8 13h8M8 17h8" stroke="#2b8fb0" stroke-width="1.200"/><path d="M17 3l2-1M18 5.500h2.500M17 8l2 1" stroke="#ff4fa3" stroke-width="1.400" stroke-linecap="round"/>'),
+ cvocek:S('<circle cx="12" cy="12" r="9.500" fill="#8d93b0"/><path d="M12 2.500l9.500 9.500-9.500 9.500L2.500 12z" fill="#e5e8f5"/><path d="M12 2.500v19M2.500 12h19" stroke="#8d93b0" stroke-width=".8"/>'),
+ koruna:S('<path d="M3 18L2 7l5.500 4.500L12 4l4.500 7.500L22 7l-1 11z" fill="#ffd166" stroke="#e0a526" stroke-linejoin="round"/><circle cx="12" cy="13" r="1.400" fill="#e8505b"/>')
 };
-const iconHTML=s=>s.startsWith('svg:')?SVGS[s.slice(4)]:s;
-const SCALE=[0,2,4,7,9]; // pentatonika
+const MUSIC=['kytara','klavir','trumpeta','housle','buben','mikrofon','sluchatka','saxofon','nota','dvojnota','zvonek','gramodeska','kazeta','boombox','reproduktor','zesilovac','diskokoule','banjo','harmonika','listek','metronom','tamburina','fletna'];
+const PUNK=['lebka','spendlik','retez','blesk','plamen','vlajka','netopyr','pavouk','dynamit','bomba','bota','skate','vybuch','kapka','bryle','kost','cernesrdce','anarchy','mohawk','spike','sprej','cvocek','koruna'];
+const SYM=[...PUNK,...MUSIC];
+// podobné motivy: od vyšší obtížnosti se z nich skládají páry, které jde snadno zaměnit
+const SIMILAR=[['kytara','banjo'],['lebka','kost'],['spendlik','retez'],['plamen','vybuch'],['buben','tamburina'],['mikrofon','reproduktor'],['blesk','vybuch'],['kazeta','boombox'],['gramodeska','diskokoule'],['trumpeta','saxofon'],['vlajka','cernesrdce'],['netopyr','pavouk'],['nota','dvojnota'],['dynamit','bomba']];
+
+// ---------- zvuk ----------
+const SCALE=[0,2,4,7,9];
 const noteHz=i=>261.63*Math.pow(2,(SCALE[i%5]+12*(Math.floor(i/5)%3))/12);
-const K=.92; // velikost karty v jednotkách kroku mřížky
 const $=id=>document.getElementById(id);
 const board=$('board');
-let cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,level=1,muted=false,ac,dims,toastT;
+let muted=false,ac,toastT;
 try{muted=localStorage.zp_muted==='1'}catch(e){}
 $('snd').textContent=muted?'Ticho':'Zvuk';
 $('snd').onclick=()=>{muted=!muted;$('snd').textContent=muted?'Ticho':'Zvuk';try{localStorage.zp_muted=muted?'1':'0'}catch(e){}};
-$('hint').onclick=hint;
-
 function tone(f,dur=.5,type='sine',vol=.18){
   if(muted)return;
   try{
@@ -90,10 +137,13 @@ function tone(f,dur=.5,type='sine',vol=.18){
     o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur);
   }catch(e){}
 }
-const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1400)}
+// ---------- náhoda (pro denní výzvu se stejným rozložením všem) ----------
+let R=Math.random;
+const mulberry32=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=R()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1800)}
 
-// Rozložení: vrstvy karet přes sebe (jako mahjong). Každá vrstva je maska, "off" posune vrstvu o půl karty.
+// ---------- rozložení: vrstvy karet přes sebe ----------
 const full=(c,r)=>Array(r).fill('x'.repeat(c));
 const LEVELS=[
  {name:'Rozjezd',layers:[{off:0,m:full(4,5)},{off:.5,m:full(3,4)}]},
@@ -102,91 +152,123 @@ const LEVELS=[
  {name:'Srdce',layers:[{off:0,m:['xx..xx','xxxxxx','xxxxxx','.xxxx.','..xx..']},{off:.5,m:['xxxxx','xxxxx','.xxx.','..x..']},{off:0,m:['......','.xxxx.','.xxxx.','......','......']}]},
  {name:'Věž',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)},{off:0,m:['.....','.xxx.','.xxx.','.xxx.','.xxx.','.....']},{off:.5,m:['....','.xx.','.xx.','.xx.','....']}]}
 ];
-function positions(lv){
-  const D=LEVELS[(lv-1)%LEVELS.length],P=[];
+const K=.92;
+function positions(idx){
+  const D=LEVELS[idx%LEVELS.length],P=[];
   D.layers.forEach((La,l)=>La.m.forEach((row,r)=>[...row].forEach((ch,c)=>{if(ch==='x')P.push({l,x:c+La.off,y:r+La.off})})));
   return {cols:D.layers[0].m[0].length,rows:D.layers[0].m.length,P,name:D.name};
 }
-// výběr motivů: punkových je většina, od levelu 4 přibývají podobné dvojice
-function pickMotifs(n,lv){
+// karta je zakrytá, když na ní leží karta z vyšší vrstvy
+const covers=(b,a)=>b.l>a.l&&Math.abs(b.x-a.x)<K&&Math.abs(b.y-a.y)<K;
+// soused vlevo (dir -1) nebo vpravo (dir 1) ve stejné vrstvě a řádku
+const side=(b,a,dir)=>{const d=(b.x-a.x)*dir;return b.l===a.l&&Math.abs(b.y-a.y)<K&&d>0&&d<1.2};
+// 'covered' = zakrytá, 'locked' = sevřená mezi dvěma kartami, 'free' = jde zpárovat
+function stateIn(a,list){
+  let L=false,Rr=false;
+  for(const b of list){
+    if(b===a)continue;
+    if(covers(b,a))return 'covered';
+    if(side(b,a,-1))L=true;
+    if(side(b,a,1))Rr=true;
+  }
+  return L&&Rr?'locked':'free';
+}
+function pickMotifs(n,diff){
   const chosen=[];
   const addOne=s=>{if(!chosen.includes(s)&&chosen.length<n)chosen.push(s)};
-  if(lv>=4){
-    const want=Math.round(n*Math.min(.7,(lv-3)*.25));
+  if(diff>=4){
+    const want=Math.round(n*Math.min(.7,(diff-3)*.25));
     for(const g of shuffle(SIMILAR.slice())){if(chosen.length+2>want)break;g.forEach(addOne)}
   }
   const rest=[...shuffle(PUNK.slice()).filter(s=>!chosen.includes(s)).slice(0,Math.ceil(n*.6)),...shuffle(MUSIC.slice())];
   for(const s of rest)addOne(s);
   return shuffle(chosen);
 }
-const covers=(b,a)=>b.l>a.l&&Math.abs(b.x-a.x)<K&&Math.abs(b.y-a.y)<K;
-// Každý pár vznikne ze dvou právě odkrytých karet, takže je level vždy řešitelný.
-function build(lv){
-  const L=positions(lv);
-  for(let t=0;t<500;t++){
-    const rem=L.P.map(p=>({...p})),order=[];
-    while(rem.length){
-      const free=rem.filter(a=>!rem.some(b=>b!==a&&covers(b,a)));
-      if(free.length<2)break;
-      const [x,y]=shuffle(free.slice());
-      order.push([x,y]);rem.splice(rem.indexOf(x),1);rem.splice(rem.indexOf(y),1);
+// Každý pár vznikne ze dvou právě volných karet (podle stejných pravidel jako ve hře), takže je level vždy řešitelný.
+function build(idx,diff,rng){
+  R=rng||Math.random;
+  try{
+    const L=positions(idx);
+    for(let t=0;t<2000;t++){
+      const rem=L.P.map(p=>({...p})),order=[];
+      while(rem.length){
+        const free=rem.filter(a=>stateIn(a,rem)==='free');
+        if(free.length<2)break;
+        const [x,y]=shuffle(free.slice());
+        order.push([x,y]);rem.splice(rem.indexOf(x),1);rem.splice(rem.indexOf(y),1);
+      }
+      if(!rem.length){
+        const syms=pickMotifs(order.length,diff);
+        order.forEach(([x,y],i)=>{x.sym=y.sym=syms[i]});
+        return {cols:L.cols,rows:L.rows,name:L.name,P:order.flat()};
+      }
     }
-    if(!rem.length){
-      const syms=pickMotifs(order.length,lv);
-      order.forEach(([x,y],i)=>{x.sym=y.sym=syms[i]});
-      return {cols:L.cols,rows:L.rows,name:L.name,P:order.flat()};
-    }
-  }
+  }finally{R=Math.random}
 }
+
+// ---------- hra ----------
+let cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,level=1,dims,mode='play',playing=false;
 function layout(){
   const W=board.clientWidth,H=board.clientHeight,{cols,rows}=dims;
   const step=Math.min(84,W/(cols-1+K),H/(rows-1+K)),s=K*step;
   const ox=(W-((cols-1)*step+s))/2,oy=(H-((rows-1)*step+s))/2;
   cards.forEach((c,i)=>{
     Object.assign(c.el.style,{width:s+'px',height:s+'px',left:ox+c.x*step+'px',top:oy+c.y*step+'px',
-      fontSize:s*.55+'px',transform:`translate(${-c.l*2}px,${-c.l*3}px) rotate(${c.rot}deg)`,
+      fontSize:s*.6+'px',transform:`translate(${-c.l*2}px,${-c.l*3}px) rotate(${c.rot}deg)`,
       zIndex:c.l*100+i%100,boxShadow:`0 3px 0 #1d1a4d,0 ${4+c.l*3}px ${8+c.l*4}px #000b`});
   });
 }
-const isFree=a=>!a.gone&&!cards.some(b=>!b.gone&&b!==a&&covers(b,a));
-function start(){
+const live=()=>cards.filter(c=>!c.gone);
+const cardState=a=>stateIn(a,live());
+function newRound(idx,diff,rng){
   $('overlay').classList.remove('show');
   board.querySelectorAll('.card,.float').forEach(n=>n.remove());
-  streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;
-  dims=build(level);
+  streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;playing=true;
+  dims=build(idx,diff,rng);
   cards=dims.P.map(p=>{
-    const el=document.createElement('div');el.className='card';el.innerHTML=iconHTML(p.sym);
+    const el=document.createElement('div');el.className='card';el.innerHTML=ICONS[p.sym];
     const c={...p,el,gone:false,rot:(Math.random()-.5)*4};
     el.addEventListener('pointerdown',e=>{e.preventDefault();tap(c)});
     board.appendChild(el);return c;
   });
-  layout();hud();toast('Level '+level+': '+dims.name);
+  layout();hud();
+}
+function startLevel(){newRound((level-1)%LEVELS.length,level);toast('Level '+level+': '+dims.name)}
+const dayNum=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()};
+function startDaily(){
+  const seed=dayNum();
+  mode='daily';score=0;
+  newRound(2+seed%3,4,mulberry32(seed));
+  toast('Denní výzva: '+dims.name);
 }
 function hud(){
   $('score').textContent=score;$('mult').textContent='x'+Math.min(streak+1,5);
-  $('lvl').textContent='Level '+level+' · zbývá';
-  $('left').textContent=cards.filter(c=>!c.gone).length/2;
+  $('lvl').textContent=(mode==='daily'?'Denní výzva':'Level '+level)+' · zbývá';
+  $('left').textContent=live().length/2;
 }
 function pop(c,txt,neg){
   const f=document.createElement('div');f.className='float'+(neg?' neg':'');f.textContent=txt;
   f.style.left=c.el.offsetLeft+c.el.offsetWidth/3+'px';f.style.top=c.el.offsetTop+'px';
   board.appendChild(f);setTimeout(()=>f.remove(),800);
 }
-function hint(){
-  if(lock)return;
+$('hint').onclick=()=>{
+  if(lock||!playing)return;
   const by={};
-  for(const c of cards)if(isFree(c)){(by[c.sym]=by[c.sym]||[]).push(c)}
+  for(const c of live())if(cardState(c)==='free'){(by[c.sym]=by[c.sym]||[]).push(c)}
   const pair=Object.values(by).find(a=>a.length>=2);
   if(!pair)return;
   score=Math.max(0,score-50);hud();toast('Rada stojí 50 bodů');
   pair.slice(0,2).forEach(c=>{c.el.classList.add('hint');setTimeout(()=>c.el.classList.remove('hint'),1600)});
-}
+};
 function tap(c){
-  if(lock||c.gone)return;
+  if(lock||c.gone||!playing)return;
   if(c===sel){sel=null;c.el.classList.remove('sel');return}
-  if(!isFree(c)){
+  const st=cardState(c);
+  if(st!=='free'){
     c.el.classList.add('bad');setTimeout(()=>c.el.classList.remove('bad'),350);
-    tone(180,.15,'triangle',.05);toast('Tahle karta je zakrytá. Odeber nejdřív karty nad ní.');return;
+    tone(180,.15,'triangle',.05);
+    toast(st==='covered'?'Tahle karta je zakrytá. Odeber nejdřív karty nad ní.':'Tahle karta je sevřená. Uvolni ji aspoň z jedné strany.');
+    return;
   }
   if(!sel){sel=c;c.el.classList.add('sel');tone(noteHz(SYM.indexOf(c.sym)),.15,'triangle',.08);return}
   const a=sel;sel=null;a.el.classList.remove('sel');
@@ -205,19 +287,52 @@ function tap(c){
     hud();
   }
 }
+// ---------- uložení (jen v telefonu) ----------
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 function end(){
+  playing=false;
   const bonus=mistakes===0?500:0;score+=bonus;
   const acc=Math.round(100*okPairs/(okPairs+mistakes));
-  let best=0;try{best=+localStorage.zp_best||0;if(score>best){best=score;localStorage.zp_best=best}}catch(e){best=Math.max(best,score)}
   [0,2,4,7,9].forEach((s,i)=>setTimeout(()=>tone(261.63*Math.pow(2,s/12),.5),i*120));
-  $('overlay').innerHTML=`<h1>Level ${level}: ${dims.name}</h1><p>hotovo</p><div class="big">${score}</div>
-   <p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>
-   ${bonus?'<p>Bonus za level bez chyby: +500</p>':''}<p>Rekord: ${best}</p>
-   <button id="next">Level ${level+1}: ${positions(level+1).name}</button>`;
-  $('overlay').classList.add('show');$('next').onclick=()=>{level++;start()};
+  const stats=`<p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>${bonus?'<p>Bonus za kolo bez chyby: +500</p>':''}`;
+  if(mode==='daily'){
+    const d=dayNum(),key='zp_daily_'+d,prev=ls.get(key,0),best=Math.max(prev,score);ls.set(key,best);
+    let st=ls.get('zp_streak',{d:0,n:0});
+    if(st.d!==d){const y=new Date();y.setDate(y.getDate()-1);const yd=y.getFullYear()*10000+(y.getMonth()+1)*100+y.getDate();st={d,n:st.d===yd?st.n+1:1};ls.set('zp_streak',st)}
+    const txt=`Zvukové páry, denní výzva ${d%100}.${Math.floor(d/100)%100}.: ${score} bodů, přesnost ${acc} %`;
+    $('overlay').innerHTML=`<h1>Denní výzva hotová</h1><div class="big">${score}</div>${stats}<p>Dnešní nejlepší: ${best}</p><p>Dny v řadě: ${st.n}</p>
+     <button id="cp" class="alt">Zkopírovat výsledek</button><button id="again">Zkusit znovu</button><button id="tomenu" class="alt">Menu</button>`;
+    $('cp').onclick=()=>{try{navigator.clipboard.writeText(txt).then(()=>toast('Zkopírováno'),()=>toast(txt))}catch(e){toast(txt)}};
+    $('again').onclick=()=>{startDaily()};
+  }else{
+    const best=Math.max(ls.get('zp_best',0),score);ls.set('zp_best',best);
+    const next=positions(level%LEVELS.length).name;
+    $('overlay').innerHTML=`<h1>Level ${level}: ${dims.name}</h1><div class="big">${score}</div>${stats}<p>Rekord: ${best}</p>
+     <button id="next">Level ${level+1}: ${next}</button><button id="tomenu" class="alt">Menu</button>`;
+    $('next').onclick=()=>{level++;startLevel()};
+  }
+  $('tomenu').onclick=()=>showMenu(false);
+  $('overlay').classList.add('show');
 }
+function showMenu(canResume){
+  const d=dayNum(),dBest=ls.get('zp_daily_'+d,0),st=ls.get('zp_streak',{d:0,n:0});
+  $('overlay').innerHTML=`<h1>Zvukové páry</h1>
+   <p>Rekord: ${ls.get('zp_best',0)}</p>
+   <p class="rules">Spáruj dvě stejné karty. Vybrat jde jen kartu, na které nic neleží a která je aspoň z jedné strany volná. Kartu mezi dvěma sousedy musíš nejdřív uvolnit.</p>
+   ${canResume?'<button id="resume">Pokračovat</button>':''}
+   <button id="play">${canResume?'Nová hra':'Hrát'}</button>
+   <button id="daily" class="alt">Denní výzva${dBest?' (dnes '+dBest+')':''}</button>
+   ${st.n?`<p>Dny v řadě: ${st.n}</p>`:''}`;
+  $('overlay').classList.add('show');
+  if(canResume)$('resume').onclick=()=>$('overlay').classList.remove('show');
+  $('play').onclick=()=>{mode='play';level=1;score=0;startLevel()};
+  $('daily').onclick=startDaily;
+}
+$('menu').onclick=()=>showMenu(playing);
 addEventListener('resize',()=>cards&&layout());
-score=0;start();
+score=0;
+// pozadí hry za menu: ukázkové rozložení
+newRound(0,1);playing=false;showMenu(false);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
