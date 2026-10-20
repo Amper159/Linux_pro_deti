@@ -3,80 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#1c6a49">
+<meta name="theme-color" content="#121212">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <title>Zvukové páry</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-html,body{margin:0;height:100%;background:#1c6a49;color:#f3ecd0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
-body{background:radial-gradient(ellipse at 50% 35%,#2d8c64 0%,#1c6a49 55%,#123f2c 100%) fixed}
+:root{--pink:#ff2e88;--yel:#ffe600;--blk:#121212;--cyan:#19e6ff}
+html,body{margin:0;height:100%;background:#121212;color:#f4f0e4;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+body{background:radial-gradient(circle at 50% 0,#ff2e8833 0,transparent 55%),radial-gradient(#ffffff0d 1px,transparent 1.5px) 0 0/9px 9px,#151515 fixed}
+.pk{font-family:Impact,Haettenschweiler,'Arial Narrow Bold','Arial Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
 #app{height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+#app.rock{animation:rock .6s}
+@keyframes rock{10%{transform:translate(-6px,3px) rotate(-.6deg)}30%{transform:translate(6px,-3px) rotate(.6deg)}50%{transform:translate(-5px,2px)}70%{transform:translate(4px,-2px)}}
 header{display:flex;align-items:center;justify-content:space-between;padding:8px 2px;gap:6px}
 .stat{display:flex;flex-direction:column;line-height:1.1}
-.stat small{font-size:10px;color:#b9d8c8;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;font-weight:600}
-.stat b{font-size:22px;font-variant-numeric:tabular-nums;color:#fff7dc}
-#mult{color:#ffd54a}
-#slots{display:flex;gap:7px;justify-content:center;padding:7px 9px;margin:0 auto 10px;width:fit-content;border-radius:12px;background:linear-gradient(#8f5e33,#5f3b1d);box-shadow:0 3px 0 #2d1a09,0 6px 10px #0006,inset 0 1px 0 #c58a55}
-.slot{flex:none;width:50px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#124a33;box-shadow:inset 0 3px 6px #000b}
+.stat small{font-size:10px;color:#ff7fb5;text-transform:uppercase;letter-spacing:.12em;white-space:nowrap;font-weight:700}
+.stat b{font-size:24px;font-variant-numeric:tabular-nums;color:#fff;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;letter-spacing:.02em}
+#mult{color:var(--yel)}
+#slots{display:flex;gap:7px;justify-content:center;padding:9px;margin:0 auto 10px;width:fit-content;border-radius:6px;background:repeating-linear-gradient(-45deg,#ffe600 0 9px,#111 9px 18px);box-shadow:3px 3px 0 var(--pink)}
+.slot{flex:none;width:50px;height:64px;border-radius:5px;display:flex;align-items:center;justify-content:center;background:#161616;box-shadow:inset 0 3px 6px #000}
 .slot .card{position:relative;left:auto;top:auto;width:100%;height:100%}
 footer{display:flex;gap:8px;padding:0 0 10px}
 footer button{flex:1}
-button{font:inherit;border:1px solid #3d2410;border-radius:12px;background:linear-gradient(#a06a3b,#6e4422);color:#fbeed0;padding:11px 12px;font-size:15px;font-weight:700;box-shadow:0 3px 0 #2d1a09,inset 0 1px 0 #d9a06b;text-shadow:0 1px 0 #2d1a09}
-button:active{transform:translateY(2px);box-shadow:0 1px 0 #2d1a09,inset 0 1px 0 #d9a06b}
+button{font:inherit;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;text-transform:uppercase;letter-spacing:.05em;border:3px solid #111;border-radius:4px;background:var(--yel);color:#111;padding:10px 12px;font-size:16px;box-shadow:3px 3px 0 var(--pink);cursor:pointer}
+button:nth-child(odd){transform:rotate(-1deg)}button:nth-child(even){transform:rotate(1deg)}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--pink)}
 #board{position:relative;flex:1;margin-bottom:10px;touch-action:manipulation}
-.card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:9px;
- background:linear-gradient(160deg,#fffef7,#f0e8cf);border:1px solid #c9c09b;
+.card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:7px;
+ background:linear-gradient(160deg,#fffef7,#efe7ce);border:1px solid #c9c09b;
  transition:transform .2s,opacity .35s,box-shadow .2s;cursor:pointer}
-.card::before{content:"";position:absolute;inset:3px;border:1px solid #e2dab9;border-radius:6px;pointer-events:none}
+.card::before{content:"";position:absolute;inset:3px;border:1px solid #e2dab9;border-radius:4px;pointer-events:none}
 .card svg{width:1em;height:1em;display:block;position:relative}
-.card.sel{box-shadow:0 0 0 3px #ffd54a,0 0 14px 4px #ffd54acc,3px 4px 0 #1f8160!important;transform:scale(1.08)!important}
-.card.gone{opacity:0;transform:scale(1.5)!important;pointer-events:none}
+.card.sel{box-shadow:0 0 0 3px var(--yel),0 0 16px 5px #ffe600cc,3px 4px 0 #8f0f49!important;transform:scale(1.08)!important}
+.card.gone{opacity:0;transform:scale(1.5) rotate(8deg)!important;pointer-events:none}
 .card.bad{animation:shake .35s}
 .card.hint{animation:glow .5s 3}
 @keyframes shake{25%{translate:-5px 0}75%{translate:5px 0}}
-@keyframes glow{50%{box-shadow:0 0 0 4px #4df0ff,0 0 16px 6px #4df0ffcc}}
-.float{position:absolute;pointer-events:none;font-weight:800;color:#ffd54a;font-size:22px;text-shadow:0 1px 3px #000;animation:up .8s forwards;z-index:9999}
-.float.neg{color:#ff8a80}
+@keyframes glow{50%{box-shadow:0 0 0 4px var(--cyan),0 0 16px 6px #19e6ffcc}}
+.float{position:absolute;pointer-events:none;font-family:Impact,'Arial Black',sans-serif;color:var(--yel);font-size:26px;text-shadow:2px 2px 0 #111;animation:up .8s forwards;z-index:9999}
+.float.neg{color:#ff6b6b}
 @keyframes up{to{transform:translateY(-50px);opacity:0}}
-#toast{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:#0b2a1ddd;color:#fff;padding:6px 12px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;text-align:center;max-width:94%;white-space:nowrap}
+#toast{position:absolute;left:50%;top:6px;transform:translateX(-50%) rotate(-1.5deg);background:#111;color:var(--yel);border:2px solid var(--pink);padding:6px 12px;border-radius:3px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;text-align:center;max-width:96%;box-shadow:3px 3px 0 var(--pink)}
 #toast.show{opacity:1}
-#overlay{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#1f7a55,#0f3a28);display:none;align-items:center;justify-content:safe center;flex-direction:column;gap:12px;text-align:center;padding:20px;z-index:20000;overflow:auto}
+#overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 0,#ff2e8844 0,transparent 60%),radial-gradient(#ffffff10 1px,transparent 1.5px) 0 0/9px 9px,#121212;display:none;align-items:center;justify-content:safe center;flex-direction:column;gap:12px;text-align:center;padding:20px;z-index:20000;overflow:auto}
 #overlay.show{display:flex}
-#overlay h1{margin:0;font-size:28px;color:#fff7dc}
-#overlay .big{font-size:56px;font-weight:800;color:#ffd54a;text-shadow:0 2px 0 #7a5a00}
-#overlay p{margin:2px 0;color:#d9ecdf}
-#overlay .rules{font-size:13px;max-width:310px;line-height:1.4;color:#bcd9c9}
-#overlay button{background:linear-gradient(#ffd54a,#e0a800);color:#2a1d00;border-color:#8a6500;font-weight:800;font-size:18px;padding:14px 30px;min-width:230px;text-shadow:none;box-shadow:0 3px 0 #7a5a00,inset 0 1px 0 #fff3b0}
-#overlay button.alt{background:linear-gradient(#2f8a63,#1c5f43);color:#f3ecd0;border-color:#0f3a28;font-weight:700;font-size:16px;box-shadow:0 3px 0 #0b2a1d,inset 0 1px 0 #5cc093}
-#overlay input{font:inherit;font-size:16px;text-align:center;padding:10px;border:2px solid #0f3a28;border-radius:12px;background:#fffef7;color:#1b1b2f;width:230px;user-select:text}
+#overlay h1{margin:0;font-size:30px;color:#fff;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;text-transform:uppercase;letter-spacing:.04em;text-shadow:3px 3px 0 var(--pink)}
+#overlay .big{font-size:64px;font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;color:var(--yel);text-shadow:3px 3px 0 var(--pink);line-height:1}
+#overlay .shout{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:44px;text-transform:uppercase;color:var(--pink);text-shadow:3px 3px 0 #111,-1px -1px 0 #fff;transform:rotate(-3deg);letter-spacing:.04em;line-height:1}
+#overlay p{margin:2px 0;color:#d8d3c4}
+#overlay .rules{font-size:13px;max-width:310px;line-height:1.4}
+#overlay button{background:var(--pink);color:#111;font-size:20px;padding:14px 30px;min-width:230px;box-shadow:4px 4px 0 var(--yel)}
+#overlay button.alt{background:#1d1d1d;color:var(--yel);border-color:var(--yel);font-size:16px;box-shadow:3px 3px 0 #000}
+#overlay input{font:inherit;font-size:16px;text-align:center;padding:10px;border:3px solid var(--yel);border-radius:4px;background:#1d1d1d;color:#fff;width:230px;user-select:text}
 #lb{list-style:none;margin:0;padding:0;width:min(320px,100%);text-align:left}
-#lb li{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:9px;background:linear-gradient(160deg,#fffef7,#f0e8cf);color:#1b1b2f;margin-bottom:5px;font-variant-numeric:tabular-nums;box-shadow:2px 2px 0 #1f8160}
-#lb li.me{background:linear-gradient(#ffe27a,#ffc933);font-weight:700}
-#lb .pos{width:26px;color:#6b6648}
+#lb li{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:4px;background:linear-gradient(160deg,#fffef7,#efe7ce);color:#111;margin-bottom:6px;font-variant-numeric:tabular-nums;box-shadow:3px 3px 0 var(--pink)}
+#lb li.me{background:var(--yel);font-weight:700}
+#lb .pos{width:26px;color:#7a7458}
 #lb .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#lb .lv{color:#6b6648;font-size:12px}
-.note{font-size:12px;color:#9cc3b0}
-#overlay button small{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:2px}
+#lb .lv{color:#7a7458;font-size:12px}
+.note{font-size:12px;color:#8f8a7c}
+#overlay button small{display:block;font-family:system-ui,sans-serif;text-transform:none;letter-spacing:0;font-weight:600;font-size:12px;opacity:.85;margin-top:2px}
 .logo{display:flex;justify-content:center;margin-bottom:2px}
-.mini{width:54px;height:70px;border-radius:9px;background:linear-gradient(160deg,#fffef7,#f0e8cf);border:1px solid #c9c09b;box-shadow:1px 1px 0 #35a47c,2px 2px 0 #2a9a72,3px 3px 0 #1f8160,4px 5px 0 #17694c,5px 8px 9px #0009;display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 -4px}
+.mini{width:54px;height:70px;border-radius:7px;background:linear-gradient(160deg,#fffef7,#efe7ce);border:1px solid #c9c09b;box-shadow:1px 1px 0 #ff6aaa,2px 2px 0 #ff2e88,3px 3px 0 #d11a6b,4px 5px 0 #8f0f49,5px 8px 9px #000b;display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 -4px}
 .mini svg{width:1em;height:1em;display:block}
 .mini:nth-child(1){transform:rotate(-9deg) translateY(4px)}
 .mini:nth-child(3){transform:rotate(9deg) translateY(4px)}
 .mini:nth-child(2){z-index:1;transform:translateY(-4px)}
-#overlay .sub{margin:-4px 0 4px;letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:#b9d8c8}
+.ransom{display:flex;flex-wrap:wrap;justify-content:center;gap:3px 2px;max-width:340px;margin:2px 0}
+.rw{display:flex;gap:2px}
+.ransom{gap:6px 12px}
+.rw span{display:inline-block;padding:1px 6px;font-size:30px;line-height:1.1;box-shadow:2px 2px 0 #000}
+#overlay .sub{margin:0 0 2px;letter-spacing:.16em;text-transform:uppercase;font-size:11px;color:#ff7fb5;font-weight:700}
 .stats{display:flex;gap:8px;justify-content:center}
-.stats div{background:linear-gradient(160deg,#fffef7,#f0e8cf);color:#1b1b2f;border-radius:9px;padding:6px 10px;min-width:86px;box-shadow:2px 2px 0 #1f8160}
-.stats small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b6648}
-.stats b{font-size:20px}
+.stats div{background:linear-gradient(160deg,#fffef7,#efe7ce);color:#111;border-radius:4px;padding:6px 10px;min-width:86px;box-shadow:3px 3px 0 var(--pink)}
+.stats small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7a7458;font-weight:700}
+.stats b{font-size:22px;font-family:Impact,'Arial Black',sans-serif}
 .field{display:flex;flex-direction:column;gap:4px;align-items:center}
-.field label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#b9d8c8}
+.field label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#ff7fb5;font-weight:700}
 .stepper{display:flex;align-items:center;gap:10px;justify-content:center}
-.stepper b{min-width:150px;font-size:15px;color:#fff7dc}
-#overlay .stepper button{min-width:0;width:40px;padding:6px 0;font-size:20px}
-#overlay button.link{background:none;border:0;box-shadow:none;color:#b9d8c8;font-size:14px;font-weight:600;min-width:0;padding:6px;text-decoration:underline;text-shadow:none}
-.howto{background:#0b2a1dcc;border-radius:12px;padding:10px 14px;max-width:320px;text-align:left;font-size:13px;line-height:1.45;color:#d9ecdf}
+.stepper b{min-width:150px;font-size:15px;color:#fff}
+#overlay .stepper button{min-width:0;width:40px;padding:6px 0;font-size:22px}
+#overlay button.link{background:none;border:0;box-shadow:none;color:#ff7fb5;font-family:system-ui,sans-serif;text-transform:none;font-size:14px;font-weight:700;min-width:0;padding:6px;text-decoration:underline}
+.howto{background:#1d1d1d;border:2px dashed var(--yel);border-radius:4px;padding:10px 14px;max-width:320px;text-align:left;font-size:13px;line-height:1.45;color:#e6e1d2}
 .howto p{margin:0 0 6px}
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:30000;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 </style>
 </head>
 <body>
@@ -90,7 +102,7 @@ button:active{transform:translateY(2px);box-shadow:0 1px 0 #2d1a09,inset 0 1px 0
  <div id="board"><div id="toast"></div></div>
  <div id="slots" aria-label="Okýnko na odložené karty"></div>
  <footer>
-  <button id="hint">Rada</button><button id="snd">Zvuk</button><button id="menu">Menu</button>
+  <button id="hint">Tahák</button><button id="snd">Hluk</button><button id="menu">Menu</button>
  </footer>
 </div>
 <div id="overlay"></div>
@@ -158,8 +170,38 @@ const $=id=>document.getElementById(id);
 const board=$('board');
 let muted=false,ac,toastT;
 try{muted=localStorage.zp_muted==='1'}catch(e){}
-$('snd').textContent=muted?'Ticho':'Zvuk';
-$('snd').onclick=()=>{muted=!muted;$('snd').textContent=muted?'Ticho':'Zvuk';try{localStorage.zp_muted=muted?'1':'0'}catch(e){}};
+$('snd').textContent=muted?'Ticho':'Hluk';
+$('snd').onclick=()=>{muted=!muted;$('snd').textContent=muted?'Ticho':'Hluk';try{localStorage.zp_muted=muted?'1':'0'}catch(e){}};
+function ctx(){ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}
+function noise(t,dur,vol,hp){
+  const c=ctx(),n=Math.max(1,c.sampleRate*dur|0),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+  const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+  s.buffer=buf;f.type='highpass';f.frequency.value=hp;
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  s.connect(f).connect(g).connect(c.destination);s.start(t);
+}
+function kick(t){const c=ctx(),o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(160,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g).connect(c.destination);o.start(t);o.stop(t+.2)}
+// Punkový riff po dokončeném levelu: čtyři údery kytary se zkreslením, bicí a činel.
+function punkRiff(){
+  if(muted)return;
+  try{
+    const c=ctx(),t0=c.currentTime+.02,ws=c.createWaveShaper(),out=c.createGain(),cv=new Float32Array(256);
+    for(let i=0;i<256;i++){const x=i/128-1;cv[i]=Math.tanh(x*14)}
+    ws.curve=cv;out.gain.value=.16;ws.connect(out).connect(c.destination);
+    const seq=[[110,0,.2],[110,.17,.2],[130.81,.34,.2],[146.83,.51,.2],[164.81,.72,.9]];
+    seq.forEach(([f,dt,len])=>{
+      [1,1.5,2].forEach(m=>{
+        const o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.value=f*m;
+        g.gain.setValueAtTime(1,t0+dt);g.gain.exponentialRampToValueAtTime(.001,t0+dt+len);
+        o.connect(g).connect(ws);o.start(t0+dt);o.stop(t0+dt+len+.02);
+      });
+    });
+    [0,.34,.72].forEach(dt=>kick(t0+dt));
+    [.17,.51].forEach(dt=>noise(t0+dt,.14,.35,1800));
+    noise(t0+.72,1.1,.4,5500);
+  }catch(e){}
+}
 function tone(f,dur=.5,type='sine',vol=.18){
   if(muted)return;
   try{
@@ -176,6 +218,35 @@ function tone(f,dur=.5,type='sine',vol=.18){
 let R=Math.random;
 const mulberry32=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=R()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.random()*a.length|0];
+const SAY={
+ start:['Rozjeď to!','Pařba začíná!','Hlasitěji!','Jedeme, rebele!','Tři, čtyři, jedem!'],
+ combo:['Nářez!','Pecka!','To je jízda!','Drtíš to!','Bomba!','Jedeš jako motorovka!'],
+ miss:['Vedle, nevadí!','Au! Dál, rebele.','Fauš, ale punk to nevadí.','Mimo rytmus!'],
+ hint:['Tahák od kámoše.','Šeptám ti, rebele.','Podvádíš, ale jen trochu.'],
+ win:['NÁŘEZ!','PECKA!','BOMBA!','ŘEŽEŠ!','JÍZDA!'],
+ winSub:['Rozjel jsi to jako profík.','Pařba se vydařila.','Tohle by slyšeli i sousedi.','Punk nepatří mrtvým, patří tobě.','Kytary řvou, ty vyhráváš.'],
+ perfect:['Ani jedna chyba. To je opravdový punk!','Bez chyby! Fanoušci šílí!','Dokonalé, bez jediného vedle!'],
+ daily:['DENNÍ NÁŘEZ!','DNEŠNÍ PECKA!','DENNÍ JÍZDA!'],
+ menu:['No future? Ale pár bodů určitě.','Punk není mrtvý, jenom hraje mahjong.','Zesil to a páruj!','Hluk, kameny, žádná pravidla. Tedy skoro.']
+};
+function ransom(t){
+  const st=[['#ffe600','#111','Impact,Haettenschweiler,sans-serif',-3],['#ff2e88','#111','Georgia,serif',2],['#fff','#111','Impact,Haettenschweiler,sans-serif',3],['#111','#ffe600','Courier New,monospace',-2],['#19e6ff','#111','Georgia,serif',4]];
+  return [...t].map((ch,i)=>{if(ch===' ')return '<span style="width:10px;padding:0;box-shadow:none"></span>';const s=st[(i*3+t.length)%st.length];return `<span style="background:${s[0]};color:${s[1]};font-family:${s[2]};transform:rotate(${s[3]}deg)">${ch.toUpperCase()}</span>`}).join('');
+}
+function confetti(){
+  const col=['#ff2e88','#ffe600','#19e6ff','#fff'];
+  for(let i=0;i<36;i++){
+    const d=document.createElement('div');d.className='confetti';
+    d.style.cssText=`left:${Math.random()*100}vw;background:${pick(col)};animation-duration:${1.6+Math.random()*1.6}s;animation-delay:${Math.random()*.4}s`;
+    document.body.appendChild(d);setTimeout(()=>d.remove(),3800);
+  }
+}
+function levelFx(){
+  punkRiff();confetti();
+  const app=$('app');app.classList.remove('rock');void app.offsetWidth;app.classList.add('rock');
+  try{navigator.vibrate&&navigator.vibrate([90,50,90,50,90,50,260])}catch(e){}
+}
 function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1800)}
 
 // ---------- rozložení: vrstvy karet přes sebe ----------
@@ -258,7 +329,7 @@ function layout(){
     if(c.parked)return;
     Object.assign(c.el.style,{width:w+'px',height:hh+'px',left:ox+c.x*stepX+'px',top:oy+c.y*stepY+'px',
       fontSize:w*.8+'px',transform:`translate(${-c.l*3}px,${-c.l*4}px)`,
-      zIndex:c.l*100+i%100,boxShadow:`1px 1px 0 #35a47c,2px 2px 0 #2a9a72,3px 3px 0 #1f8160,4px 5px 0 #17694c,5px 8px 9px #0009`});
+      zIndex:c.l*100+i%100,boxShadow:`1px 1px 0 #ff6aaa,2px 2px 0 #ff2e88,3px 3px 0 #d11a6b,4px 5px 0 #8f0f49,5px 8px 9px #000b`});
   });
 }
 const live=()=>cards.filter(c=>!c.gone&&!c.parked);
@@ -279,13 +350,13 @@ function newRound(idx,diff,rng,nSlots){
   });
   layout();hud();
 }
-function startLevel(){newRound((level-1)%LEVELS.length,level,null,slotCount(level));toast('Level '+level+': '+dims.name+' · okýnka: '+slotCount(level))}
+function startLevel(){newRound((level-1)%LEVELS.length,level,null,slotCount(level));toast('Level '+level+': '+dims.name+' · okýnka '+slotCount(level)+'. '+pick(SAY.start))}
 const dayNum=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()};
 function startDaily(){
   const seed=dayNum();
   mode='daily';score=0;
   newRound(2+seed%(LEVELS.length-2),5,mulberry32(seed),2);
-  toast('Denní výzva: '+dims.name+' · okýnka: 2');
+  toast('Denní výzva: '+dims.name+' · okýnka 2. '+pick(SAY.start));
 }
 const slotsEl=$('slots');
 function parkCard(c,i){
@@ -317,7 +388,7 @@ $('hint').onclick=()=>{
   for(const c of cards)if(!c.gone&&(c.parked||cardState(c)==='free')){(by[c.sym]=by[c.sym]||[]).push(c)}
   const pair=Object.values(by).find(a=>a.length>=2);
   if(!pair)return;
-  score=Math.max(0,score-50);hud();toast('Rada stojí 50 bodů');
+  score=Math.max(0,score-50);hud();toast('Tahák stojí 50 bodů. '+pick(SAY.hint));
   pair.slice(0,2).forEach(c=>{c.el.classList.add('hint');setTimeout(()=>c.el.classList.remove('hint'),1600)});
 };
 function tap(c){
@@ -339,13 +410,14 @@ function tap(c){
     for(const x of [a,c])if(x.parked){slots[slots.indexOf(x)]=null;setTimeout(()=>x.el.remove(),400)}
     const n=SYM.indexOf(c.sym);tone(noteHz(n),.6);tone(noteHz(n)*2,.4,'sine',.07);
     pop(c,'+'+gain);hud();
+    if(streak>=3&&streak%2===1)toast(pick(SAY.combo)+' Série x'+Math.min(streak,5));
     if(cards.every(x=>x.gone))setTimeout(end,700);
   }else{
     streak=0;mistakes++;
     if(score>0){score=Math.max(0,score-20);pop(c,'-20',true)}
     tone(110,.25,'sawtooth',.06);
     const fs=slots.indexOf(null);
-    if(!c.parked&&fs>=0){parkCard(c,fs);toast('Omyl. Kámen skočil do okýnka.')}
+    if(!c.parked&&fs>=0){parkCard(c,fs);toast(pick(SAY.miss)+' Kámen skočil do okýnka.')}
     else{
       lock=true;[a,c].forEach(x=>x.el.classList.add('bad'));
       setTimeout(()=>{[a,c].forEach(x=>x.el.classList.remove('bad'));lock=false},350);
@@ -380,18 +452,18 @@ function boardPage(title,list,myId,buttons){
   $('overlay').classList.add('show');
 }
 function end(){
-  playing=false;
+  playing=false;levelFx();
   const bonus=mistakes===0?500:0;score+=bonus;
   const acc=Math.round(100*okPairs/(okPairs+mistakes));
   [0,2,4,7,9].forEach((s,i)=>setTimeout(()=>tone(261.63*Math.pow(2,s/12),.5),i*120));
-  const stats=`<p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>${bonus?'<p>Bonus za kolo bez chyby: +500</p>':''}`;
+  const stats=`<p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>${bonus?'<p>Bonus za level bez chyby: +500</p>':''}`;
   if(mode==='daily'){
     const d=dayNum(),key='zp_daily_'+d,prev=ls.get(key,0),best=Math.max(prev,score);ls.set(key,best);
     let st=ls.get('zp_streak',{d:0,n:0});
     if(st.d!==d){const y=new Date();y.setDate(y.getDate()-1);const yd=y.getFullYear()*10000+(y.getMonth()+1)*100+y.getDate();st={d,n:st.d===yd?st.n+1:1};ls.set('zp_streak',st)}
     const txt=`Zvukové páry, denní výzva ${d%100}.${Math.floor(d/100)%100}.: ${score} bodů, přesnost ${acc} %`;
     const id='d'+nick(),list=upsert('zp_board_daily_'+d,{id,n:nick(),s:score,l:0});
-    $('overlay').innerHTML=`<h1>Denní výzva hotová</h1><div class="big">${score}</div>${stats}<p>Dnešní nejlepší: ${best}</p><p>Dny v řadě: ${st.n}</p>
+    $('overlay').innerHTML=`<div class="shout">${pick(SAY.daily)}</div><div class="big">${score}</div>${stats}<p>Dnešní nejlepší: ${best}</p><p>Dny v řadě: ${st.n}</p>
      <button id="again">Zkusit znovu</button><button id="lbb" class="alt">Žebříček</button><button id="cp" class="alt">Zkopírovat výsledek</button><button id="tomenu" class="alt">Menu</button>`;
     $('again').onclick=startDaily;$('tomenu').onclick=()=>showMenu(false);
     $('cp').onclick=()=>{try{navigator.clipboard.writeText(txt).then(()=>toast('Zkopírováno'),()=>toast(txt))}catch(e){toast(txt)}};
@@ -400,7 +472,7 @@ function end(){
     const best=Math.max(ls.get('zp_best',0),score);ls.set('zp_best',best);ls.set('zp_maxlevel',Math.max(ls.get('zp_maxlevel',1),level+1));
     const list=upsert('zp_board',{id:runId,n:nick(),s:score,l:level});
     const next=positions(level%LEVELS.length).name;
-    $('overlay').innerHTML=`<h1>Level ${level}: ${dims.name}</h1><div class="big">${score}</div>${stats}<p>Rekord: ${best}</p>
+    $('overlay').innerHTML=`<div class="shout">${pick(SAY.win)}</div><h1>Level ${level}: ${dims.name}</h1><div class="big">${score}</div><p>${bonus?pick(SAY.perfect):pick(SAY.winSub)}</p>${stats}<p>Rekord: ${best}</p>
      <button id="nextb">Level ${level+1}: ${next}</button><button id="lbb" class="alt">Žebříček</button><button id="tomenu" class="alt">Menu</button>`;
     $('nextb').onclick=()=>{level++;startLevel()};$('tomenu').onclick=()=>showMenu(false);
     $('lbb').onclick=()=>boardPage('Žebříček',list,runId,[['Level '+(level+1)+': '+next,false,()=>{level++;startLevel()}],['Menu',true,()=>showMenu(false)]]);
@@ -412,7 +484,7 @@ function showMenu(canResume){
   const maxLv=Math.max(1,ls.get('zp_maxlevel',1));let startLv=Math.min(level>1&&!canResume?level:1,maxLv);
   const dayName=positions(2+d%(LEVELS.length-2)).name;
   $('overlay').innerHTML=`<div class="logo"><div class="mini">${ICONS.lebka}</div><div class="mini">${ICONS.kytara}</div><div class="mini">${ICONS.anarchy}</div></div>
-   <h1>Zvukové páry</h1><p class="sub">punkový mahjong s hudbou</p>
+   <div class="ransom" aria-label="Zvukové páry"><div class="rw">${ransom('Zvukové')}</div><div class="rw">${ransom('páry')}</div></div><p class="sub">${pick(SAY.menu)}</p>
    <div class="stats"><div><small>Rekord</small><b>${ls.get('zp_best',0)}</b></div><div><small>Level</small><b>${maxLv}</b></div><div><small>Dny v řadě</small><b>${st.n||0}</b></div></div>
    <div class="field"><label for="nick">Přezdívka</label><input id="nick" maxlength="12" placeholder="Přezdívka" autocomplete="off"></div>
    ${canResume?'<button id="resume">Pokračovat</button>':''}
@@ -420,7 +492,7 @@ function showMenu(canResume){
    ${maxLv>1?'<div class="stepper"><button class="alt" id="lvm" aria-label="Nižší level">‹</button><b id="lvt"></b><button class="alt" id="lvp" aria-label="Vyšší level">›</button></div>':''}
    <button id="daily" class="alt">Denní výzva<small>Dnes: ${dayName}${dBest?' · nejlepší '+dBest:''}</small></button>
    <button class="link" id="how">Jak se hraje</button>
-   <div class="howto" id="howbox" hidden><p>Spáruj dva stejné kameny. Vybrat jde jen kámen, na kterém nic neleží a který je aspoň z jedné strany volný.</p><p>Kámen mezi dvěma sousedy musíš nejdřív uvolnit. Volné kameny můžeš odložit do okýnek dole, než se uvolní jejich dvojče. Okýnek s levely ubývá. Omylem vybraný kámen skočí do okýnka sám.</p><p>Série správných párů zvyšuje body až pětkrát. Chyba stojí 20 bodů, rada 50.</p></div>
+   <div class="howto" id="howbox" hidden><p>Spáruj dva stejné kameny. Vybrat jde jen kámen, na kterém nic neleží a který je aspoň z jedné strany volný.</p><p>Kámen mezi dvěma sousedy musíš nejdřív uvolnit. Volné kameny můžeš odložit do okýnek dole, než se uvolní jejich dvojče. Okýnek s levely ubývá. Omylem vybraný kámen skočí do okýnka sám.</p><p>Série správných párů zvyšuje body až pětkrát. Chyba stojí 20 bodů, tahák 50. Po každém levelu to pořádně zařve.</p></div>
    <p class="note">Nepiš celé jméno, stačí přezdívka. Žebříček je jen v tomto telefonu.</p>`;
   $('overlay').classList.add('show');
   const inp=$('nick');inp.value=ls.get('zp_name','');
