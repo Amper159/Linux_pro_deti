@@ -16,6 +16,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:8px
 .stat small{font-size:10px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
 .stat b{font-size:22px;font-variant-numeric:tabular-nums}
 #mult{color:#ffd166}
+#slots{display:flex;gap:8px;justify-content:center;padding:0 0 10px}
+.slot{flex:none;width:62px;height:62px;border:2px dashed #4a45a0;border-radius:16%;display:flex;align-items:center;justify-content:center;background:#1c1942}
+.slot .card{position:relative;left:auto;top:auto;width:100%;height:100%}
 footer{display:flex;gap:8px;padding:0 0 10px}
 footer button{flex:1}
 button{font:inherit;border:0;border-radius:12px;background:#2b2760;color:#eee;padding:11px 12px;font-size:15px}
@@ -54,6 +57,7 @@ button:active{transform:scale(.96)}
   <div class="stat"><small id="lvl">Level 1 · zbývá</small><b id="left">16</b></div>
  </header>
  <div id="board"><div id="toast"></div></div>
+ <div id="slots" aria-label="Okýnko na odložené karty"></div>
  <footer>
   <button id="hint">Rada</button><button id="snd">Zvuk</button><button id="menu">Menu</button>
  </footer>
@@ -207,22 +211,24 @@ function build(idx,diff,rng){
 }
 
 // ---------- hra ----------
-let cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,level=1,dims,mode='play',playing=false;
+let slots=[null,null,null,null],cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,level=1,dims,mode='play',playing=false;
 function layout(){
   const W=board.clientWidth,H=board.clientHeight,{cols,rows}=dims;
   const step=Math.min(84,W/(cols-1+K),H/(rows-1+K)),s=K*step;
   const ox=(W-((cols-1)*step+s))/2,oy=(H-((rows-1)*step+s))/2;
   cards.forEach((c,i)=>{
+    if(c.parked)return;
     Object.assign(c.el.style,{width:s+'px',height:s+'px',left:ox+c.x*step+'px',top:oy+c.y*step+'px',
       fontSize:s*.6+'px',transform:`translate(${-c.l*2}px,${-c.l*3}px) rotate(${c.rot}deg)`,
       zIndex:c.l*100+i%100,boxShadow:`0 3px 0 #1d1a4d,0 ${4+c.l*3}px ${8+c.l*4}px #000b`});
   });
 }
-const live=()=>cards.filter(c=>!c.gone);
+const live=()=>cards.filter(c=>!c.gone&&!c.parked);
 const cardState=a=>stateIn(a,live());
 function newRound(idx,diff,rng){
   $('overlay').classList.remove('show');
   board.querySelectorAll('.card,.float').forEach(n=>n.remove());
+  slots=[null,null,null,null];slotsEl.querySelectorAll('.card').forEach(n=>n.remove());
   streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;playing=true;
   dims=build(idx,diff,rng);
   cards=dims.P.map(p=>{
@@ -241,10 +247,20 @@ function startDaily(){
   newRound(2+seed%3,4,mulberry32(seed));
   toast('Denní výzva: '+dims.name);
 }
+const slotsEl=$('slots');
+slotsEl.innerHTML=[0,1,2,3].map(i=>`<div class="slot" data-i="${i}"></div>`).join('');
+slotsEl.addEventListener('pointerdown',e=>{
+  const s=e.target.closest('.slot');if(!s||!playing||lock)return;
+  const i=+s.dataset.i;if(slots[i])return;
+  if(!sel||sel.parked){toast('Vyber odkrytou kartu a klepni na prázdné okýnko. Odložená karta tam počká na svého dvojče.');return}
+  const c=sel;sel=null;c.el.classList.remove('sel');
+  c.parked=true;slots[i]=c;s.appendChild(c.el);c.el.style.cssText='font-size:34px';
+  tone(300,.12,'triangle',.08);hud();
+});
 function hud(){
   $('score').textContent=score;$('mult').textContent='x'+Math.min(streak+1,5);
   $('lvl').textContent=(mode==='daily'?'Denní výzva':'Level '+level)+' · zbývá';
-  $('left').textContent=live().length/2;
+  $('left').textContent=cards.filter(c=>!c.gone).length/2;
 }
 function pop(c,txt,neg){
   const f=document.createElement('div');f.className='float'+(neg?' neg':'');f.textContent=txt;
@@ -254,7 +270,7 @@ function pop(c,txt,neg){
 $('hint').onclick=()=>{
   if(lock||!playing)return;
   const by={};
-  for(const c of live())if(cardState(c)==='free'){(by[c.sym]=by[c.sym]||[]).push(c)}
+  for(const c of cards)if(!c.gone&&(c.parked||cardState(c)==='free')){(by[c.sym]=by[c.sym]||[]).push(c)}
   const pair=Object.values(by).find(a=>a.length>=2);
   if(!pair)return;
   score=Math.max(0,score-50);hud();toast('Rada stojí 50 bodů');
@@ -263,11 +279,11 @@ $('hint').onclick=()=>{
 function tap(c){
   if(lock||c.gone||!playing)return;
   if(c===sel){sel=null;c.el.classList.remove('sel');return}
-  const st=cardState(c);
+  const st=c.parked?'free':cardState(c);
   if(st!=='free'){
     c.el.classList.add('bad');setTimeout(()=>c.el.classList.remove('bad'),350);
     tone(180,.15,'triangle',.05);
-    toast(st==='covered'?'Tahle karta je zakrytá. Odeber nejdřív karty nad ní.':'Tahle karta je sevřená. Uvolni ji aspoň z jedné strany.');
+    toast(st==='covered'?'Tahle karta je zakrytá. Odeber nejdřív karty nad ní.':'Tahle karta je sevřená. Uvolni ji z jedné strany, nebo odlož souseda do okýnka dole.');
     return;
   }
   if(!sel){sel=c;c.el.classList.add('sel');tone(noteHz(SYM.indexOf(c.sym)),.15,'triangle',.08);return}
@@ -276,6 +292,7 @@ function tap(c){
     const gain=100*Math.min(streak+1,5);
     streak++;bestStreak=Math.max(bestStreak,streak);okPairs++;score+=gain;
     a.gone=c.gone=true;a.el.classList.add('gone');c.el.classList.add('gone');
+    for(const x of [a,c])if(x.parked){slots[slots.indexOf(x)]=null;setTimeout(()=>x.el.remove(),400)}
     const n=SYM.indexOf(c.sym);tone(noteHz(n),.6);tone(noteHz(n)*2,.4,'sine',.07);
     pop(c,'+'+gain);hud();
     if(cards.every(x=>x.gone))setTimeout(end,700);
@@ -318,7 +335,7 @@ function showMenu(canResume){
   const d=dayNum(),dBest=ls.get('zp_daily_'+d,0),st=ls.get('zp_streak',{d:0,n:0});
   $('overlay').innerHTML=`<h1>Zvukové páry</h1>
    <p>Rekord: ${ls.get('zp_best',0)}</p>
-   <p class="rules">Spáruj dvě stejné karty. Vybrat jde jen kartu, na které nic neleží a která je aspoň z jedné strany volná. Kartu mezi dvěma sousedy musíš nejdřív uvolnit.</p>
+   <p class="rules">Spáruj dvě stejné karty. Vybrat jde jen kartu, na které nic neleží a která je aspoň z jedné strany volná. Kartu mezi dvěma sousedy musíš nejdřív uvolnit. Do okýnka dole můžeš odložit až 4 volné karty, než se uvolní jejich dvojče.</p>
    ${canResume?'<button id="resume">Pokračovat</button>':''}
    <button id="play">${canResume?'Nová hra':'Hrát'}</button>
    <button id="daily" class="alt">Denní výzva${dBest?' (dnes '+dBest+')':''}</button>
