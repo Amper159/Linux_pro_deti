@@ -401,7 +401,12 @@ function tap(c){
     toast(st==='covered'?'Tahle karta je zakrytá. Odeber nejdřív karty nad ní.':'Tahle karta je sevřená. Uvolni ji z jedné strany, nebo odlož souseda do okýnka dole.');
     return;
   }
-  if(!sel){sel=c;c.el.classList.add('sel');tone(noteHz(SYM.indexOf(c.sym)),.15,'triangle',.08);return}
+  if(!sel){
+    // dvojče čeká v okýnku (nebo je to odložený kámen a dvojče je volné na ploše): pár zmizí hned
+    const tw=c.parked?cards.find(x=>x!==c&&!x.gone&&!x.parked&&x.sym===c.sym&&cardState(x)==='free'):slots.find(x=>x&&x!==c&&x.sym===c.sym);
+    if(!tw){sel=c;c.el.classList.add('sel');tone(noteHz(SYM.indexOf(c.sym)),.15,'triangle',.08);return}
+    sel=tw;
+  }
   const a=sel;sel=null;a.el.classList.remove('sel');
   if(a.sym===c.sym){
     const gain=100*Math.min(streak+1,5);
