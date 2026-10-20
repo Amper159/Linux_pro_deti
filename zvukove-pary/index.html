@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#121212">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
-<title>Zvukové páry</title>
+<title>Panky a Mahjongy</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 :root{--pink:#ff2e88;--yel:#ffe600;--blk:#121212;--cyan:#19e6ff}
@@ -466,7 +466,7 @@ function end(){
     const d=dayNum(),key='zp_daily_'+d,prev=ls.get(key,0),best=Math.max(prev,score);ls.set(key,best);
     let st=ls.get('zp_streak',{d:0,n:0});
     if(st.d!==d){const y=new Date();y.setDate(y.getDate()-1);const yd=y.getFullYear()*10000+(y.getMonth()+1)*100+y.getDate();st={d,n:st.d===yd?st.n+1:1};ls.set('zp_streak',st)}
-    const txt=`Zvukové páry, denní výzva ${d%100}.${Math.floor(d/100)%100}.: ${score} bodů, přesnost ${acc} %`;
+    const txt=`Panky a Mahjongy, denní výzva ${d%100}.${Math.floor(d/100)%100}.: ${score} bodů, přesnost ${acc} %`;
     const id='d'+nick(),list=upsert('zp_board_daily_'+d,{id,n:nick(),s:score,l:0});
     $('overlay').innerHTML=`<div class="shout">${pick(SAY.daily)}</div><div class="big">${score}</div>${stats}<p>Dnešní nejlepší: ${best}</p><p>Dny v řadě: ${st.n}</p>
      <button id="again">Zkusit znovu</button><button id="lbb" class="alt">Žebříček</button><button id="cp" class="alt">Zkopírovat výsledek</button><button id="tomenu" class="alt">Menu</button>`;
@@ -489,7 +489,7 @@ function showMenu(canResume){
   const maxLv=Math.max(1,ls.get('zp_maxlevel',1));let startLv=Math.min(level>1&&!canResume?level:1,maxLv);
   const dayName=positions(2+d%(LEVELS.length-2)).name;
   $('overlay').innerHTML=`<div class="logo"><div class="mini">${ICONS.lebka}</div><div class="mini">${ICONS.kytara}</div><div class="mini">${ICONS.anarchy}</div></div>
-   <div class="ransom" aria-label="Zvukové páry"><div class="rw">${ransom('Zvukové')}</div><div class="rw">${ransom('páry')}</div></div><p class="sub">${pick(SAY.menu)}</p>
+   <div class="ransom" aria-label="Panky a Mahjongy"><div class="rw">${ransom('Panky')}</div><div class="rw">${ransom('a')}</div><div class="rw">${ransom('Mahjongy')}</div></div><p class="sub">${pick(SAY.menu)}</p>
    <div class="stats"><div><small>Rekord</small><b>${ls.get('zp_best',0)}</b></div><div><small>Level</small><b>${maxLv}</b></div><div><small>Dny v řadě</small><b>${st.n||0}</b></div></div>
    <div class="field"><label for="nick">Přezdívka</label><input id="nick" maxlength="12" placeholder="Přezdívka" autocomplete="off"></div>
    ${canResume?'<button id="resume">Pokračovat</button>':''}
