@@ -41,7 +41,7 @@ button:active{transform:translateY(2px);box-shadow:0 1px 0 #2d1a09,inset 0 1px 0
 @keyframes up{to{transform:translateY(-50px);opacity:0}}
 #toast{position:absolute;left:50%;top:6px;transform:translateX(-50%);background:#0b2a1ddd;color:#fff;padding:6px 12px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;text-align:center;max-width:94%;white-space:nowrap}
 #toast.show{opacity:1}
-#overlay{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#1f7a55,#0f3a28);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:20px;z-index:20000;overflow:auto}
+#overlay{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#1f7a55,#0f3a28);display:none;align-items:center;justify-content:safe center;flex-direction:column;gap:12px;text-align:center;padding:20px;z-index:20000;overflow:auto}
 #overlay.show{display:flex}
 #overlay h1{margin:0;font-size:28px;color:#fff7dc}
 #overlay .big{font-size:56px;font-weight:800;color:#ffd54a;text-shadow:0 2px 0 #7a5a00}
@@ -57,6 +57,26 @@ button:active{transform:translateY(2px);box-shadow:0 1px 0 #2d1a09,inset 0 1px 0
 #lb .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #lb .lv{color:#6b6648;font-size:12px}
 .note{font-size:12px;color:#9cc3b0}
+#overlay button small{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:2px}
+.logo{display:flex;justify-content:center;margin-bottom:2px}
+.mini{width:54px;height:70px;border-radius:9px;background:linear-gradient(160deg,#fffef7,#f0e8cf);border:1px solid #c9c09b;box-shadow:1px 1px 0 #35a47c,2px 2px 0 #2a9a72,3px 3px 0 #1f8160,4px 5px 0 #17694c,5px 8px 9px #0009;display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 -4px}
+.mini svg{width:1em;height:1em;display:block}
+.mini:nth-child(1){transform:rotate(-9deg) translateY(4px)}
+.mini:nth-child(3){transform:rotate(9deg) translateY(4px)}
+.mini:nth-child(2){z-index:1;transform:translateY(-4px)}
+#overlay .sub{margin:-4px 0 4px;letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:#b9d8c8}
+.stats{display:flex;gap:8px;justify-content:center}
+.stats div{background:linear-gradient(160deg,#fffef7,#f0e8cf);color:#1b1b2f;border-radius:9px;padding:6px 10px;min-width:86px;box-shadow:2px 2px 0 #1f8160}
+.stats small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b6648}
+.stats b{font-size:20px}
+.field{display:flex;flex-direction:column;gap:4px;align-items:center}
+.field label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#b9d8c8}
+.stepper{display:flex;align-items:center;gap:10px;justify-content:center}
+.stepper b{min-width:150px;font-size:15px;color:#fff7dc}
+#overlay .stepper button{min-width:0;width:40px;padding:6px 0;font-size:20px}
+#overlay button.link{background:none;border:0;box-shadow:none;color:#b9d8c8;font-size:14px;font-weight:600;min-width:0;padding:6px;text-decoration:underline;text-shadow:none}
+.howto{background:#0b2a1dcc;border-radius:12px;padding:10px 14px;max-width:320px;text-align:left;font-size:13px;line-height:1.45;color:#d9ecdf}
+.howto p{margin:0 0 6px}
 </style>
 </head>
 <body>
@@ -162,11 +182,16 @@ function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');
 const full=(c,r)=>Array(r).fill('x'.repeat(c));
 const LEVELS=[
  {name:'Rozjezd',layers:[{off:0,m:full(4,5)},{off:.5,m:full(3,4)}]},
+ {name:'Schody',layers:[{off:0,m:['xxxxx','xxxx.','xxx..','xx...','x....']},{off:.5,m:['xxxx','xxx.','xx..','x...']},{off:0,m:['.....','xxx..','xx...','.....','.....']}]},
  {name:'Dvě patra',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)}]},
+ {name:'Pyramida',layers:[{off:0,m:full(5,5)},{off:.5,m:full(4,4)},{off:0,m:['.....','.xxx.','.xxx.','.xxx.','.....']},{off:.5,m:['....','.xx.','.xx.','....']}]},
+ {name:'Kříž',layers:[{off:0,m:['..xx..','..xx..','xxxxxx','xxxxxx','..xx..','..xx..']},{off:.5,m:['..x..','.xxx.','xxxxx','.xxx.','.....']},{off:0,m:['......','......','..xx..','..xx..','......','......']}]},
+ {name:'Věnec',layers:[{off:0,m:['xxxxxx','x....x','x....x','x....x','x....x','xxxxxx']},{off:.5,m:['xxxxx','x...x','x...x','x...x','xxxxx']},{off:0,m:['......','.xxxx.','.x..x.','.x..x.','.xxxx.','......']}]},
  {name:'Pódium',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)},{off:0,m:['.....','..xx.','.xxx.','.xxx.','.xx..','.....']}]},
  {name:'Srdce',layers:[{off:0,m:['xx..xx','xxxxxx','xxxxxx','.xxxx.','..xx..']},{off:.5,m:['xxxxx','xxxxx','.xxx.','..x..']},{off:0,m:['......','.xxxx.','.xxxx.','......','......']}]},
- {name:'Želva',layers:[{off:0,m:['.xxxx.','xxxxxx','xxxxxx','xxxxxx','xxxxxx','xxxxxx','.xxxx.']},{off:.5,m:['.xxx.','xxxxx','xxxxx','xxxxx','xxxxx','.xxx.']},{off:0,m:['......','..xx..','.xxxx.','.xxxx.','.xxxx.','..xx..','......']},{off:.5,m:['.....','.xxx.','.xxx.','.xx..','.....','.....']}]},
- {name:'Věž',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)},{off:0,m:['.....','.xxx.','.xxx.','.xxx.','.xxx.','.....']},{off:.5,m:['....','.xx.','.xx.','.xx.','....']}]}
+ {name:'Motýl',layers:[{off:0,m:['xx..xx','xxxxxx','xxxxxx','xxxxxx','xx..xx']},{off:.5,m:['xx.xx','xxxxx','xxxxx','xx.xx']},{off:0,m:['......','..xx..','..xx..','..xx..','......']}]},
+ {name:'Věž',layers:[{off:0,m:full(5,6)},{off:.5,m:full(4,5)},{off:0,m:['.....','.xxx.','.xxx.','.xxx.','.xxx.','.....']},{off:.5,m:['....','.xx.','.xx.','.xx.','....']}]},
+ {name:'Želva',layers:[{off:0,m:['.xxxx.','xxxxxx','xxxxxx','xxxxxx','xxxxxx','xxxxxx','.xxxx.']},{off:.5,m:['.xxx.','xxxxx','xxxxx','xxxxx','xxxxx','.xxx.']},{off:0,m:['......','..xx..','.xxxx.','.xxxx.','.xxxx.','..xx..','......']},{off:.5,m:['.....','.xxx.','.xxx.','.xx..','.....','.....']}]}
 ];
 const K=.92;
 function positions(idx){
@@ -259,7 +284,7 @@ const dayNum=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+
 function startDaily(){
   const seed=dayNum();
   mode='daily';score=0;
-  newRound(2+seed%3,4,mulberry32(seed),3);
+  newRound(2+seed%(LEVELS.length-2),4,mulberry32(seed),3);
   toast('Denní výzva: '+dims.name+' · okýnka: 3');
 }
 const slotsEl=$('slots');
@@ -361,7 +386,7 @@ function end(){
     $('cp').onclick=()=>{try{navigator.clipboard.writeText(txt).then(()=>toast('Zkopírováno'),()=>toast(txt))}catch(e){toast(txt)}};
     $('lbb').onclick=()=>boardPage('Žebříček dne',list,id,[['Zkusit znovu',false,startDaily],['Menu',true,()=>showMenu(false)]]);
   }else{
-    const best=Math.max(ls.get('zp_best',0),score);ls.set('zp_best',best);
+    const best=Math.max(ls.get('zp_best',0),score);ls.set('zp_best',best);ls.set('zp_maxlevel',Math.max(ls.get('zp_maxlevel',1),level+1));
     const list=upsert('zp_board',{id:runId,n:nick(),s:score,l:level});
     const next=positions(level%LEVELS.length).name;
     $('overlay').innerHTML=`<h1>Level ${level}: ${dims.name}</h1><div class="big">${score}</div>${stats}<p>Rekord: ${best}</p>
@@ -372,21 +397,30 @@ function end(){
 }
 function showMenu(canResume){
   const d=dayNum(),dBest=ls.get('zp_daily_'+d,0),st=ls.get('zp_streak',{d:0,n:0});
-  $('overlay').innerHTML=`<h1>Zvukové páry</h1>
-   <p>Rekord: ${ls.get('zp_best',0)}</p>
-   <input id="nick" maxlength="12" placeholder="Přezdívka" autocomplete="off">
-   <p class="note">Nepiš celé jméno, stačí přezdívka.</p>
-   <p class="rules">Spáruj dvě stejné karty. Vybrat jde jen kartu, na které nic neleží a která je aspoň z jedné strany volná. Kartu mezi dvěma sousedy musíš nejdřív uvolnit. Do okýnek dole můžeš odložit volné karty, než se uvolní jejich dvojče. S každými dvěma levely je okýnek méně.</p>
+  const maxLv=Math.max(1,ls.get('zp_maxlevel',1));let startLv=Math.min(level>1&&!canResume?level:1,maxLv);
+  const dayName=positions(2+d%(LEVELS.length-2)).name;
+  $('overlay').innerHTML=`<div class="logo"><div class="mini">${ICONS.lebka}</div><div class="mini">${ICONS.kytara}</div><div class="mini">${ICONS.anarchy}</div></div>
+   <h1>Zvukové páry</h1><p class="sub">punkový mahjong s hudbou</p>
+   <div class="stats"><div><small>Rekord</small><b>${ls.get('zp_best',0)}</b></div><div><small>Level</small><b>${maxLv}</b></div><div><small>Dny v řadě</small><b>${st.n||0}</b></div></div>
+   <div class="field"><label for="nick">Přezdívka</label><input id="nick" maxlength="12" placeholder="Přezdívka" autocomplete="off"></div>
    ${canResume?'<button id="resume">Pokračovat</button>':''}
-   <button id="play">${canResume?'Nová hra':'Hrát'}</button>
-   <button id="daily" class="alt">Denní výzva${dBest?' (dnes '+dBest+')':''}</button>
-   ${st.n?`<p>Dny v řadě: ${st.n}</p>`:''}`;
+   <button id="play">${canResume?'Nová hra':'Hrát'}<small id="playsub"></small></button>
+   ${maxLv>1?'<div class="stepper"><button class="alt" id="lvm" aria-label="Nižší level">‹</button><b id="lvt"></b><button class="alt" id="lvp" aria-label="Vyšší level">›</button></div>':''}
+   <button id="daily" class="alt">Denní výzva<small>Dnes: ${dayName}${dBest?' · nejlepší '+dBest:''}</small></button>
+   <button class="link" id="how">Jak se hraje</button>
+   <div class="howto" id="howbox" hidden><p>Spáruj dva stejné kameny. Vybrat jde jen kámen, na kterém nic neleží a který je aspoň z jedné strany volný.</p><p>Kámen mezi dvěma sousedy musíš nejdřív uvolnit. Volné kameny můžeš odložit do okýnek dole, než se uvolní jejich dvojče. S každými dvěma levely je okýnek méně.</p><p>Série správných párů zvyšuje body až pětkrát. Chyba stojí 20 bodů, rada 50.</p></div>
+   <p class="note">Nepiš celé jméno, stačí přezdívka. Žebříček je jen v tomto telefonu.</p>`;
   $('overlay').classList.add('show');
   const inp=$('nick');inp.value=ls.get('zp_name','');
   inp.oninput=()=>{inp.value=inp.value.replace(/[^\p{L}\p{N} ._-]/gu,'');ls.set('zp_name',inp.value.trim()||'Hráč')};
   if(!ls.get('zp_name',''))ls.set('zp_name','Hráč');
+  const lvName=n=>positions((n-1)%LEVELS.length).name;
+  const upd=()=>{if($('lvt'))$('lvt').textContent='Začít od levelu '+startLv+': '+lvName(startLv);$('playsub').textContent=startLv>1?'Level '+startLv+': '+lvName(startLv):''};
+  if($('lvm')){$('lvm').onclick=()=>{startLv=Math.max(1,startLv-1);upd()};$('lvp').onclick=()=>{startLv=Math.min(maxLv,startLv+1);upd()}}
+  upd();
+  $('how').onclick=()=>{$('howbox').hidden=!$('howbox').hidden};
   if(canResume)$('resume').onclick=()=>$('overlay').classList.remove('show');
-  $('play').onclick=()=>{mode='play';level=1;score=0;runId='r'+Date.now();startLevel()};
+  $('play').onclick=()=>{mode='play';level=startLv;score=0;runId='r'+Date.now();startLevel()};
   $('daily').onclick=startDaily;
 }
 $('menu').onclick=()=>showMenu(playing);
