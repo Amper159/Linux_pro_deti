@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14122b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<title>Zvukové páry</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;background:#14122b;color:#eee;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+#app{height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 4px;gap:8px}
+.stat{display:flex;flex-direction:column;line-height:1.1}
+.stat small{font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em}
+.stat b{font-size:24px;font-variant-numeric:tabular-nums}
+#mult{color:#ffd166}
+button{font:inherit;border:0;border-radius:14px;background:#2b2760;color:#eee;padding:10px 14px}
+button:active{transform:scale(.96)}
+#board{position:relative;flex:1;margin-bottom:12px;touch-action:manipulation}
+.card{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:18%;
+ background:linear-gradient(145deg,#3a3580,#262260);box-shadow:0 4px 10px #0007;border:2px solid #4a45a0;
+ transition:transform .2s,opacity .35s,box-shadow .2s,border-color .2s;cursor:pointer}
+.card.sel{border-color:#ffd166;box-shadow:0 0 0 3px #ffd16688,0 6px 14px #000a;z-index:50!important;transform:scale(1.12) rotate(0deg)!important}
+.card.gone{opacity:0;transform:scale(1.5) rotate(0)!important;pointer-events:none}
+.card.bad{animation:shake .35s}
+@keyframes shake{25%{translate:-6px 0}75%{translate:6px 0}}
+.float{position:absolute;pointer-events:none;font-weight:700;color:#ffd166;font-size:22px;animation:up .8s forwards;z-index:99}
+.float.neg{color:#ff7b7b}
+@keyframes up{to{transform:translateY(-50px);opacity:0}}
+#overlay{position:fixed;inset:0;background:#14122bee;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px;z-index:200}
+#overlay.show{display:flex}
+#overlay h1{margin:0;font-size:30px}
+#overlay .big{font-size:64px;font-weight:800;color:#ffd166}
+#overlay p{margin:2px 0;opacity:.85}
+#overlay button{background:#ffd166;color:#14122b;font-weight:700;font-size:18px;padding:14px 30px}
+</style>
+</head>
+<body>
+<div id="app">
+ <header>
+  <div class="stat"><small>Body</small><b id="score">0</b></div>
+  <div class="stat"><small>Série</small><b id="mult">x1</b></div>
+  <div class="stat"><small>Zbývá</small><b id="left">15</b></div>
+  <button id="snd" aria-label="Zvuk">Zvuk</button>
+ </header>
+ <div id="board"></div>
+</div>
+<div id="overlay"></div>
+<script>
+const SYM=['🎸','🎹','🎺','🎻','🥁','🎤','🎧','🎷','🪕','🪗','🎼','🎵','🎶','🔔','📯'];
+const SCALE=[0,2,4,7,9]; // pentatonika
+const noteHz=i=>261.63*Math.pow(2,(SCALE[i%5]+12*Math.floor(i/5))/12);
+const $=id=>document.getElementById(id);
+const board=$('board');
+let cards,sel,score,streak,bestStreak,okPairs,mistakes,lock,muted=false,ac;
+try{muted=localStorage.zp_muted==='1'}catch(e){}
+$('snd').textContent=muted?'Ticho':'Zvuk';
+$('snd').onclick=()=>{muted=!muted;$('snd').textContent=muted?'Ticho':'Zvuk';try{localStorage.zp_muted=muted?'1':'0'}catch(e){}};
+
+function tone(f,dur=.5,type='sine',vol=.18){
+  if(muted)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;
+    o.type=type;o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur);
+  }catch(e){}
+}
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+function layout(){
+  const W=board.clientWidth,H=board.clientHeight,cols=5,rows=6;
+  const cw=W/cols,ch=H/rows,s=Math.min(cw,ch)*1.05;
+  cards.forEach(c=>{
+    const x=Math.min(Math.max(c.cx*cw+cw/2+c.jx*s-s/2,0),W-s);
+    const y=Math.min(Math.max(c.cy*ch+ch/2+c.jy*s-s/2,0),H-s);
+    Object.assign(c.el.style,{width:s+'px',height:s+'px',left:x+'px',top:y+'px',fontSize:s*.55+'px',
+      transform:`rotate(${c.rot}deg)`,zIndex:c.z});
+  });
+}
+function start(){
+  $('overlay').classList.remove('show');
+  board.innerHTML='';
+  score=0;streak=0;bestStreak=0;okPairs=0;mistakes=0;sel=null;lock=false;
+  const slots=[];for(let r=0;r<6;r++)for(let c=0;c<5;c++)slots.push([c,r]);
+  shuffle(slots);
+  const syms=shuffle([...SYM,...SYM]);
+  cards=syms.map((sym,i)=>{
+    const el=document.createElement('div');el.className='card';el.textContent=sym;
+    const c={sym,el,gone:false,cx:slots[i][0],cy:slots[i][1],jx:(Math.random()-.5)*.28,jy:(Math.random()-.5)*.28,
+      rot:(Math.random()-.5)*18,z:i};
+    el.addEventListener('pointerdown',e=>{e.preventDefault();tap(c)});
+    board.appendChild(el);return c;
+  });
+  layout();hud();
+}
+function hud(){
+  $('score').textContent=score;$('mult').textContent='x'+Math.min(streak+1,5);
+  $('left').textContent=cards.filter(c=>!c.gone).length/2;
+}
+function pop(c,txt,neg){
+  const f=document.createElement('div');f.className='float'+(neg?' neg':'');f.textContent=txt;
+  f.style.left=c.el.offsetLeft+c.el.offsetWidth/3+'px';f.style.top=c.el.offsetTop+'px';
+  board.appendChild(f);setTimeout(()=>f.remove(),800);
+}
+function tap(c){
+  if(lock||c.gone||c===sel)return;
+  if(!sel){sel=c;c.el.classList.add('sel');tone(noteHz(SYM.indexOf(c.sym)),.15,'triangle',.08);return}
+  const a=sel;sel=null;a.el.classList.remove('sel');
+  if(a.sym===c.sym){
+    const gain=100*Math.min(streak+1,5);
+    streak++;bestStreak=Math.max(bestStreak,streak);okPairs++;score+=gain;
+    a.gone=c.gone=true;a.el.classList.add('gone');c.el.classList.add('gone');
+    const n=SYM.indexOf(c.sym);tone(noteHz(n),.6);tone(noteHz(n)*2,.4,'sine',.07);
+    pop(c,'+'+gain);hud();
+    if(cards.every(x=>x.gone))setTimeout(end,700);
+  }else{
+    streak=0;mistakes++;
+    if(score>0){score=Math.max(0,score-20);pop(c,'-20',true)}
+    lock=true;[a,c].forEach(x=>x.el.classList.add('bad'));tone(110,.25,'sawtooth',.06);
+    setTimeout(()=>{[a,c].forEach(x=>x.el.classList.remove('bad'));lock=false},350);
+    hud();
+  }
+}
+function end(){
+  const bonus=mistakes===0?500:0;score+=bonus;
+  const acc=Math.round(100*okPairs/(okPairs+mistakes));
+  let best=0;try{best=+localStorage.zp_best||0;if(score>best){best=score;localStorage.zp_best=best}}catch(e){best=Math.max(best,score)}
+  [0,2,4,7,9].forEach((s,i)=>setTimeout(()=>tone(261.63*Math.pow(2,s/12),.5),i*120));
+  $('overlay').innerHTML=`<h1>Hotovo</h1><div class="big">${score}</div>
+   <p>Přesnost: ${acc} %</p><p>Nejdelší série: ${bestStreak}</p>
+   ${bonus?'<p>Bonus za kolo bez chyby: +500</p>':''}<p>Rekord: ${best}</p>
+   <button id="again">Hrát znovu</button>`;
+  $('overlay').classList.add('show');$('again').onclick=start;
+}
+addEventListener('resize',()=>cards&&layout());
+start();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
